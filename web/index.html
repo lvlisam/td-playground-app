@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=390, initial-scale=1" />
+<title>TD Future</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0C0C0F;
+    --surface: #161619;
+    --surface-mid: #1C1C20;
+    --surface-high: #242428;
+    --surface-el: #2E2E34;
+    --border: #2A2A30;
+    --border-faint: #1A1A1F;
+
+    --green: #54B848;
+    --green-mid: #4AAF3E;
+    --green-bright: #A8DBA3;
+    --green-dim: rgba(84,184,72,0.12);
+    --green-glow: rgba(84,184,72,0.28);
+
+    --zydeco: #003F2D;
+    --zydeco-light: #005A40;
+    --zydeco-dim: rgba(0,63,45,0.6);
+
+    --teal: #54B848;
+    --teal-dim: rgba(84,184,72,0.10);
+
+    --coral: #FF6B8A;
+    --coral-dim: rgba(255,107,138,0.12);
+
+    --amber: #FFD060;
+    --amber-dim: rgba(255,208,96,0.12);
+
+    --sky: #40C4FF;
+    --sky-dim: rgba(64,196,255,0.12);
+
+    --violet: #B388FF;
+    --violet-dim: rgba(179,136,255,0.12);
+
+    --red: #FF5252;
+    --red-dim: rgba(255,82,82,0.12);
+
+    --text: #F0F0F8;
+    --text-sec: #8A8A9A;
+    --text-ter: #50505E;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: radial-gradient(ellipse at 20% 0%, rgba(84,184,72,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(0,63,45,0.12) 0%, transparent 60%),
+                #080809;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 20px 60px;
+  }
+
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: var(--bg);
+    border-radius: 50px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+      0 0 0 1px rgba(84,184,72,0.08),
+      0 60px 160px rgba(0,0,0,0.8),
+      0 0 80px rgba(0,63,45,0.15);
+  }
+
+  .screen { display: none; flex-direction: column; height: 844px; overflow: hidden; }
+  .screen.active { display: flex; }
+  .screen-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
+  .screen-scroll::-webkit-scrollbar { display: none; }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 82px;
+    background: rgba(12,12,15,0.94);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center;
+    padding: 0 6px 14px;
+    backdrop-filter: blur(24px);
+    z-index: 100;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; padding: 8px 0; transition: all 0.2s;
+  }
+  .nav-icon-wrap {
+    width: 40px; height: 40px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; color: var(--text-ter); transition: all 0.25s;
+  }
+  .nav-item.active .nav-icon-wrap {
+    background: linear-gradient(135deg, rgba(0,63,45,0.4), rgba(84,184,72,0.15));
+    color: var(--green);
+  }
+  .nav-label { font-size: 10px; font-weight: 500; color: var(--text-ter); transition: all 0.2s; }
+  .nav-item.active .nav-label { color: var(--green); }
+  .nav-send {
+    width: 54px; height: 54px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--zydeco), var(--green));
+    display: flex; align-items: center; justify-content: center;
+    color: #000; font-size: 18px; margin-bottom: 18px;
+    box-shadow: 0 4px 24px rgba(84,184,72,0.35), 0 0 0 1px rgba(84,184,72,0.2);
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .nav-send:active { transform: scale(0.94); }
+
+  /* ── HERO HEADER ── */
+  .hero-header {
+    position: relative; height: 240px; overflow: hidden;
+  }
+  .hero-photo {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.45) saturate(1.1);
+  }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(12,12,15,0.2) 0%,
+      rgba(12,12,15,0.1) 40%,
+      rgba(12,12,15,0.75) 75%,
+      rgba(12,12,15,1) 100%
+    );
+  }
+  .hero-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 20px 20px;
+  }
+  .hero-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .hero-greeting { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .hero-name { font-size: 26px; font-weight: 800; color: #fff; line-height: 1.1; margin-top: 2px; }
+  .hero-right { display: flex; gap: 8px; align-items: center; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; cursor: pointer; position: relative;
+  }
+  .notif-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); border: 1.5px solid var(--bg);
+    position: absolute; top: 3px; right: 3px;
+  }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+    border: 2px solid var(--green); cursor: pointer;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .hero-bottom {}
+  .net-worth-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 4px; letter-spacing: 0.3px; }
+  .net-worth-row { display: flex; align-items: center; gap: 10px; }
+  .net-worth-value {
+    font-size: 34px; font-weight: 900; letter-spacing: -1.5px;
+    background: linear-gradient(90deg, #fff 0%, var(--green-bright) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .pill { padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.2px; }
+  .pill-green { background: rgba(0,230,118,0.18); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+  .pill-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,82,82,0.2); }
+
+  /* ── ACCOUNT CARDS ── */
+  .cards-scroll {
+    display: flex; gap: 12px; padding: 16px 20px 4px;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+  }
+  .cards-scroll::-webkit-scrollbar { display: none; }
+  .account-card {
+    min-width: 300px; height: 166px; border-radius: 26px;
+    padding: 20px; scroll-snap-align: start;
+    display: flex; flex-direction: column; justify-content: space-between;
+    flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .card-1 { background: linear-gradient(135deg, #001A12 0%, #003F2D 50%, #54B848 100%); }
+  .card-2 { background: linear-gradient(135deg, #001810 0%, #003F2D 55%, #2E8B57 100%); }
+  .card-3 { background: linear-gradient(135deg, #001A12 0%, #003F2D 40%, #54B848 100%); }
+  .card-shimmer {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; }
+  .card-name { color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 600; letter-spacing: 0.2px; }
+  .card-num { color: rgba(255,255,255,0.45); font-size: 11px; margin-top: 2px; }
+  .card-balance { color: #fff; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; position: relative; }
+  .card-footer-row { display: flex; align-items: center; justify-content: space-between; position: relative; }
+  .card-chip-tag { display: flex; align-items: center; gap: 4px; }
+  .card-chip-tag span { font-size: 10px; font-weight: 600; }
+
+  /* ── QUICK ACTIONS ── */
+  .section { padding: 20px 20px 0; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .section-title { font-size: 18px; font-weight: 700; }
+  .see-all { color: var(--green); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .quick-actions { display: flex; justify-content: space-between; }
+  .quick-action { display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; }
+  .quick-icon {
+    width: 62px; height: 62px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: transform 0.15s;
+  }
+  .quick-icon:active { transform: scale(0.93); }
+  .qi-send { background: linear-gradient(135deg, #001A12, #003F2D); color: var(--green); }
+  .qi-receive { background: linear-gradient(135deg, #001A12, #005A40); color: var(--green-bright); }
+  .qi-bill { background: linear-gradient(135deg, #003F2D, #54B848); color: #fff; }
+  .qi-more { background: var(--surface-high); color: var(--text-sec); }
+  .quick-label { color: var(--text-sec); font-size: 11px; font-weight: 500; }
+
+  /* ── LIFESTYLE CATEGORIES ── */
+  .category-scroll { display: flex; gap: 10px; padding: 0 20px; overflow-x: auto; }
+  .category-scroll::-webkit-scrollbar { display: none; }
+  .cat-card {
+    min-width: 100px; height: 120px; border-radius: 20px;
+    position: relative; overflow: hidden; flex-shrink: 0;
+    cursor: pointer;
+  }
+  .cat-photo { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6) saturate(1.2); }
+  .cat-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+  }
+  .cat-label {
+    position: absolute; bottom: 10px; left: 10px;
+    font-size: 11px; font-weight: 700; color: #fff; letter-spacing: 0.2px;
+  }
+  .cat-amount {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    border-radius: 8px; padding: 3px 7px;
+    font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.85);
+  }
+
+  /* ── SPEND CARD ── */
+  .card-surface {
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(30,30,36,0.8) 100%);
+    border-radius: 22px; padding: 18px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .spend-row { display: flex; margin-bottom: 16px; }
+  .spend-item { flex: 1; text-align: center; }
+  .spend-label { color: var(--text-sec); font-size: 11px; margin-bottom: 5px; letter-spacing: 0.2px; }
+  .spend-value { font-size: 18px; font-weight: 800; }
+  .spend-sub { color: var(--text-ter); font-size: 10px; margin-top: 3px; }
+  .progress-bg { height: 5px; background: var(--surface-el); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--zydeco), var(--green), var(--green-bright));
+    border-radius: 99px;
+  }
+  .progress-label { color: var(--text-ter); font-size: 11px; }
+
+  /* ── LIFESTYLE PROMO CARD ── */
+  .promo-card {
+    position: relative; height: 150px; border-radius: 22px;
+    overflow: hidden;
+  }
+  .promo-photo { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5) saturate(1.3); }
+  .promo-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 100%);
+  }
+  .promo-content { position: absolute; inset: 0; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; }
+  .promo-badge { background: var(--amber); color: #000; font-size: 10px; font-weight: 700; border-radius: 6px; padding: 3px 8px; align-self: flex-start; letter-spacing: 0.5px; }
+  .promo-title { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2; }
+  .promo-sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .promo-btn { background: #54B848; color: #003F2D; font-size: 12px; font-weight: 800; border-radius: 20px; padding: 7px 16px; align-self: flex-start; }
+
+  /* ── TRANSACTIONS ── */
+  .txn-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
+  .txn-icon {
+    width: 46px; height: 46px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0; overflow: hidden;
+  }
+  .txn-icon img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85) saturate(1.2); }
+  .txn-info { flex: 1; }
+  .txn-merchant { font-size: 15px; font-weight: 600; }
+  .txn-cat { color: var(--text-sec); font-size: 12px; margin-top: 2px; }
+  .txn-right { text-align: right; }
+  .txn-amount { font-size: 15px; font-weight: 700; }
+  .txn-date { color: var(--text-ter); font-size: 11px; margin-top: 2px; }
+  .divider { height: 1px; background: rgba(255,255,255,0.04); }
+
+  /* ── INSIGHT ── */
+  .insight-card {
+    display: flex; align-items: flex-start; gap: 14px; padding: 18px;
+    border-radius: 22px; overflow: hidden; position: relative;
+    border: 1px solid rgba(0,230,118,0.15);
+  }
+  .insight-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,230,118,0.08) 0%, rgba(29,233,182,0.04) 100%);
+  }
+  .insight-title { color: var(--green); font-size: 12px; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.3px; position: relative; }
+  .insight-body { color: var(--text-sec); font-size: 13px; line-height: 1.55; position: relative; }
+
+  /* ── TRANSACTIONS SCREEN ── */
+  .screen-header-plain { padding: 52px 20px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .screen-title { font-size: 24px; font-weight: 800; }
+  .search-wrap {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); margin: 0 20px 14px;
+    border-radius: 16px; padding: 12px 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .search-input { background: none; border: none; outline: none; color: var(--text); font-size: 15px; font-family: inherit; flex: 1; }
+  .chips-row { display: flex; gap: 8px; padding: 0 20px 16px; }
+  .chip {
+    padding: 7px 15px; border-radius: 99px; font-size: 12px; font-weight: 600;
+    cursor: pointer; background: var(--surface); border: 1px solid rgba(255,255,255,0.06);
+    color: var(--text-sec); white-space: nowrap; transition: all 0.2s;
+  }
+  .chip.active { background: var(--green-dim); border-color: rgba(0,230,118,0.3); color: var(--green); }
+  .txn-section-date { font-size: 12px; font-weight: 600; color: var(--text-sec); padding: 8px 20px 6px; letter-spacing: 0.3px; }
+  .txn-section-total { color: var(--text-ter); font-size: 12px; }
+  .txn-section-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px 6px; }
+  .txn-card { background: var(--surface); border-radius: 20px; margin: 0 20px 10px; border: 1px solid rgba(255,255,255,0.04); padding: 0 16px; }
+
+  /* ── SEND SCREEN ── */
+  .send-hero {
+    position: relative; height: 180px; overflow: hidden;
+  }
+  .send-hero-photo { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) saturate(1.1); }
+  .send-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(12,12,15,0.3), rgba(12,12,15,0.9));
+  }
+  .send-hero-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 52px 20px 20px; }
+  .send-hero-title { font-size: 24px; font-weight: 800; }
+  .tab-bar {
+    display: flex; background: var(--surface); border-radius: 16px; padding: 4px;
+    margin: 16px 20px; border: 1px solid rgba(255,255,255,0.05);
+  }
+  .tab { flex: 1; text-align: center; padding: 9px; border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--text-sec); cursor: pointer; transition: all 0.2s; }
+  .tab.active { background: linear-gradient(135deg, var(--surface-high), var(--surface-el)); color: var(--text); }
+  .amount-section { display: flex; flex-direction: column; align-items: center; padding: 8px 20px 20px; }
+  .amount-label { color: var(--text-sec); font-size: 13px; margin-bottom: 10px; }
+  .amount-display { display: flex; align-items: flex-start; }
+  .amount-dollar { color: var(--text-sec); font-size: 24px; margin-top: 10px; margin-right: 4px; }
+  .amount-value {
+    font-size: 62px; font-weight: 900; letter-spacing: -3px;
+    background: linear-gradient(90deg, var(--text) 0%, var(--green-bright) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .contacts-scroll { display: flex; gap: 14px; padding: 0 20px; overflow-x: auto; }
+  .contacts-scroll::-webkit-scrollbar { display: none; }
+  .contact { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 66px; cursor: pointer; }
+  .contact-avatar {
+    width: 58px; height: 58px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 800; border: 2px solid transparent;
+    transition: all 0.2s; overflow: hidden;
+  }
+  .contact-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .contact-avatar.selected { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-glow); }
+  .contact-name { color: var(--text-sec); font-size: 11px; font-weight: 500; text-align: center; }
+  .contact-recent { color: var(--text-ter); font-size: 10px; text-align: center; }
+  .add-contact-circle {
+    width: 58px; height: 58px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-dim), var(--teal-dim));
+    border: 1.5px solid rgba(0,230,118,0.3);
+    display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 22px;
+  }
+  .method-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border-radius: 18px; padding: 14px;
+    border: 1.5px solid rgba(255,255,255,0.05); cursor: pointer; transition: border-color 0.2s;
+  }
+  .method-row.selected { border-color: rgba(0,230,118,0.35); background: linear-gradient(135deg, rgba(0,230,118,0.05), rgba(29,233,182,0.03)); }
+  .method-icon { width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .method-icon-green { background: linear-gradient(135deg, #001A12, #003F2D); color: var(--green); }
+  .method-icon-gray { background: var(--surface-high); color: var(--text-sec); }
+  .method-label { font-size: 15px; font-weight: 600; }
+  .method-desc { color: var(--text-sec); font-size: 12px; margin-top: 2px; }
+  .radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .radio.selected { border-color: var(--green); }
+  .radio-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--green); }
+  .numpad { display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px 20px; }
+  .num-key { display: flex; align-items: center; justify-content: center; height: 58px; font-size: 24px; font-weight: 500; cursor: pointer; border-radius: 14px; transition: background 0.1s; }
+  .num-key:active { background: var(--surface); }
+  .send-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(90deg, var(--zydeco), var(--green));
+    border-radius: 99px; padding: 17px; margin: 8px 20px 20px;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 8px 32px rgba(84,184,72,0.25);
+  }
+  .send-btn.disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+  .send-btn-text { color: #000; font-size: 17px; font-weight: 800; }
+  .note-input { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 14px; color: var(--text); font-size: 15px; font-family: inherit; width: 100%; outline: none; }
+
+  /* ── CARDS SCREEN ── */
+  .virtual-card { height: 210px; border-radius: 28px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; margin: 14px 20px 0; }
+  .vc-shimmer { position: absolute; inset: 0; background: radial-gradient(ellipse at 75% 15%, rgba(255,255,255,0.10) 0%, transparent 55%), radial-gradient(ellipse at 10% 90%, rgba(255,255,255,0.04) 0%, transparent 40%); pointer-events: none; }
+  .vc-number { color: rgba(255,255,255,0.85); font-size: 16px; letter-spacing: 3px; font-weight: 500; }
+  .vc-footer { display: flex; align-items: flex-end; gap: 24px; }
+  .vc-footer-label { color: rgba(255,255,255,0.45); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; }
+  .vc-footer-value { color: #fff; font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .visa-text { color: rgba(255,255,255,0.85); font-size: 24px; font-weight: 900; font-style: italic; letter-spacing: -1px; margin-left: auto; }
+  .frozen-overlay { position: absolute; inset: 0; background: rgba(0,80,200,0.18); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-radius: 28px; backdrop-filter: blur(2px); }
+  .frozen-text { color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+  .card-actions { display: flex; justify-content: space-between; padding: 16px 20px; }
+  .card-action { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .card-action-icon { width: 50px; height: 50px; border-radius: 16px; background: var(--surface); border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 18px; }
+  .card-action-label { color: var(--text-sec); font-size: 11px; font-weight: 500; }
+  .section-title-plain { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+  .card-surface2 { background: var(--surface); border-radius: 22px; padding: 0 16px; border: 1px solid rgba(255,255,255,0.05); }
+  .toggle-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; }
+  .trow-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .trow-info { flex: 1; }
+  .trow-label { font-size: 15px; font-weight: 600; }
+  .trow-desc { color: var(--text-sec); font-size: 12px; margin-top: 2px; }
+  .toggle { width: 50px; height: 30px; border-radius: 15px; background: var(--surface-el); position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+  .toggle.on { background: linear-gradient(90deg, var(--zydeco), var(--green)); }
+  .toggle-thumb { width: 24px; height: 24px; border-radius: 50%; background: #666; position: absolute; top: 3px; left: 3px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+  .toggle.on .toggle-thumb { left: 23px; background: #fff; }
+  .nav-row2 { display: flex; align-items: center; gap: 14px; padding: 14px 0; cursor: pointer; }
+  .nav-value2 { color: var(--text-sec); font-size: 13px; font-weight: 500; }
+  .report-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--red-dim); border-radius: 20px; padding: 17px; border: 1px solid rgba(255,82,82,0.2); cursor: pointer; margin: 0 20px 24px; }
+  .report-btn-text { color: var(--red); font-size: 15px; font-weight: 700; }
+
+  /* Gradient text util */
+  .grad-green { background: linear-gradient(90deg, var(--green), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .text-green { color: var(--green); }
+  .text-amber { color: var(--amber); }
+  .text-sky { color: var(--sky); }
+  .text-violet { color: var(--violet); }
+  .text-coral { color: var(--coral); }
+  .text-sec { color: var(--text-sec); }
+  .text-red { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ══════════════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════════════ -->
+  <div class="screen active" id="screen-home">
+    <div class="screen-scroll">
+
+      <!-- Hero Header with lifestyle photo -->
+      <div class="hero-header">
+        <img class="hero-photo" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80" alt="" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-top">
+            <div>
+              <div class="hero-greeting">Good morning,</div>
+              <div class="hero-name">Lisa</div>
+            </div>
+            <div class="hero-right">
+              <div class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></div>
+              <div class="icon-btn"><span class="notif-dot"></span><i class="fa-regular fa-bell"></i></div>
+              <div class="avatar"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Lisa" /></div>
+            </div>
+          </div>
+          <div class="hero-bottom">
+            <div class="net-worth-label">TOTAL NET WORTH</div>
+            <div class="net-worth-row">
+              <div class="net-worth-value">$124,831.35</div>
+              <span class="pill pill-green">+2.4%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Cards -->
+      <div class="cards-scroll">
+        <div class="account-card card-1">
+          <div class="card-shimmer"></div>
+          <div class="card-top">
+            <div><div class="card-name">Everyday Chequing</div><div class="card-num">••4821</div></div>
+            <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.35);font-size:12px;"></i>
+          </div>
+          <div class="card-balance">$12,480.55</div>
+          <div class="card-footer-row">
+            <div class="card-chip-tag">
+              <i class="fa-solid fa-shield-halved" style="color:var(--green);font-size:11px;"></i>
+              <span style="color:var(--green);font-size:10px;font-weight:600;">CDIC Protected</span>
+            </div>
+          </div>
+        </div>
+        <div class="account-card card-2">
+          <div class="card-shimmer"></div>
+          <div class="card-top">
+            <div><div class="card-name">TD Savings</div><div class="card-num">••9034</div></div>
+            <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.35);font-size:12px;"></i>
+          </div>
+          <div class="card-balance">$38,200.00</div>
+          <div class="card-footer-row">
+            <span style="color:rgba(255,255,255,0.4);font-size:10px;">2.75% interest rate</span>
+          </div>
+        </div>
+        <div class="account-card card-3">
+          <div class="card-shimmer"></div>
+          <div class="card-top">
+            <div><div class="card-name">TFSA</div><div class="card-num">••2210</div></div>
+            <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.35);font-size:12px;"></i>
+          </div>
+          <div class="card-balance">$74,150.80</div>
+          <div class="card-footer-row">
+            <span style="color:rgba(255,255,255,0.4);font-size:10px;">$7,000 room remaining</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section" style="margin-top:20px;">
+        <div class="quick-actions">
+          <div class="quick-action">
+            <div class="quick-icon qi-send"><i class="fa-solid fa-arrow-up"></i></div>
+            <div class="quick-label">Send</div>
+          </div>
+          <div class="quick-action">
+            <div class="quick-icon qi-receive"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="quick-label">Receive</div>
+          </div>
+          <div class="quick-action">
+            <div class="quick-icon qi-bill"><i class="fa-regular fa-file-lines"></i></div>
+            <div class="quick-label">Pay Bill</div>
+          </div>
+          <div class="quick-action">
+            <div class="quick-icon qi-more"><i class="fa-solid fa-ellipsis"></i></div>
+            <div class="quick-label">More</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifestyle Spending Categories -->
+      <div class="section" style="margin-top:22px;">
+        <div class="section-header">
+          <div class="section-title">Spending</div>
+          <div class="see-all">May ↓</div>
+        </div>
+      </div>
+      <div class="category-scroll">
+        <div class="cat-card">
+          <img class="cat-photo" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&q=80" alt="Dining" />
+          <div class="cat-overlay"></div>
+          <div class="cat-label">Dining</div>
+          <div class="cat-amount">$342</div>
+        </div>
+        <div class="cat-card">
+          <img class="cat-photo" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=300&q=80" alt="Shopping" />
+          <div class="cat-overlay"></div>
+          <div class="cat-label">Shopping</div>
+          <div class="cat-amount">$520</div>
+        </div>
+        <div class="cat-card">
+          <img class="cat-photo" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=300&q=80" alt="Travel" />
+          <div class="cat-overlay"></div>
+          <div class="cat-label">Travel</div>
+          <div class="cat-amount">$890</div>
+        </div>
+        <div class="cat-card">
+          <img class="cat-photo" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&q=80" alt="Health" />
+          <div class="cat-overlay"></div>
+          <div class="cat-label">Health</div>
+          <div class="cat-amount">$150</div>
+        </div>
+        <div class="cat-card">
+          <img class="cat-photo" src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&q=80" alt="Entertainment" />
+          <div class="cat-overlay"></div>
+          <div class="cat-label">Entertainment</div>
+          <div class="cat-amount">$238</div>
+        </div>
+      </div>
+
+      <!-- May Spending Progress -->
+      <div class="section" style="margin-top:20px;">
+        <div class="card-surface">
+          <div class="spend-row">
+            <div class="spend-item">
+              <div class="spend-label">Spent</div>
+              <div class="spend-value">$2,140</div>
+              <div class="spend-sub">of $3,000</div>
+            </div>
+            <div class="spend-item">
+              <div class="spend-label">Income</div>
+              <div class="spend-value grad-green">$6,400</div>
+              <div class="spend-sub">+12% vs Apr</div>
+            </div>
+            <div class="spend-item">
+              <div class="spend-label">Saved</div>
+              <div class="spend-value" style="color:var(--sky);">$860</div>
+              <div class="spend-sub">this month</div>
+            </div>
+          </div>
+          <div class="progress-bg"><div class="progress-fill" style="width:71%"></div></div>
+          <div class="progress-label">71% of monthly budget · 9 days left</div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions with lifestyle icons -->
+      <div class="section" style="margin-top:20px;">
+        <div class="section-header">
+          <div class="section-title">Recent</div>
+          <div class="see-all">See all</div>
+        </div>
+        <div class="card-surface" style="padding:0 16px;">
+          <div class="txn-row">
+            <div class="txn-icon"><img src="https://images.unsplash.com/photo-1588516903720-8ceb67f96d9c?w=100&q=80" alt="Apple" style="border-radius:14px;" /></div>
+            <div class="txn-info"><div class="txn-merchant">Apple Store</div><div class="txn-cat">Electronics</div></div>
+            <div class="txn-right"><div class="txn-amount">-$129.00</div><div class="txn-date">Today</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="txn-row">
+            <div class="txn-icon" style="background:var(--green-dim);"><i class="fa-solid fa-briefcase" style="color:var(--green);"></i></div>
+            <div class="txn-info"><div class="txn-merchant">Payroll Deposit</div><div class="txn-cat">Income</div></div>
+            <div class="txn-right"><div class="txn-amount grad-green">+$3,200.00</div><div class="txn-date">Yesterday</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="txn-row">
+            <div class="txn-icon"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=100&q=80" alt="Coffee" style="border-radius:14px;" /></div>
+            <div class="txn-info"><div class="txn-merchant">Tim Hortons</div><div class="txn-cat">Food & Drink</div></div>
+            <div class="txn-right"><div class="txn-amount">-$6.75</div><div class="txn-date">Yesterday</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="txn-row">
+            <div class="txn-icon"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&q=80" alt="Whole Foods" style="border-radius:14px;" /></div>
+            <div class="txn-info"><div class="txn-merchant">Whole Foods</div><div class="txn-cat">Groceries</div></div>
+            <div class="txn-right"><div class="txn-amount">-$87.43</div><div class="txn-date">May 20</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifestyle Promo Card -->
+      <div class="section" style="margin-top:20px;">
+        <div class="promo-card">
+          <img class="promo-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80" alt="Rewards" />
+          <div class="promo-overlay"></div>
+          <div class="promo-content">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div class="promo-badge">NEW OFFER</div>
+            </div>
+            <div>
+              <div class="promo-title">Earn 5x points<br>on dining this June</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                <div class="promo-sub">TD Rewards · Ends Jun 30</div>
+                <div class="promo-btn">Activate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TD Insight -->
+      <div class="section" style="padding-bottom:24px;margin-top:20px;">
+        <div class="insight-card">
+          <div class="insight-bg"></div>
+          <i class="fa-regular fa-lightbulb" style="color:var(--green);font-size:22px;margin-top:2px;position:relative;"></i>
+          <div>
+            <div class="insight-title">TD INSIGHT</div>
+            <div class="insight-body">You spent 18% less on dining this month. Keep it up — you're on track to hit your $10,000 savings goal by August.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TRANSACTIONS
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="screen-activity">
+    <div class="screen-header-plain">
+      <div class="screen-title">Transactions</div>
+      <div style="color:var(--green);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-sliders"></i> Filter</div>
+    </div>
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass" style="color:var(--text-ter);"></i>
+      <input class="search-input" placeholder="Search transactions..." />
+    </div>
+    <div class="chips-row">
+      <div class="chip active">All</div>
+      <div class="chip">Income</div>
+      <div class="chip">Expenses</div>
+      <div class="chip">Transfers</div>
+    </div>
+    <div class="screen-scroll">
+      <div class="txn-section-row"><div class="txn-section-date">Today, May 22</div><div class="txn-section-total">-$135.75</div></div>
+      <div class="txn-card">
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1588516903720-8ceb67f96d9c?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">Apple Store</div><div class="txn-cat">Electronics</div></div>
+          <div class="txn-right"><div class="txn-amount">-$129.00</div><div class="txn-date">10:42 AM</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">Tim Hortons</div><div class="txn-cat">Food & Drink</div></div>
+          <div class="txn-right"><div class="txn-amount">-$6.75</div><div class="txn-date">8:14 AM</div></div>
+        </div>
+      </div>
+      <div class="txn-section-row"><div class="txn-section-date">Yesterday, May 21</div><div class="txn-section-total text-green">+$3,180.01</div></div>
+      <div class="txn-card">
+        <div class="txn-row">
+          <div class="txn-icon" style="background:var(--green-dim);"><i class="fa-solid fa-briefcase" style="color:var(--green);font-size:18px;"></i></div>
+          <div class="txn-info"><div class="txn-merchant">Payroll Deposit</div><div class="txn-cat">Income</div></div>
+          <div class="txn-right"><div class="txn-amount grad-green">+$3,200.00</div><div class="txn-date">6:00 AM</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">Netflix</div><div class="txn-cat">Entertainment</div></div>
+          <div class="txn-right"><div class="txn-amount">-$19.99</div><div class="txn-date">12:00 AM</div></div>
+        </div>
+      </div>
+      <div class="txn-section-row"><div class="txn-section-date">May 20</div><div class="txn-section-total">-$166.62</div></div>
+      <div class="txn-card">
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">Whole Foods</div><div class="txn-cat">Groceries</div></div>
+          <div class="txn-right"><div class="txn-amount">-$87.43</div><div class="txn-date">5:31 PM</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="txn-row">
+          <div class="txn-icon" style="background:var(--sky-dim);"><i class="fa-solid fa-car" style="color:var(--sky);font-size:18px;"></i></div>
+          <div class="txn-info"><div class="txn-merchant">Uber</div><div class="txn-cat">Transport</div></div>
+          <div class="txn-right"><div class="txn-amount">-$14.20</div><div class="txn-date">2:10 PM</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">Amazon</div><div class="txn-cat">Shopping</div></div>
+          <div class="txn-right"><div class="txn-amount">-$64.99</div><div class="txn-date">10:05 AM</div></div>
+        </div>
+      </div>
+      <div class="txn-section-row"><div class="txn-section-date">May 19</div><div class="txn-section-total">-$88.49</div></div>
+      <div class="txn-card" style="margin-bottom:0;">
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">GoodLife Fitness</div><div class="txn-cat">Health</div></div>
+          <div class="txn-right"><div class="txn-amount">-$49.99</div><div class="txn-date">9:00 AM</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="txn-row">
+          <div class="txn-icon" style="background:var(--green-dim);"><i class="fa-solid fa-arrow-right-arrow-left" style="color:var(--green);font-size:16px;"></i></div>
+          <div class="txn-info"><div class="txn-merchant">e-Transfer Received</div><div class="txn-cat">Transfer</div></div>
+          <div class="txn-right"><div class="txn-amount grad-green">+$250.00</div><div class="txn-date">8:22 AM</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="txn-row">
+          <div class="txn-icon"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=100&q=80" alt="" style="border-radius:14px;" /></div>
+          <div class="txn-info"><div class="txn-merchant">Terroni Restaurant</div><div class="txn-cat">Dining</div></div>
+          <div class="txn-right"><div class="txn-amount">-$88.50</div><div class="txn-date">7:30 PM</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SEND & PAY
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="screen-send">
+    <div class="send-hero">
+      <img class="send-hero-photo" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="" />
+      <div class="send-hero-overlay"></div>
+      <div class="send-hero-content">
+        <div class="send-hero-title">Send & Pay</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="selectTab(this)">Send</div>
+      <div class="tab" onclick="selectTab(this)">Request</div>
+      <div class="tab" onclick="selectTab(this)">Pay Bill</div>
+    </div>
+    <div class="screen-scroll" style="padding-bottom:100px;">
+      <div class="amount-section">
+        <div class="amount-label">Amount (CAD)</div>
+        <div class="amount-display">
+          <div class="amount-dollar">$</div>
+          <div class="amount-value" id="amount-display">0</div>
+        </div>
+        <div style="color:var(--text-sec);font-size:13px;margin-top:5px;min-height:20px;" id="amount-to"></div>
+      </div>
+      <div class="section" style="margin-bottom:18px;">
+        <div class="section-header"><div class="section-title" style="font-size:17px;">Recent</div><div class="see-all">All Contacts</div></div>
+        <div class="contacts-scroll">
+          <div class="contact" onclick="selectContact(this,'New')">
+            <div class="add-contact-circle"><i class="fa-solid fa-plus"></i></div>
+            <div class="contact-name">New</div>
+          </div>
+          <div class="contact" onclick="selectContact(this,'Sarah M.')">
+            <div class="contact-avatar" style="background:var(--violet-dim);">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" alt="Sarah" />
+            </div>
+            <div class="contact-name">Sarah M.</div>
+            <div class="contact-recent">$120.00</div>
+          </div>
+          <div class="contact" onclick="selectContact(this,'Jake P.')">
+            <div class="contact-avatar" style="background:var(--sky-dim);">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Jake" />
+            </div>
+            <div class="contact-name">Jake P.</div>
+            <div class="contact-recent">$45.50</div>
+          </div>
+          <div class="contact" onclick="selectContact(this,'Mum')">
+            <div class="contact-avatar" style="background:var(--green-dim);">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt="Mum" />
+            </div>
+            <div class="contact-name">Mum</div>
+            <div class="contact-recent">$200.00</div>
+          </div>
+          <div class="contact" onclick="selectContact(this,'Tom R.')">
+            <div class="contact-avatar" style="background:var(--amber-dim);">
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80" alt="Tom" />
+            </div>
+            <div class="contact-name">Tom R.</div>
+            <div class="contact-recent">$75.00</div>
+          </div>
+        </div>
+      </div>
+      <div class="section" style="margin-bottom:16px;">
+        <div style="font-size:17px;font-weight:700;margin-bottom:12px;">Method</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="method-row selected" onclick="selectMethod(this)">
+            <div class="method-icon method-icon-green"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            <div><div class="method-label">Interac e-Transfer</div><div class="method-desc">Free · Instant</div></div>
+            <div class="radio selected" style="margin-left:auto;"><div class="radio-dot"></div></div>
+          </div>
+          <div class="method-row" onclick="selectMethod(this)">
+            <div class="method-icon method-icon-gray"><i class="fa-solid fa-code-branch"></i></div>
+            <div><div class="method-label">Wire Transfer</div><div class="method-desc">$5.00 · 1–2 business days</div></div>
+            <div class="radio" style="margin-left:auto;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section" style="margin-bottom:10px;">
+        <div style="font-size:17px;font-weight:700;margin-bottom:12px;">Note</div>
+        <input class="note-input" placeholder="What's this for?" />
+      </div>
+      <div class="numpad">
+        <div class="num-key" onclick="numpad('1')">1</div><div class="num-key" onclick="numpad('2')">2</div><div class="num-key" onclick="numpad('3')">3</div>
+        <div class="num-key" onclick="numpad('4')">4</div><div class="num-key" onclick="numpad('5')">5</div><div class="num-key" onclick="numpad('6')">6</div>
+        <div class="num-key" onclick="numpad('7')">7</div><div class="num-key" onclick="numpad('8')">8</div><div class="num-key" onclick="numpad('9')">9</div>
+        <div class="num-key" onclick="numpad('.')">.</div><div class="num-key" onclick="numpad('0')">0</div>
+        <div class="num-key" onclick="numpad('⌫')"><i class="fa-solid fa-delete-left"></i></div>
+      </div>
+      <div id="send-btn" class="send-btn disabled">
+        <i class="fa-solid fa-paper-plane" style="color:#000;"></i>
+        <div class="send-btn-text">Send</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       CARDS
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="screen-cards">
+    <div class="screen-scroll">
+      <div style="padding:52px 20px 6px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:24px;font-weight:800;">Cards</div>
+        <div style="color:var(--green);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-plus"></i> Add Card</div>
+      </div>
+
+      <div class="virtual-card card-1" id="virtual-card">
+        <div class="vc-shimmer"></div>
+        <div class="card-top">
+          <div>
+            <div style="color:#fff;font-size:15px;font-weight:800;letter-spacing:0.5px;">TD Future</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px;">Everyday Chequing</div>
+          </div>
+          <i class="fa-solid fa-wifi" style="color:rgba(255,255,255,0.6);font-size:20px;" id="card-wifi-icon"></i>
+        </div>
+        <div style="width:40px;height:30px;border-radius:6px;background:rgba(255,255,255,0.18);"></div>
+        <div class="vc-number">••••  ••••  ••••  4821</div>
+        <div class="vc-footer">
+          <div><div class="vc-footer-label">Cardholder</div><div class="vc-footer-value">LISA MUMFORD</div></div>
+          <div><div class="vc-footer-label">Expires</div><div class="vc-footer-value">09/29</div></div>
+          <div class="visa-text">VISA</div>
+        </div>
+        <div class="frozen-overlay" id="frozen-overlay" style="display:none;">
+          <i class="fa-solid fa-snowflake" style="color:rgba(200,230,255,0.5);font-size:34px;"></i>
+          <div class="frozen-text">CARD FROZEN</div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <div class="card-action"><div class="card-action-icon"><i class="fa-regular fa-eye"></i></div><div class="card-action-label">Details</div></div>
+        <div class="card-action"><div class="card-action-icon"><i class="fa-regular fa-copy"></i></div><div class="card-action-label">Copy #</div></div>
+        <div class="card-action"><div class="card-action-icon"><i class="fa-brands fa-apple"></i></div><div class="card-action-label">Apple Pay</div></div>
+        <div class="card-action"><div class="card-action-icon"><i class="fa-solid fa-ellipsis"></i></div><div class="card-action-label">More</div></div>
+      </div>
+
+      <!-- Lifestyle photo strip for rewards -->
+      <div class="section" style="margin-bottom:20px;">
+        <div class="promo-card" style="height:130px;">
+          <img class="promo-photo" src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80" alt="Travel Rewards" />
+          <div class="promo-overlay"></div>
+          <div class="promo-content">
+            <div class="promo-badge" style="background:#54B848;color:#003F2D;">TD REWARDS</div>
+            <div>
+              <div class="promo-title" style="font-size:16px;">42,800 points · $214 value</div>
+              <div class="promo-sub">Redeem for travel, cash back, or merchandise</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-bottom:16px;">
+        <div class="section-title-plain">Card Controls</div>
+        <div class="card-surface2">
+          <div class="toggle-row">
+            <div class="trow-icon" id="freeze-icon" style="background:var(--surface-high);color:var(--text-sec);"><i class="fa-solid fa-snowflake"></i></div>
+            <div class="trow-info"><div class="trow-label">Freeze Card</div><div class="trow-desc" id="freeze-desc">Temporarily lock your card</div></div>
+            <div class="toggle" id="freeze-toggle" onclick="toggleFreeze()"><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="toggle-row">
+            <div class="trow-icon" style="background:linear-gradient(135deg,#001A12,#003F2D);color:var(--green);"><i class="fa-solid fa-wifi"></i></div>
+            <div class="trow-info"><div class="trow-label">Contactless</div><div class="trow-desc">Tap to pay at terminals</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="toggle-row">
+            <div class="trow-icon" style="background:var(--sky-dim);color:var(--sky);"><i class="fa-solid fa-globe"></i></div>
+            <div class="trow-info"><div class="trow-label">Online Payments</div><div class="trow-desc">Use card for e-commerce</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-bottom:16px;">
+        <div class="section-title-plain">Limits</div>
+        <div class="card-surface2">
+          <div class="nav-row2">
+            <div class="trow-icon" style="background:var(--violet-dim);color:var(--violet);"><i class="fa-solid fa-chart-bar"></i></div>
+            <div style="flex:1;font-size:15px;font-weight:600;">Daily Spend Limit</div><div class="nav-value2">$5,000</div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--text-ter);font-size:12px;margin-left:8px;"></i>
+          </div>
+          <div class="divider"></div>
+          <div class="nav-row2">
+            <div class="trow-icon" style="background:var(--amber-dim);color:var(--amber);"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div style="flex:1;font-size:15px;font-weight:600;">ATM Withdrawal</div><div class="nav-value2">$1,000</div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--text-ter);font-size:12px;margin-left:8px;"></i>
+          </div>
+          <div class="divider"></div>
+          <div class="nav-row2">
+            <div class="trow-icon" style="background:var(--sky-dim);color:var(--sky);"><i class="fa-solid fa-earth-americas"></i></div>
+            <div style="flex:1;font-size:15px;font-weight:600;">International</div><div class="nav-value2 text-green">On</div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--text-ter);font-size:12px;margin-left:8px;"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-bottom:20px;">
+        <div class="section-title-plain">Security</div>
+        <div class="card-surface2">
+          <div class="toggle-row">
+            <div class="trow-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-fingerprint"></i></div>
+            <div class="trow-info"><div class="trow-label">Face ID / Touch ID</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="nav-row2">
+            <div class="trow-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-key"></i></div>
+            <div style="flex:1;font-size:15px;font-weight:600;">Change PIN</div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--text-ter);font-size:12px;"></i>
+          </div>
+          <div class="divider"></div>
+          <div class="nav-row2">
+            <div class="trow-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-shield-halved"></i></div>
+            <div style="flex:1;font-size:15px;font-weight:600;">Two-Factor Auth</div><div class="nav-value2 text-green">On</div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--text-ter);font-size:12px;margin-left:8px;"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-btn">
+        <i class="fa-solid fa-circle-exclamation" style="color:var(--red);font-size:18px;"></i>
+        <div class="report-btn-text">Report Lost or Stolen Card</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="nav-item active" id="nav-home" onclick="switchScreen('home')">
+      <div class="nav-icon-wrap"><i class="fa-solid fa-house-chimney"></i></div>
+      <div class="nav-label">Home</div>
+    </div>
+    <div class="nav-item" id="nav-activity" onclick="switchScreen('activity')">
+      <div class="nav-icon-wrap"><i class="fa-solid fa-list-ul"></i></div>
+      <div class="nav-label">Activity</div>
+    </div>
+    <div class="nav-send" onclick="switchScreen('send')"><i class="fa-solid fa-paper-plane"></i></div>
+    <div class="nav-item" id="nav-cards" onclick="switchScreen('cards')">
+      <div class="nav-icon-wrap"><i class="fa-regular fa-credit-card"></i></div>
+      <div class="nav-label">Cards</div>
+    </div>
+    <div class="nav-item" id="nav-profile">
+      <div class="nav-icon-wrap"><i class="fa-regular fa-user"></i></div>
+      <div class="nav-label">Profile</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const s = document.getElementById('screen-' + id);
+    if (s) s.classList.add('active');
+    const n = document.getElementById('nav-' + id);
+    if (n) n.classList.add('active');
+  }
+  function selectTab(el) {
+    el.closest('.tab-bar').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  let amountStr = '', selectedContact = null;
+  function numpad(key) {
+    if (key === '⌫') amountStr = amountStr.slice(0, -1);
+    else if (key === '.' && amountStr.includes('.')) return;
+    else if ((amountStr.split('.')[1] || '').length >= 2) return;
+    else amountStr = (amountStr === '' && key === '.') ? '0.' : amountStr + key;
+    document.getElementById('amount-display').textContent = amountStr || '0';
+    updateSendBtn();
+  }
+  function selectContact(el, name) {
+    document.querySelectorAll('.contact-avatar').forEach(a => a.classList.remove('selected'));
+    const av = el.querySelector('.contact-avatar');
+    if (av) { av.classList.add('selected'); selectedContact = name; }
+    document.getElementById('amount-to').textContent = selectedContact ? 'to ' + selectedContact : '';
+    updateSendBtn();
+  }
+  function updateSendBtn() {
+    const btn = document.getElementById('send-btn');
+    const val = parseFloat(amountStr) || 0;
+    const ok = selectedContact && val > 0;
+    btn.classList.toggle('disabled', !ok);
+    btn.querySelector('.send-btn-text').textContent = ok ? 'Send $' + val.toFixed(2) : 'Send';
+  }
+  function selectMethod(el) {
+    document.querySelectorAll('.method-row').forEach(r => {
+      r.classList.remove('selected');
+      const radio = r.querySelector('.radio');
+      radio.classList.remove('selected');
+      const dot = radio.querySelector('.radio-dot');
+      if (dot) dot.remove();
+      const icon = r.querySelector('.method-icon');
+      icon.className = 'method-icon method-icon-gray';
+    });
+    el.classList.add('selected');
+    const radio = el.querySelector('.radio');
+    radio.classList.add('selected');
+    const dot = document.createElement('div');
+    dot.className = 'radio-dot';
+    radio.appendChild(dot);
+    el.querySelector('.method-icon').className = 'method-icon method-icon-green';
+  }
+  function toggleFreeze() {
+    const t = document.getElementById('freeze-toggle');
+    const icon = document.getElementById('freeze-icon');
+    const desc = document.getElementById('freeze-desc');
+    const overlay = document.getElementById('frozen-overlay');
+    const wifi = document.getElementById('card-wifi-icon');
+    t.classList.toggle('on');
+    const frozen = t.classList.contains('on');
+    icon.style.background = frozen ? 'var(--sky-dim)' : 'var(--surface-high)';
+    icon.style.color = frozen ? 'var(--sky)' : 'var(--text-sec)';
+    desc.textContent = frozen ? 'Card is frozen — no transactions allowed' : 'Temporarily lock your card';
+    overlay.style.display = frozen ? 'flex' : 'none';
+    wifi.className = frozen ? 'fa-solid fa-snowflake' : 'fa-solid fa-wifi';
+  }
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      c.closest('.chips-row').querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
