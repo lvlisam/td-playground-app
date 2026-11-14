@@ -9,14 +9,14 @@ export default function App() {
     <SafeAreaProvider>
       <NavigationContainer
         theme={{
-          dark: true,
+          dark: false,
           colors: {
-            primary: '#00C853',
-            background: '#0A0A0A',
-            card: '#141414',
-            text: '#F5F5F5',
-            border: '#2E2E2E',
-            notification: '#00C853',
+            primary: '#46B649',
+            background: '#F4F5F3',
+            card: '#FFFFFF',
+            text: '#161917',
+            border: 'rgba(22,25,23,0.12)',
+            notification: '#46B649',
           },
         }}
       >

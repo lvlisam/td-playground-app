@@ -1,57 +1,89 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
+  Image,
   ScrollView,
-  View,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  StatusBar,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, font, radius, spacing } from '../theme';
-import TransactionRow, { Transaction } from '../components/TransactionRow';
-import GreenPill from '../components/GreenPill';
 
-const { width } = Dimensions.get('window');
+const palette = {
+  background: '#F4F5F3',
+  surface: '#FFFFFF',
+  ink: '#161917',
+  green: '#46B649',
+  navy: '#102A3E',
+};
 
-const QUICK_ACTIONS = [
-  { icon: 'arrow-up-outline' as const, label: 'Send' },
-  { icon: 'arrow-down-outline' as const, label: 'Receive' },
-  { icon: 'receipt-outline' as const, label: 'Pay Bill' },
-  { icon: 'ellipsis-horizontal' as const, label: 'More' },
+const accounts = [
+  {
+    id: 'everyday',
+    name: 'TD Everyday Chequing',
+    detail: '•••• 4821',
+    amount: '$6,842.17',
+    swatch: palette.green,
+  },
+  {
+    id: 'savings',
+    name: 'TD Growth Savings',
+    detail: '•••• 9310 · 4.60% APY',
+    note: '4 Vaults · $31,770 inside',
+    amount: '$53,220.00',
+    swatch: palette.green,
+  },
+  {
+    id: 'cd',
+    name: 'TD 12-Month CD',
+    detail: '•••• 5520 · 4.25% APY',
+    amount: '$10,000.00',
+    swatch: palette.green,
+  },
+  {
+    id: 'card',
+    name: 'TD Clear Card',
+    detail: '$10,715.44 available',
+    note: '18,420 TD Points',
+    amount: '−$1,284.56',
+    swatch: palette.ink,
+  },
+  {
+    id: 'family',
+    name: 'TD Family',
+    detail: 'Leo',
+    amount: '$46.50',
+    swatch: '#B7EB55',
+  },
 ];
 
-const ACCOUNTS = [
-  { id: '1', name: 'Everyday Chequing', number: '••4821', balance: 12_480.55 },
-  { id: '2', name: 'TD Savings', number: '••9034', balance: 38_200.00 },
-  { id: '3', name: 'TFSA', number: '••2210', balance: 74_150.80 },
-];
-
-const RECENT: Transaction[] = [
-  {
-    id: '1', merchant: 'Apple Store', category: 'Electronics',
-    amount: -129.00, date: 'Today', icon: 'logo-apple',
-    iconColor: colors.text, iconBg: colors.surfaceHigh,
-  },
-  {
-    id: '2', merchant: 'Payroll Deposit', category: 'Income',
-    amount: 3200.00, date: 'Yesterday', icon: 'briefcase-outline',
-    iconColor: colors.green, iconBg: colors.greenDim,
-  },
-  {
-    id: '3', merchant: 'Netflix', category: 'Entertainment',
-    amount: -19.99, date: 'May 19', icon: 'play-circle-outline',
-    iconColor: colors.red, iconBg: colors.redDim,
-  },
-  {
-    id: '4', merchant: 'Whole Foods', category: 'Groceries',
-    amount: -87.43, date: 'May 18', icon: 'basket-outline',
-    iconColor: colors.orange, iconBg: colors.orangeDim,
-  },
-];
+function AccountRow({ account, last }: { account: (typeof accounts)[number]; last: boolean }) {
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={`${account.name}, ${account.amount}`}
+      style={[styles.accountRow, !last && styles.accountDivider]}
+    >
+      <View style={[styles.accountMark, { backgroundColor: account.swatch }]}>
+        {account.id === 'family' ? (
+          <Ionicons name="people-outline" size={19} color={palette.ink} />
+        ) : (
+          <View style={styles.accountMarkLine} />
+        )}
+      </View>
+      <View style={styles.accountCopy}>
+        <Text numberOfLines={1} style={styles.accountName}>{account.name}</Text>
+        <Text numberOfLines={1} style={styles.accountDetail}>{account.detail}</Text>
+        {account.note ? <Text numberOfLines={1} style={styles.accountNote}>{account.note}</Text> : null}
+      </View>
+      <Text numberOfLines={1} style={styles.accountAmount}>{account.amount}</Text>
+      <Ionicons name="chevron-forward" size={17} color="rgba(22,25,23,0.58)" />
+    </TouchableOpacity>
+  );
+}
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -61,159 +93,93 @@ export default function DashboardScreen() {
       <StatusBar barStyle="light-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 78 }}
       >
-        {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
-          <View>
-            <Text style={styles.greeting}>Good morning,</Text>
-            <Text style={styles.name}>Lisa</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconBtn}>
-              <Ionicons name="search-outline" size={22} color={colors.text} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn}>
-              <View style={styles.notifDot} />
-              <Ionicons name="notifications-outline" size={22} color={colors.text} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.avatar}>
-              <Text style={styles.avatarText}>L</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Net Worth Banner */}
-        <View style={styles.netWorthBanner}>
-          <Text style={styles.netWorthLabel}>Total Net Worth</Text>
-          <View style={styles.netWorthRow}>
-            <Text style={styles.netWorthValue}>$124,831.35</Text>
-            <GreenPill label="+2.4% this month" />
-          </View>
-        </View>
-
-        {/* Account Cards */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.cardsScroll}
-          decelerationRate="fast"
-          snapToInterval={width * 0.78 + spacing.md}
-          snapToAlignment="start"
-        >
-          {ACCOUNTS.map((acct, i) => (
-            <LinearGradient
-              key={acct.id}
-              colors={
-                i === 0
-                  ? ['#003D1F', '#00C853']
-                  : i === 1
-                  ? ['#1A1A2E', '#16213E']
-                  : ['#1E1E1E', '#2A2A2A']
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.accountCard}
-            >
-              <View style={styles.cardTop}>
-                <View>
-                  <Text style={styles.cardName}>{acct.name}</Text>
-                  <Text style={styles.cardNumber}>{acct.number}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.5)" />
-              </View>
-              <Text style={styles.cardBalance}>${acct.balance.toLocaleString('en-CA', { minimumFractionDigits: 2 })}</Text>
-              {i === 0 && (
-                <View style={styles.cardChip}>
-                  <Ionicons name="shield-checkmark" size={12} color={colors.green} />
-                  <Text style={styles.cardChipText}>CDIC Protected</Text>
-                </View>
-              )}
-            </LinearGradient>
-          ))}
-        </ScrollView>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <View style={styles.quickActions}>
-            {QUICK_ACTIONS.map((a) => (
-              <TouchableOpacity key={a.label} style={styles.quickAction}>
-                <View style={styles.quickIconWrap}>
-                  <Ionicons name={a.icon} size={22} color={colors.green} />
-                </View>
-                <Text style={styles.quickLabel}>{a.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Spending Snapshot */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>May Spending</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAll}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.spendCard}>
-            <View style={styles.spendRow}>
-              {[
-                { label: 'Spent', value: '$2,140', sub: 'of $3,000' },
-                { label: 'Income', value: '$6,400', sub: '+12% vs Apr' },
-                { label: 'Saved', value: '$860', sub: 'this month' },
-              ].map((s) => (
-                <View key={s.label} style={styles.spendItem}>
-                  <Text style={styles.spendLabel}>{s.label}</Text>
-                  <Text style={styles.spendValue}>{s.value}</Text>
-                  <Text style={styles.spendSub}>{s.sub}</Text>
-                </View>
-              ))}
-            </View>
-            {/* Progress bar */}
-            <View style={styles.progressBg}>
-              <LinearGradient
-                colors={[colors.green, colors.greenBright]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={[styles.progressFill, { width: '71%' }]}
-              />
-            </View>
-            <Text style={styles.progressLabel}>71% of monthly budget used</Text>
-          </View>
-        </View>
-
-        {/* Recent Transactions */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAll}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.transCard}>
-            {RECENT.map((item, i) => (
-              <React.Fragment key={item.id}>
-                <TransactionRow item={item} />
-                {i < RECENT.length - 1 && <View style={styles.divider} />}
-              </React.Fragment>
-            ))}
-          </View>
-        </View>
-
-        {/* TD Insight */}
-        <View style={[styles.section, { marginBottom: 0 }]}>
+        <View style={styles.hero}>
+          <Image
+            source={require('../../assets/nyc-skyline.png')}
+            resizeMode="cover"
+            style={[StyleSheet.absoluteFill, styles.heroImage]}
+            accessible={false}
+          />
           <LinearGradient
-            colors={['rgba(0,200,83,0.15)', 'rgba(0,200,83,0.05)']}
-            style={styles.insightCard}
-          >
-            <Ionicons name="bulb-outline" size={20} color={colors.green} />
-            <View style={{ flex: 1, marginLeft: spacing.md }}>
-              <Text style={styles.insightTitle}>TD Insight</Text>
-              <Text style={styles.insightBody}>
-                You spent 18% less on dining this month. Keep it up — you're on track to hit your savings goal.
-              </Text>
+            colors={['rgba(16,42,62,0.68)', 'rgba(16,42,62,0.34)', 'rgba(16,42,62,0.1)', 'rgba(244,245,243,0.94)']}
+            locations={[0, 0.44, 0.72, 1]}
+            style={[StyleSheet.absoluteFill, styles.heroGradient]}
+          />
+          <View style={[styles.heroForeground, { paddingTop: insets.top + 12 }]}>
+            <View style={styles.topBar}>
+            <View style={styles.identity}>
+              <View style={styles.tdLogo}><Text style={styles.tdLogoText}>TD</Text></View>
+              <View>
+                <Text style={styles.greeting}>Good afternoon,</Text>
+                <Text style={styles.customerName}>Maya <Ionicons name="chevron-forward" size={15} color="#FFFFFF" /></Text>
+              </View>
             </View>
-          </LinearGradient>
+            <View style={styles.topActions}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" style={styles.tediButton}>
+                <View style={styles.tediMark}><Ionicons name="sparkles-outline" size={18} color={palette.green} /></View>
+                <Text style={styles.tediText}>Tedi</Text>
+              </TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Notifications, 3 unread" style={styles.notificationButton}>
+                <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
+                <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.locationPill}>
+            <View style={styles.liveDot} />
+            <Ionicons name="location-outline" size={15} color={palette.green} />
+            <Text style={styles.locationText}>New York, NY</Text>
+            <Text style={styles.locationDivider}>·</Text>
+            <Text style={styles.locationMode}>Local view</Text>
+          </View>
+
+          <View style={styles.balanceBlock}>
+            <View style={styles.balanceLabelRow}>
+              <Text style={styles.balanceLabel}>All your money</Text>
+              <Ionicons name="eye-outline" size={19} color="rgba(255,255,255,0.84)" />
+              <Ionicons name="volume-medium-outline" size={19} color="rgba(255,255,255,0.84)" />
+            </View>
+            <Text style={styles.balance}>$70,062.17</Text>
+          </View>
+          </View>
+        </View>
+
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>Your accounts</Text>
+          <TouchableOpacity accessibilityRole="button" style={styles.relationshipBanner}>
+            <View style={styles.selectPill}>
+              <Ionicons name="ribbon-outline" size={16} color={palette.ink} />
+              <Text style={styles.selectText}>SELECT</Text>
+            </View>
+            <Text style={styles.relationshipText}>Your relationship tier</Text>
+            <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
+          </TouchableOpacity>
+
+          <View style={styles.accountList}>
+            {accounts.map((account, index) => (
+              <AccountRow key={account.id} account={account} last={index === accounts.length - 1} />
+            ))}
+          </View>
+
+          <View style={styles.offersHeading}>
+            <View style={styles.offersTitleGroup}>
+              <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
+              <Text style={styles.offersTitle}>TD for you</Text>
+            </View>
+            <Text style={styles.offerCount}>3 offers · swipe</Text>
+          </View>
+          <TouchableOpacity accessibilityRole="button" style={styles.offerCard}>
+            <View style={styles.offerIcon}><Ionicons name="leaf-outline" size={22} color={palette.green} /></View>
+            <View style={styles.offerCopy}>
+              <Text style={styles.offerEyebrow}>MADE FOR MAYA</Text>
+              <Text style={styles.offerTitle}>A little more room to grow</Text>
+              <Text style={styles.offerDescription}>Explore ways to make your savings go further.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={17} color="rgba(22,25,23,0.58)" />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -221,100 +187,64 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  header: {
+  container: { flex: 1, backgroundColor: palette.background },
+  hero: { minHeight: 286, position: 'relative', overflow: 'hidden' },
+  heroImage: { width: '100%', height: '100%', zIndex: 0 },
+  heroGradient: { zIndex: 1 },
+  heroForeground: { zIndex: 2, paddingBottom: 30 },
+  topBar: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    paddingHorizontal: 18,
   },
-  greeting: { color: colors.textSecondary, fontSize: font.size.sm },
-  name: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  iconBtn: { padding: spacing.xs, position: 'relative' },
-  notifDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: colors.green,
-    position: 'absolute', top: 4, right: 4, zIndex: 1,
-  },
-  avatar: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: colors.green,
-    alignItems: 'center', justifyContent: 'center',
-    marginLeft: 4,
-  },
-  avatarText: { color: '#000', fontWeight: font.weight.bold, fontSize: font.size.md },
-
-  netWorthBanner: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
-  netWorthLabel: { color: colors.textSecondary, fontSize: font.size.sm, marginBottom: 4 },
-  netWorthRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  netWorthValue: { color: colors.text, fontSize: font.size.xxl, fontWeight: font.weight.heavy },
-
-  cardsScroll: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingRight: spacing.xl },
-  accountCard: {
-    width: width * 0.78,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    minHeight: 160,
-    justifyContent: 'space-between',
-  },
-  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  cardName: { color: 'rgba(255,255,255,0.9)', fontSize: font.size.sm, fontWeight: font.weight.medium },
-  cardNumber: { color: 'rgba(255,255,255,0.5)', fontSize: font.size.xs, marginTop: 2 },
-  cardBalance: { color: '#fff', fontSize: font.size.xxl, fontWeight: font.weight.heavy, letterSpacing: -0.5 },
-  cardChip: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
-  cardChipText: { color: colors.green, fontSize: font.size.xs, fontWeight: font.weight.medium },
-
-  section: { paddingHorizontal: spacing.lg, marginTop: spacing.lg },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  sectionTitle: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.semibold },
-  seeAll: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
-
-  quickActions: { flexDirection: 'row', justifyContent: 'space-between' },
-  quickAction: { alignItems: 'center', gap: spacing.xs },
-  quickIconWrap: {
-    width: 60, height: 60, borderRadius: radius.lg,
-    backgroundColor: colors.surfaceHigh,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: colors.border,
-  },
-  quickLabel: { color: colors.textSecondary, fontSize: font.size.xs, fontWeight: font.weight.medium },
-
-  spendCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  spendRow: { flexDirection: 'row', marginBottom: spacing.md },
-  spendItem: { flex: 1, alignItems: 'center' },
-  spendLabel: { color: colors.textSecondary, fontSize: font.size.xs, marginBottom: 4 },
-  spendValue: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.bold },
-  spendSub: { color: colors.textTertiary, fontSize: font.size.xs, marginTop: 2 },
-  progressBg: {
-    height: 4, backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.full, overflow: 'hidden', marginBottom: 8,
-  },
-  progressFill: { height: '100%', borderRadius: radius.full },
-  progressLabel: { color: colors.textTertiary, fontSize: font.size.xs },
-
-  transCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  divider: { height: 1, backgroundColor: colors.borderFaint },
-
-  insightCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.greenGlow,
-  },
-  insightTitle: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.semibold, marginBottom: 4 },
-  insightBody: { color: colors.textSecondary, fontSize: font.size.sm, lineHeight: 20 },
+  identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  tdLogo: { width: 42, height: 42, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
+  tdLogoText: { color: '#FFFFFF', fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
+  greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
+  customerName: { color: '#FFFFFF', fontSize: 17, fontWeight: '700', lineHeight: 22 },
+  topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  tediButton: { height: 44, paddingHorizontal: 9, borderRadius: 24, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 7 },
+  tediMark: { width: 30, height: 30, borderRadius: 16, backgroundColor: palette.ink, alignItems: 'center', justifyContent: 'center' },
+  tediText: { color: palette.ink, fontSize: 14, fontWeight: '700', paddingRight: 5 },
+  notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
+  notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: '#D74631', borderWidth: 1.5, borderColor: palette.navy, alignItems: 'center', justifyContent: 'center' },
+  notificationCountText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
+  locationPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 22, marginLeft: 18, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 20, backgroundColor: 'rgba(10,18,24,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
+  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: palette.green },
+  locationText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
+  locationDivider: { color: 'rgba(255,255,255,0.6)', fontSize: 13 },
+  locationMode: { color: 'rgba(255,255,255,0.76)', fontSize: 12 },
+  balanceBlock: { marginTop: 22, paddingHorizontal: 18 },
+  balanceLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 11 },
+  balanceLabel: { color: 'rgba(255,255,255,0.84)', fontSize: 15, marginRight: 2 },
+  balance: { color: '#FFFFFF', fontSize: 38, lineHeight: 46, fontWeight: '800', letterSpacing: -1.6, marginTop: 5 },
+  content: { paddingHorizontal: 16, marginTop: -5 },
+  sectionTitle: { color: palette.ink, fontSize: 18, fontWeight: '700', marginBottom: 10 },
+  relationshipBanner: { minHeight: 48, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
+  selectPill: { height: 30, paddingHorizontal: 10, borderRadius: 18, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  selectText: { color: palette.ink, fontSize: 12, fontWeight: '800', letterSpacing: 0.25 },
+  relationshipText: { flex: 1, color: 'rgba(255,255,255,0.76)', fontSize: 13 },
+  accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
+  accountRow: { minHeight: 65, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 10 },
+  accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(22,25,23,0.16)' },
+  accountMark: { width: 38, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  accountMarkLine: { width: 22, height: 3, borderRadius: 2, backgroundColor: 'rgba(22,25,23,0.3)', marginTop: 12 },
+  accountCopy: { flex: 1, minWidth: 0 },
+  accountName: { color: palette.ink, fontSize: 14, fontWeight: '600', lineHeight: 18 },
+  accountDetail: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15 },
+  accountNote: { color: '#36873A', fontSize: 10, fontWeight: '600', lineHeight: 14 },
+  accountAmount: { color: palette.ink, fontSize: 14, fontWeight: '700', maxWidth: 102, textAlign: 'right' },
+  offersHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 9 },
+  offersTitleGroup: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  smallTdLogo: { width: 26, height: 26, borderRadius: 7, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
+  smallTdLogoText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800', letterSpacing: -1 },
+  offersTitle: { color: palette.ink, fontSize: 17, fontWeight: '700' },
+  offerCount: { color: 'rgba(22,25,23,0.58)', fontSize: 11 },
+  offerCard: { minHeight: 86, borderRadius: 17, backgroundColor: palette.surface, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 6 },
+  offerIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: 'rgba(70,182,73,0.12)', alignItems: 'center', justifyContent: 'center' },
+  offerCopy: { flex: 1 },
+  offerEyebrow: { color: '#36873A', fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
+  offerTitle: { color: palette.ink, fontSize: 13, fontWeight: '700', marginTop: 2 },
+  offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
 });
