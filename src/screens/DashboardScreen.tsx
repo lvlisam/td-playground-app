@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Image,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -87,6 +88,7 @@ function AccountRow({ account, last }: { account: (typeof accounts)[number]; las
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
+  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
 
   return (
     <View style={styles.container}>
@@ -107,7 +109,7 @@ export default function DashboardScreen() {
             locations={[0, 0.44, 0.72, 1]}
             style={[StyleSheet.absoluteFill, styles.heroGradient]}
           />
-          <View style={[styles.heroForeground, { paddingTop: insets.top + 12 }]}>
+          <View style={[styles.heroForeground, { paddingTop: previewTopInset + 12 }]}>
             <View style={styles.topBar}>
             <View style={styles.identity}>
               <View style={styles.tdLogo}><Text style={styles.tdLogoText}>TD</Text></View>

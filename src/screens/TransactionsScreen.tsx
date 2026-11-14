@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, SectionList, TextInput,
-  TouchableOpacity, StyleSheet, StatusBar,
+  TouchableOpacity, StyleSheet, StatusBar, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -45,6 +45,7 @@ const FILTERS = ['All', 'Income', 'Expenses', 'Transfers'];
 
 export default function TransactionsScreen() {
   const insets = useSafeAreaInsets();
+  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
 
@@ -66,7 +67,7 @@ export default function TransactionsScreen() {
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
+      <View style={[styles.header, { paddingTop: previewTopInset + spacing.sm }]}>
         <Text style={styles.title}>Transactions</Text>
         <TouchableOpacity style={styles.filterBtn}>
           <Ionicons name="options-outline" size={20} color={colors.green} />

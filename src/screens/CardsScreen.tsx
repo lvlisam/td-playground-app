@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Switch, StatusBar,
+  StyleSheet, Switch, StatusBar, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -91,6 +91,7 @@ const navStyles = StyleSheet.create({
 
 export default function CardsScreen() {
   const insets = useSafeAreaInsets();
+  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
   const [frozen, setFrozen] = useState(false);
   const [contactless, setContactless] = useState(true);
   const [onlinePayments, setOnlinePayments] = useState(true);
@@ -105,7 +106,7 @@ export default function CardsScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
+        <View style={[styles.header, { paddingTop: previewTopInset + spacing.sm }]}>
           <Text style={styles.title}>Cards</Text>
           <TouchableOpacity style={styles.addBtn}>
             <Ionicons name="add" size={20} color={colors.green} />

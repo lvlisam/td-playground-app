@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  ScrollView, StatusBar, TextInput,
+  ScrollView, StatusBar, TextInput, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,6 +26,7 @@ const NUMPAD = ['1','2','3','4','5','6','7','8','9','.','0','⌫'];
 
 export default function SendPayScreen() {
   const insets = useSafeAreaInsets();
+  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
   const [activeTab, setActiveTab] = useState('Send');
   const [amount, setAmount] = useState('');
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export default function SendPayScreen() {
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
+      <View style={[styles.header, { paddingTop: previewTopInset + spacing.sm }]}>
         <Text style={styles.title}>Send & Pay</Text>
       </View>
 
