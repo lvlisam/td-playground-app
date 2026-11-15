@@ -279,13 +279,13 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Accoun
       </View>
       <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
         <View style={styles.healthMetricTile}>
-          <Text numberOfLines={1} style={styles.healthMetricLabel}>{isBusiness ? 'CASH AFTER CARD' : 'LEFT BEFORE PAYDAY'}</Text>
+          <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : 'LEFT BEFORE PAYDAY'}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
             {formatDashboardCurrency(availableAmount)}
           </Text>
         </View>
         <View style={styles.healthMetricTile}>
-          <Text numberOfLines={1} style={styles.healthMetricLabel}>SAVED THIS MONTH</Text>
+          <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
             {isBusiness ? '+$1,200' : isFamily ? '+$450' : '+$240'}
           </Text>
@@ -359,8 +359,11 @@ function DashboardProfileMenu({ view, onChange, compact }: {
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
-  const { width } = useWindowDimensions();
-  const compact = width < 360;
+  const { width, height } = useWindowDimensions();
+  const previewDeviceWidth = Platform.OS === 'web' && width >= 650
+    ? Math.min(390, width - 32, (height - 32) * 0.47)
+    : width;
+  const compact = previewDeviceWidth < 360;
   const [accountView, setAccountView] = useState<AccountView>('personal');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
@@ -605,6 +608,7 @@ const styles = StyleSheet.create({
   healthScoreCompact: { fontSize: 22, lineHeight: 26 },
   totalBalanceValueCompact: { fontSize: 20, lineHeight: 24 },
   healthMetricsCompact: { gap: 6 },
+  healthMetricLabelCompact: { fontSize: 8, lineHeight: 11, letterSpacing: 0.25 },
   healthMetricValueCompact: { fontSize: 17, lineHeight: 21 },
   contentCompact: { paddingHorizontal: 12 },
   feeNoticeCompact: { minHeight: 38, gap: 9 },
