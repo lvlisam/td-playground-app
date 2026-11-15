@@ -24,6 +24,33 @@ const palette = {
   greenDeep: colors.greenDeep,
 };
 
+const accountInsights = [
+  {
+    id: 'savings',
+    icon: 'trending-up-outline',
+    eyebrow: 'SAVINGS',
+    title: 'Your savings are on a roll',
+    metric: '+$240',
+    detail: 'You added more to savings this month than last.',
+  },
+  {
+    id: 'spending',
+    icon: 'restaurant-outline',
+    eyebrow: 'SPENDING',
+    title: 'Dining spend is trending down',
+    metric: '−12%',
+    detail: 'You spent less dining out than in the prior month.',
+  },
+  {
+    id: 'rewards',
+    icon: 'sparkles-outline',
+    eyebrow: 'CARD REWARDS',
+    title: 'Points are ready to use',
+    metric: '18,420 pts',
+    detail: 'Your TD Double Up Card rewards are adding up.',
+  },
+] as const;
+
 const accounts = [
   {
     id: 'checking',
@@ -118,17 +145,7 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          <View style={[styles.locationPill, compact && styles.locationPillCompact]}>
-            <Ionicons name="location-outline" size={15} color={palette.green} />
-            <Text style={[styles.locationText, compact && styles.locationTextCompact]}>New York, NY</Text>
-          </View>
-
           <View style={[styles.balanceBlock, compact && styles.balanceBlockCompact]}>
-            <View style={[styles.balanceLabelRow, compact && styles.balanceLabelRowCompact]}>
-              <Text style={[styles.balanceLabel, compact && styles.balanceLabelCompact]}>All your money</Text>
-              <Ionicons name="eye-outline" size={19} color="rgba(255,255,255,0.84)" />
-              <Ionicons name="volume-medium-outline" size={19} color="rgba(255,255,255,0.84)" />
-            </View>
             <Text style={[styles.balance, compact && styles.balanceCompact]}>$60,062.17</Text>
           </View>
           </View>
@@ -179,6 +196,42 @@ export default function DashboardScreen() {
             </View>
             <Ionicons name="chevron-forward" size={17} color="rgba(22,25,23,0.58)" />
           </TouchableOpacity>
+
+          <View style={styles.insightsHeading}>
+            <View>
+              <Text style={styles.insightsTitle}>Account insights</Text>
+              <Text style={styles.insightsSubtitle}>A closer look at your money</Text>
+            </View>
+            <Text style={styles.insightsSwipe}>SWIPE <Ionicons name="arrow-forward" size={11} color={colors.textSecondary} /></Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={244}
+            decelerationRate="fast"
+            contentContainerStyle={styles.insightsRail}
+            accessibilityLabel="Account insights, swipe horizontally to explore"
+          >
+            {accountInsights.map((insight) => (
+              <View
+                key={insight.id}
+                accessible
+                accessibilityRole="text"
+                accessibilityLabel={`${insight.eyebrow}: ${insight.title}. ${insight.metric}. ${insight.detail}`}
+                style={styles.insightCard}
+              >
+                <View style={styles.insightCardTop}>
+                  <View style={styles.insightIcon}>
+                    <Ionicons name={insight.icon} size={18} color={palette.greenDeep} />
+                  </View>
+                  <Text style={styles.insightEyebrow}>{insight.eyebrow}</Text>
+                </View>
+                <Text style={styles.insightMetric}>{insight.metric}</Text>
+                <Text style={styles.insightTitle}>{insight.title}</Text>
+                <Text style={styles.insightDetail}>{insight.detail}</Text>
+              </View>
+            ))}
+          </ScrollView>
         </View>
       </ScrollView>
     </View>
@@ -209,11 +262,7 @@ const styles = StyleSheet.create({
   notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
-  locationPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 22, marginLeft: 18, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 20, backgroundColor: 'rgba(10,18,24,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
-  locationText: { color: colors.white, fontSize: 12, fontWeight: '600' },
-  balanceBlock: { marginTop: 22, paddingHorizontal: 18 },
-  balanceLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 11 },
-  balanceLabel: { color: 'rgba(255,255,255,0.84)', fontSize: 15, marginRight: 2 },
+  balanceBlock: { marginTop: 38, paddingHorizontal: 18 },
   balance: { color: colors.white, fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
   content: { paddingHorizontal: 16, marginTop: -5 },
   sectionTitle: { color: palette.ink, fontSize: 18, fontFamily: font.headline.bold, marginBottom: 10 },
@@ -243,6 +292,18 @@ const styles = StyleSheet.create({
   offerEyebrow: { color: colors.greenDeep, fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
   offerTitle: { color: palette.ink, fontSize: 13, fontFamily: font.headline.bold, marginTop: 2 },
   offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
+  insightsHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 17, marginBottom: 9 },
+  insightsTitle: { color: palette.ink, fontSize: 17, fontFamily: font.headline.bold },
+  insightsSubtitle: { color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginTop: 1 },
+  insightsSwipe: { color: colors.textSecondary, fontSize: 10, fontWeight: '700', letterSpacing: 0.6, paddingBottom: 2 },
+  insightsRail: { gap: 10, paddingHorizontal: 12, paddingBottom: 4 },
+  insightCard: { width: 234, minHeight: 178, borderRadius: 18, backgroundColor: palette.surface, borderWidth: 1, borderColor: 'rgba(22,25,23,0.08)', padding: 14 },
+  insightCardTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  insightIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  insightEyebrow: { color: colors.greenDeep, fontSize: 10, fontWeight: '700', letterSpacing: 0.7 },
+  insightMetric: { color: palette.ink, fontSize: 22, lineHeight: 27, fontFamily: font.headline.bold, marginTop: 9 },
+  insightTitle: { color: palette.ink, fontSize: 14, lineHeight: 19, fontFamily: font.headline.semibold, marginTop: 1 },
+  insightDetail: { color: colors.textSecondary, fontSize: 14, lineHeight: 19, marginTop: 5 },
   heroCompact: { minHeight: 200 },
   heroForegroundCompact: { paddingBottom: 16 },
   topBarCompact: { paddingHorizontal: 14 },
@@ -256,11 +317,7 @@ const styles = StyleSheet.create({
   tediMarkCompact: { width: 24, height: 24 },
   tediTextCompact: { fontSize: 12, paddingRight: 2 },
   notificationButtonCompact: { width: 34, height: 34 },
-  locationPillCompact: { gap: 5, marginTop: 14, marginLeft: 14, paddingHorizontal: 8, paddingVertical: 6 },
-  locationTextCompact: { fontSize: 11 },
-  balanceBlockCompact: { marginTop: 14, paddingHorizontal: 14 },
-  balanceLabelRowCompact: { gap: 8 },
-  balanceLabelCompact: { fontSize: 13 },
+  balanceBlockCompact: { marginTop: 30, paddingHorizontal: 14 },
   balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
   contentCompact: { paddingHorizontal: 12 },
   sectionTitleCompact: { fontSize: 17, marginBottom: 6 },
