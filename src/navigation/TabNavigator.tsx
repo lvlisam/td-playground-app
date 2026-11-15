@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
@@ -35,6 +36,22 @@ function TabIcon({ name, focused }: TabIconProps) {
         size={21}
         color={focused ? frameColors.green : frameColors.muted}
       />
+    </View>
+  );
+}
+
+function TransferTabIcon() {
+  return (
+    <View style={styles.sendTabShadow}>
+      <LinearGradient
+        colors={[colors.greenBright, colors.green, colors.greenDeep]}
+        locations={[0, 0.58, 1]}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={styles.sendTab}
+      >
+        <Ionicons name="airplane" size={22} color={colors.white} style={styles.airplaneIcon} />
+      </LinearGradient>
     </View>
   );
 }
@@ -126,7 +143,8 @@ export default function TabNavigator() {
                     name="Pay & Transfer"
                     component={SendPayScreen}
                     options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'swap-horizontal' : 'swap-horizontal-outline'} focused={focused} />,
+                      tabBarAccessibilityLabel: 'Pay & Transfer',
+                      tabBarIcon: () => <TransferTabIcon />,
                     }}
                   />
                   <Tab.Screen
@@ -238,13 +256,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabIconActive: { backgroundColor: colors.greenDim },
+  sendTabShadow: {
+    width: 50,
+    height: 50,
+    borderRadius: radius.full,
+    transform: [{ translateY: -15 }],
+    shadowColor: colors.greenDeep,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.38,
+    shadowRadius: 5,
+    elevation: 9,
+  },
   sendTab: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: frameColors.green,
+    width: 50,
+    height: 50,
+    borderRadius: radius.full,
+    borderWidth: 2,
+    borderColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 13,
+    overflow: 'hidden',
   },
+  airplaneIcon: { transform: [{ rotate: '45deg' }] },
 });

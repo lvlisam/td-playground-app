@@ -182,17 +182,6 @@ export default function DashboardScreen() {
             ))}
           </View>
 
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Move money"
-            onPress={() => navigation.navigate('Pay & Transfer')}
-            style={[styles.moveMoneyButton, compact && styles.moveMoneyButtonCompact]}
-          >
-            <Ionicons name="swap-horizontal" size={compact ? 19 : 20} color={palette.ink} />
-            <Text style={[styles.moveMoneyText, compact && styles.moveMoneyTextCompact]}>Move money</Text>
-            <Ionicons name="arrow-forward" size={compact ? 16 : 18} color={palette.ink} />
-          </TouchableOpacity>
-
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
@@ -285,8 +274,6 @@ const styles = StyleSheet.create({
   feeNoticeText: { color: colors.white, fontSize: 14, lineHeight: 19, fontWeight: '600' },
   feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 11, lineHeight: 15 },
   feeNoticeSubtextCompact: { fontSize: 10, lineHeight: 13 },
-  moveMoneyButton: { minHeight: 48, borderRadius: 14, backgroundColor: palette.green, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
-  moveMoneyText: { flex: 1, color: palette.ink, fontSize: 14, fontWeight: '700', marginLeft: 10 },
   accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
   accountRow: { minHeight: 65, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 10 },
   accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(22,25,23,0.16)' },
@@ -345,6 +332,4 @@ const styles = StyleSheet.create({
   accountDetailCompact: { fontSize: 10, lineHeight: 13 },
   accountNoteCompact: { fontSize: 10, lineHeight: 12 },
   accountAmountCompact: { fontSize: 12, maxWidth: 78, flexShrink: 0 },
-  moveMoneyButtonCompact: { minHeight: 44, paddingHorizontal: 12, marginTop: 8 },
-  moveMoneyTextCompact: { fontSize: 13, marginLeft: 8 },
 });
