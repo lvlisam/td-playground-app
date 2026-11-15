@@ -131,7 +131,7 @@ export default function CardsScreen() {
         {/* Virtual Card */}
         <View style={[styles.cardContainer, compact && styles.cardContainerCompact]}>
           <LinearGradient
-            colors={['#003D1F', '#005C2E', '#00C853']}
+            colors={[colors.greenDark, colors.greenDeep, colors.green]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1.2, y: 1 }}
             style={[styles.card, compact && styles.cardCompact, frozen && styles.cardFrozen]}
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   cardFrozen: { opacity: 0.8 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  cardBankName: { color: '#fff', fontSize: font.size.md, fontFamily: font.headline.bold, letterSpacing: 1 },
+  cardBankName: { color: colors.white, fontSize: font.size.md, fontFamily: font.headline.bold, letterSpacing: 1 },
   cardType: { color: 'rgba(255,255,255,0.6)', fontSize: font.size.xs, marginTop: 2 },
   cardWifi: {},
   chip: {
@@ -343,12 +343,12 @@ const styles = StyleSheet.create({
   },
   cardFooter: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.lg },
   cardFooterLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 9, letterSpacing: 1 },
-  cardFooterValue: { color: '#fff', fontSize: font.size.xs, fontWeight: font.weight.semibold, marginTop: 2 },
+  cardFooterValue: { color: colors.white, fontSize: font.size.xs, fontWeight: font.weight.semibold, marginTop: 2 },
   visaLogo: { marginLeft: 'auto' as any },
   visaText: { color: 'rgba(255,255,255,0.9)', fontSize: font.size.xl, fontWeight: font.weight.heavy, fontStyle: 'italic', letterSpacing: -1 },
   frozenOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,100,255,0.15)',
+    backgroundColor: colors.blueDim,
     alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
     borderRadius: radius.xl,
   },

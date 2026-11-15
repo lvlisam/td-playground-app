@@ -156,7 +156,7 @@ export default function SendPayScreen() {
                 ]}>
                   {selectedContact === c.id && (
                     <View style={styles.contactCheck}>
-                      <Ionicons name="checkmark" size={12} color="#000" />
+                      <Ionicons name="checkmark" size={12} color={colors.text} />
                     </View>
                   )}
                   <Text style={[styles.contactInitials, { color: c.color }]}>{c.initials}</Text>
@@ -230,7 +230,7 @@ export default function SendPayScreen() {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.sendBtn}
             >
-              <Ionicons name="paper-plane-outline" size={20} color="#000" />
+              <Ionicons name="paper-plane-outline" size={20} color={colors.text} />
               <Text style={styles.sendBtnText}>
                 {canSend ? `Send $${parseFloat(amount).toFixed(2)}` : 'Send'}
               </Text>
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm, borderRadius: radius.full,
     paddingVertical: spacing.md,
   },
-  sendBtnText: { color: '#000', fontSize: font.size.md, fontWeight: font.weight.bold },
+  sendBtnText: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.bold },
   headerCompact: { paddingHorizontal: 16, paddingBottom: 12 },
   tabBarCompact: { marginHorizontal: 16, padding: 3, marginBottom: 14 },
   amountSectionCompact: { paddingVertical: 20 },

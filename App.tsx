@@ -1,16 +1,10 @@
 import React from 'react';
-import { Platform, Text, type TextProps } from 'react-native';
+import { Text, type TextProps } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import {
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  Inter_800ExtraBold,
-} from '@expo-google-fonts/inter';
-import { font } from './src/theme';
+import { colors, font } from './src/theme';
 import TabNavigator from './src/navigation/TabNavigator';
 
 const TextWithDefaults = Text as typeof Text & { defaultProps?: TextProps };
@@ -18,17 +12,29 @@ TextWithDefaults.defaultProps = {
   ...TextWithDefaults.defaultProps,
   style: [
     TextWithDefaults.defaultProps?.style,
-    { fontFamily: Platform.select({ web: 'Arial', ios: 'System', android: 'Roboto', default: 'System' }) },
+    { fontFamily: font.body.regular },
   ],
 };
 
 export default function App() {
-  useFonts({
-    [font.headline.medium]: Inter_500Medium,
-    [font.headline.semibold]: Inter_600SemiBold,
-    [font.headline.bold]: Inter_700Bold,
-    [font.headline.heavy]: Inter_800ExtraBold,
+  const [fontsLoaded] = useFonts({
+    [font.body.light]: require('./assets/fonts/TDSansBody-Light.ttf'),
+    [font.body.lightItalic]: require('./assets/fonts/TDSansBody-LightItalic.ttf'),
+    [font.body.regular]: require('./assets/fonts/TDSansBody-Regular.ttf'),
+    [font.body.italic]: require('./assets/fonts/TDSansBody-Italic.ttf'),
+    [font.body.medium]: require('./assets/fonts/TDSansBody-Medium.ttf'),
+    [font.body.mediumItalic]: require('./assets/fonts/TDSansBody-MediumItalic.ttf'),
+    [font.body.bold]: require('./assets/fonts/TDSansBody-Bold.ttf'),
+    [font.body.boldItalic]: require('./assets/fonts/TDSansBody-BoldItalic.ttf'),
+    [font.headline.light]: require('./assets/fonts/TDSansHeadline-Light.ttf'),
+    [font.headline.lightItalic]: require('./assets/fonts/TDSansHeadline-LightItalic.ttf'),
+    [font.headline.regular]: require('./assets/fonts/TDSansHeadline-Regular.ttf'),
+    [font.headline.italic]: require('./assets/fonts/TDSansHeadline-Italic.ttf'),
+    [font.headline.bold]: require('./assets/fonts/TDSansHeadline-Bold.ttf'),
+    [font.headline.boldItalic]: require('./assets/fonts/TDSansHeadline-BoldItalic.ttf'),
   });
+
+  if (!fontsLoaded) return null;
 
   return (
     <SafeAreaProvider>
@@ -36,16 +42,16 @@ export default function App() {
         theme={{
           dark: false,
           colors: {
-            primary: '#46B649',
-            background: '#F4F5F3',
-            card: '#FFFFFF',
-            text: '#161917',
-            border: 'rgba(22,25,23,0.12)',
-            notification: '#46B649',
+            primary: colors.green,
+            background: colors.bg,
+            card: colors.surface,
+            text: colors.text,
+            border: colors.border,
+            notification: colors.red,
           },
         }}
       >
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
         <TabNavigator />
       </NavigationContainer>
     </SafeAreaProvider>

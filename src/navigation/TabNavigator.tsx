@@ -1,24 +1,26 @@
 import React from 'react';
-import { Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Image, Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DashboardScreen from '../screens/DashboardScreen';
-import TransactionsScreen from '../screens/TransactionsScreen';
+import PlanScreen from '../screens/PlanScreen';
 import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
-import { font, radius } from '../theme';
+import TediScreen from '../screens/TediScreen';
+import { colors, font, radius } from '../theme';
 
 const Tab = createBottomTabNavigator();
 
 const frameColors = {
-  stage: '#EEF0ED',
-  screen: '#F4F5F3',
-  bezel: '#161917',
-  white: '#FFFFFF',
-  green: '#46B649',
-  muted: 'rgba(22,25,23,0.52)',
+  stage: colors.surfaceMid,
+  screen: colors.bg,
+  bezel: colors.text,
+  white: colors.surface,
+  green: colors.green,
+  muted: colors.textSecondary,
 };
 
 type TabIconProps = {
@@ -34,6 +36,27 @@ function TabIcon({ name, focused }: TabIconProps) {
         size={21}
         color={focused ? frameColors.green : frameColors.muted}
       />
+    </View>
+  );
+}
+
+function TransferTabIcon() {
+  return (
+    <View style={styles.sendTabShadow}>
+      <LinearGradient
+        colors={[colors.greenBright, colors.green, colors.greenDeep]}
+        locations={[0, 0.58, 1]}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={styles.sendTab}
+      >
+        <Image
+          source={require('../../assets/transfer-tab-icon.png')}
+          style={styles.airplaneImage}
+          resizeMode="cover"
+          accessible={false}
+        />
+      </LinearGradient>
     </View>
   );
 }
@@ -83,7 +106,7 @@ export default function TabNavigator() {
                       paddingBottom: showDeviceFrame ? 14 : insets.bottom || 4,
                       backgroundColor: frameColors.white,
                       borderTopWidth: 1,
-                      borderTopColor: 'rgba(22,25,23,0.11)',
+                      borderTopColor: colors.border,
                       elevation: 0,
                     },
                     tabBarActiveTintColor: frameColors.green,
@@ -116,7 +139,7 @@ export default function TabNavigator() {
                   />
                   <Tab.Screen
                     name="Plan"
-                    component={TransactionsScreen}
+                    component={PlanScreen}
                     options={{
                       tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'analytics' : 'analytics-outline'} focused={focused} />,
                     }}
@@ -125,7 +148,8 @@ export default function TabNavigator() {
                     name="Pay & Transfer"
                     component={SendPayScreen}
                     options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'swap-horizontal' : 'swap-horizontal-outline'} focused={focused} />,
+                      tabBarAccessibilityLabel: 'Pay & Transfer',
+                      tabBarIcon: () => <TransferTabIcon />,
                     }}
                   />
                   <Tab.Screen
@@ -136,11 +160,16 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
+                    name="Tedi"
+                    component={TediScreen}
+                    options={{
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'sparkles' : 'sparkles-outline'} focused={focused} />,
+                    }}
+                  />
+                  <Tab.Screen
                     name="Settings"
                     component={CardsScreen}
-                    options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'settings' : 'settings-outline'} focused={focused} />,
-                    }}
+                    options={{ tabBarButton: () => null }}
                   />
               </Tab.Navigator>
             </View>
@@ -223,7 +252,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     borderRadius: 4,
   },
-  tabButtonActive: { borderColor: 'rgba(70,182,73,0.58)' },
+  tabButtonActive: { borderColor: colors.greenGlow },
   tabIcon: {
     width: 34,
     height: 28,
@@ -231,14 +260,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabIconActive: { backgroundColor: 'rgba(70,182,73,0.12)' },
+  tabIconActive: { backgroundColor: colors.greenDim },
+  sendTabShadow: {
+    width: 50,
+    height: 50,
+    borderRadius: radius.full,
+    transform: [{ translateY: -15 }],
+    shadowColor: colors.greenDeep,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.38,
+    shadowRadius: 5,
+    elevation: 9,
+  },
   sendTab: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: frameColors.green,
+    width: 50,
+    height: 50,
+    borderRadius: radius.full,
+    borderWidth: 2,
+    borderColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 13,
+    overflow: 'hidden',
   },
+  airplaneImage: { width: 34, height: 34, borderRadius: 17 },
 });
