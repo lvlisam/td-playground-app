@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -79,8 +79,8 @@ export default function TabNavigator() {
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      height: 64 + insets.bottom + (showDeviceFrame ? 18 : 0),
-                      paddingBottom: showDeviceFrame ? 14 : 0,
+                      height: 68 + insets.bottom + (showDeviceFrame ? 18 : 0),
+                      paddingBottom: showDeviceFrame ? 14 : insets.bottom || 4,
                       backgroundColor: frameColors.white,
                       borderTopWidth: 1,
                       borderTopColor: 'rgba(22,25,23,0.11)',
@@ -89,12 +89,22 @@ export default function TabNavigator() {
                     tabBarActiveTintColor: frameColors.green,
                     tabBarInactiveTintColor: frameColors.muted,
                     tabBarLabelStyle: {
-                      fontSize: width < 360 ? 9 : font.size.xs,
+                      fontSize: width < 360 ? 9 : 10.5,
                       fontWeight: font.weight.medium,
                       textAlign: 'center',
-                      marginBottom: 4,
+                      marginBottom: 3,
                     },
-                    tabBarItemStyle: { paddingTop: 2, minWidth: 0 },
+                    tabBarItemStyle: { paddingHorizontal: 1, paddingVertical: 3, minWidth: 0 },
+                    tabBarButton: (props) => (
+                      <TouchableOpacity
+                        {...props}
+                        style={[
+                          props.style,
+                          styles.tabButton,
+                          props.accessibilityState?.selected && styles.tabButtonActive,
+                        ]}
+                      />
+                    ),
                   }}
                 >
                   <Tab.Screen
@@ -204,9 +214,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(22,25,23,0.72)',
   },
 
+  tabButton: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    borderRadius: 4,
+  },
+  tabButtonActive: { borderColor: 'rgba(70,182,73,0.58)' },
   tabIcon: {
     width: 34,
-    height: 29,
+    height: 28,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',

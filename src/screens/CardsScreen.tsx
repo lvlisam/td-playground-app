@@ -302,13 +302,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
   title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
   addBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   addBtnText: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
 
-  cardContainer: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  cardContainer: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   card: {
     borderRadius: radius.xl,
     padding: spacing.lg,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   },
   cardActionLabel: { color: colors.textSecondary, fontSize: font.size.xs, fontWeight: font.weight.medium },
 
-  section: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   sectionTitle: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.semibold, marginBottom: spacing.sm },
   card2: {
     backgroundColor: colors.surface, borderRadius: radius.lg,

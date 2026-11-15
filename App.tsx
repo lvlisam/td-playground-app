@@ -1,8 +1,18 @@
 import React from 'react';
+import { Platform, Text, type TextProps } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import TabNavigator from './src/navigation/TabNavigator';
+
+const TextWithDefaults = Text as typeof Text & { defaultProps?: TextProps };
+TextWithDefaults.defaultProps = {
+  ...TextWithDefaults.defaultProps,
+  style: [
+    TextWithDefaults.defaultProps?.style,
+    { fontFamily: Platform.select({ web: 'Arial', ios: 'System', android: 'Roboto', default: 'System' }) },
+  ],
+};
 
 export default function App() {
   return (

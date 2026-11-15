@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
   title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
   filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: colors.surface,
-    marginHorizontal: spacing.lg,
+    marginHorizontal: spacing.md,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
 
   chipsRow: {
     flexDirection: 'row', gap: spacing.sm,
-    paddingHorizontal: spacing.lg, marginBottom: spacing.md,
+    paddingHorizontal: spacing.md, marginBottom: spacing.md,
   },
   chip: {
     paddingHorizontal: spacing.md, paddingVertical: 7,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   chipsRowCompact: { gap: 4, paddingHorizontal: 16, marginBottom: 12 },
   chipCompact: { paddingHorizontal: 8, paddingVertical: 7 },
   chipTextCompact: { fontSize: 12 },
-  transactionListContent: { paddingHorizontal: spacing.lg },
+  transactionListContent: { paddingHorizontal: spacing.md },
   transactionListContentCompact: { paddingHorizontal: 16 },
   cardWrapCompact: { paddingHorizontal: 8 },
 });

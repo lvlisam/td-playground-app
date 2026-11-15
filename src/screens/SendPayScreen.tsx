@@ -211,13 +211,13 @@ export default function SendPayScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   header: {
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
   title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
 
   tabBar: {
     flexDirection: 'row',
-    marginHorizontal: spacing.lg,
+    marginHorizontal: spacing.md,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: 4,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   amountPlaceholder: { color: colors.textTertiary },
   amountTo: { color: colors.textSecondary, fontSize: font.size.sm, marginTop: spacing.xs },
 
-  section: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   sectionTitle: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.semibold, marginBottom: spacing.sm },
   seeAll: { color: colors.green, fontSize: font.size.sm },
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
 
   numpad: {
     flexDirection: 'row', flexWrap: 'wrap',
-    paddingHorizontal: spacing.lg, marginBottom: spacing.md,
+    paddingHorizontal: spacing.md, marginBottom: spacing.md,
   },
   numKey: {
     width: '33.33%', paddingVertical: spacing.md,
