@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet,
+  Alert, View, Text, TouchableOpacity, StyleSheet,
   ScrollView, StatusBar, TextInput, Platform, useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, font, radius, spacing } from '../theme';
+import TransferOverview, { type TransferAction } from '../components/TransferOverview';
 
 const TABS = ['Send', 'Request', 'Pay Bill'];
 
@@ -34,6 +35,7 @@ export default function SendPayScreen() {
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [selectedMethod, setSelectedMethod] = useState('interac');
   const [note, setNote] = useState('');
+  const [showForm, setShowForm] = useState(false);
 
   const handleNumpad = (key: string) => {
     if (key === '⌫') {
@@ -47,9 +49,32 @@ export default function SendPayScreen() {
     }
   };
 
+  const handleOverviewAction = (action: TransferAction) => {
+    if (action === 'send' || action === 'wire') {
+      setActiveTab('Send');
+      setSelectedMethod(action === 'wire' ? 'etransfer' : 'interac');
+      setShowForm(true);
+      return;
+    }
+
+    const labels: Record<TransferAction, string> = {
+      send: 'Send & request',
+      wire: 'Wire transfer',
+      deposit: 'Deposit a check',
+      move: 'Move money',
+      bills: 'Pay bills',
+      exchange: 'Exchange',
+    };
+    Alert.alert(`${labels[action]} coming soon`, 'Your upcoming and recently paid bills are available here.');
+  };
+
   const displayAmount = amount === '' ? '0.00' : parseFloat(amount).toFixed(amount.includes('.') ? Math.min(2, (amount.split('.')[1] || '').length) : 0);
 
   const canSend = selectedContact && parseFloat(amount) > 0;
+
+  if (!showForm) {
+    return <TransferOverview onSelectAction={handleOverviewAction} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -57,6 +82,15 @@ export default function SendPayScreen() {
 
       {/* Header */}
       <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Back to Pay and Transfer"
+          onPress={() => setShowForm(false)}
+          style={styles.backLink}
+        >
+          <Ionicons name="arrow-back" size={18} color={colors.textSecondary} />
+          <Text style={styles.backText}>Pay &amp; Transfer</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Send & Pay</Text>
       </View>
 
@@ -214,6 +248,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
   title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
+  backLink: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
+  backText: { color: colors.textSecondary, fontSize: font.size.sm, fontFamily: font.headline.medium },
 
   tabBar: {
     flexDirection: 'row',
