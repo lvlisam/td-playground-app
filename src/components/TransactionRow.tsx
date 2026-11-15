@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, font, radius, spacing } from '../theme';
 
@@ -17,21 +17,23 @@ export type Transaction = {
 type Props = { item: Transaction };
 
 export default function TransactionRow({ item }: Props) {
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
   const isCredit = item.amount > 0;
   return (
-    <View style={styles.row}>
-      <View style={[styles.iconWrap, { backgroundColor: item.iconBg }]}>
+    <View style={[styles.row, compact && styles.rowCompact]}>
+      <View style={[styles.iconWrap, compact && styles.iconWrapCompact, { backgroundColor: item.iconBg }]}>
         <Ionicons name={item.icon} size={20} color={item.iconColor} />
       </View>
       <View style={styles.info}>
-        <Text style={styles.merchant}>{item.merchant}</Text>
-        <Text style={styles.category}>{item.category}</Text>
+        <Text numberOfLines={compact ? 1 : undefined} style={[styles.merchant, compact && styles.merchantCompact]}>{item.merchant}</Text>
+        <Text numberOfLines={compact ? 1 : undefined} style={[styles.category, compact && styles.categoryCompact]}>{item.category}</Text>
       </View>
-      <View style={styles.right}>
-        <Text style={[styles.amount, { color: isCredit ? colors.green : colors.text }]}>
+      <View style={[styles.right, compact && styles.rightCompact]}>
+        <Text style={[styles.amount, compact && styles.amountCompact, { color: isCredit ? colors.green : colors.text }]}>
           {isCredit ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
         </Text>
-        <Text style={styles.date}>{item.date}</Text>
+        <Text style={[styles.date, compact && styles.dateCompact]}>{item.date}</Text>
       </View>
     </View>
   );
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
   merchant: {
     color: colors.text,
     fontSize: font.size.base,
-    fontWeight: font.weight.medium,
+    fontFamily: font.headline.medium,
   },
   category: {
     color: colors.textSecondary,
@@ -72,4 +74,11 @@ const styles = StyleSheet.create({
     fontSize: font.size.xs,
     marginTop: 2,
   },
+  rowCompact: { gap: 8, paddingVertical: 10 },
+  iconWrapCompact: { width: 36, height: 36 },
+  merchantCompact: { fontSize: 13 },
+  categoryCompact: { fontSize: 12 },
+  rightCompact: { minWidth: 68 },
+  amountCompact: { fontSize: 13 },
+  dateCompact: { fontSize: 11 },
 });

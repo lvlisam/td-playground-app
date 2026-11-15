@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Switch, StatusBar,
+  StyleSheet, Switch, StatusBar, Platform, useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,14 +19,16 @@ type ToggleRowProps = {
 };
 
 function ToggleRow({ icon, iconColor, iconBg, label, description, value, onToggle }: ToggleRowProps) {
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
   return (
-    <View style={toggleStyles.row}>
-      <View style={[toggleStyles.iconWrap, { backgroundColor: iconBg }]}>
+    <View style={[toggleStyles.row, compact && toggleStyles.rowCompact]}>
+      <View style={[toggleStyles.iconWrap, compact && toggleStyles.iconWrapCompact, { backgroundColor: iconBg }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
       <View style={toggleStyles.info}>
-        <Text style={toggleStyles.label}>{label}</Text>
-        {description && <Text style={toggleStyles.desc}>{description}</Text>}
+        <Text style={[toggleStyles.label, compact && toggleStyles.labelCompact]}>{label}</Text>
+        {description && <Text style={[toggleStyles.desc, compact && toggleStyles.descCompact]}>{description}</Text>}
       </View>
       <Switch
         value={value}
@@ -50,6 +52,10 @@ const toggleStyles = StyleSheet.create({
   info: { flex: 1 },
   label: { color: colors.text, fontSize: font.size.base, fontWeight: font.weight.medium },
   desc: { color: colors.textSecondary, fontSize: font.size.xs, marginTop: 2 },
+  rowCompact: { gap: 12, paddingVertical: 10 },
+  iconWrapCompact: { width: 32, height: 32 },
+  labelCompact: { fontSize: 14 },
+  descCompact: { fontSize: 12, lineHeight: 16 },
 });
 
 type NavRowProps = {
@@ -61,14 +67,16 @@ type NavRowProps = {
 };
 
 function NavRow({ icon, iconColor, iconBg, label, value }: NavRowProps) {
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
   return (
-    <TouchableOpacity style={navStyles.row}>
-      <View style={[navStyles.iconWrap, { backgroundColor: iconBg }]}>
+    <TouchableOpacity style={[navStyles.row, compact && navStyles.rowCompact]}>
+      <View style={[navStyles.iconWrap, compact && navStyles.iconWrapCompact, { backgroundColor: iconBg }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
-      <Text style={navStyles.label}>{label}</Text>
+      <Text style={[navStyles.label, compact && navStyles.labelCompact]}>{label}</Text>
       <View style={navStyles.right}>
-        {value && <Text style={navStyles.value}>{value}</Text>}
+        {value && <Text style={[navStyles.value, compact && navStyles.valueCompact]}>{value}</Text>}
         <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
       </View>
     </TouchableOpacity>
@@ -87,10 +95,17 @@ const navStyles = StyleSheet.create({
   label: { flex: 1, color: colors.text, fontSize: font.size.base, fontWeight: font.weight.medium },
   right: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   value: { color: colors.textSecondary, fontSize: font.size.sm },
+  rowCompact: { gap: 12, paddingVertical: 10 },
+  iconWrapCompact: { width: 32, height: 32 },
+  labelCompact: { fontSize: 14 },
+  valueCompact: { fontSize: 12 },
 });
 
 export default function CardsScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
+  const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [frozen, setFrozen] = useState(false);
   const [contactless, setContactless] = useState(true);
   const [onlinePayments, setOnlinePayments] = useState(true);
@@ -99,14 +114,14 @@ export default function CardsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
-          <Text style={styles.title}>Cards</Text>
+        <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
+          <Text style={styles.title}>Settings</Text>
           <TouchableOpacity style={styles.addBtn}>
             <Ionicons name="add" size={20} color={colors.green} />
             <Text style={styles.addBtnText}>Add Card</Text>
@@ -114,12 +129,12 @@ export default function CardsScreen() {
         </View>
 
         {/* Virtual Card */}
-        <View style={styles.cardContainer}>
+        <View style={[styles.cardContainer, compact && styles.cardContainerCompact]}>
           <LinearGradient
             colors={['#003D1F', '#005C2E', '#00C853']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1.2, y: 1 }}
-            style={[styles.card, frozen && styles.cardFrozen]}
+            style={[styles.card, compact && styles.cardCompact, frozen && styles.cardFrozen]}
           >
             {/* Card header */}
             <View style={styles.cardHeader}>
@@ -143,17 +158,17 @@ export default function CardsScreen() {
             </View>
 
             {/* Card Number */}
-            <Text style={styles.cardNumber}>••••  ••••  ••••  4821</Text>
+            <Text numberOfLines={1} style={[styles.cardNumber, compact && styles.cardNumberCompact]}>••••  ••••  ••••  4821</Text>
 
             {/* Card Footer */}
-            <View style={styles.cardFooter}>
+            <View style={[styles.cardFooter, compact && styles.cardFooterCompact]}>
               <View>
-                <Text style={styles.cardFooterLabel}>CARDHOLDER</Text>
-                <Text style={styles.cardFooterValue}>LISA MUMFORD</Text>
+                <Text style={[styles.cardFooterLabel, compact && styles.cardFooterLabelCompact]}>CARDHOLDER</Text>
+                <Text style={[styles.cardFooterValue, compact && styles.cardFooterValueCompact]}>LISA MUMFORD</Text>
               </View>
               <View>
-                <Text style={styles.cardFooterLabel}>EXPIRES</Text>
-                <Text style={styles.cardFooterValue}>09/29</Text>
+                <Text style={[styles.cardFooterLabel, compact && styles.cardFooterLabelCompact]}>EXPIRES</Text>
+                <Text style={[styles.cardFooterValue, compact && styles.cardFooterValueCompact]}>09/29</Text>
               </View>
               <View style={styles.visaLogo}>
                 <Text style={styles.visaText}>VISA</Text>
@@ -177,19 +192,19 @@ export default function CardsScreen() {
               { icon: 'ellipsis-horizontal' as const, label: 'More' },
             ].map((a) => (
               <TouchableOpacity key={a.label} style={styles.cardAction}>
-                <View style={styles.cardActionIcon}>
+                <View style={[styles.cardActionIcon, compact && styles.cardActionIconCompact]}>
                   <Ionicons name={a.icon} size={18} color={colors.green} />
                 </View>
-                <Text style={styles.cardActionLabel}>{a.label}</Text>
+                <Text style={[styles.cardActionLabel, compact && styles.cardActionLabelCompact]}>{a.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
         {/* Card Controls */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Card Controls</Text>
-          <View style={styles.card2}>
+          <View style={[styles.card2, compact && styles.card2Compact]}>
             <ToggleRow
               icon="snow-outline"
               iconColor={frozen ? colors.blue : colors.textSecondary}
@@ -223,9 +238,9 @@ export default function CardsScreen() {
         </View>
 
         {/* Limits */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Limits</Text>
-          <View style={styles.card2}>
+          <View style={[styles.card2, compact && styles.card2Compact]}>
             <NavRow icon="bar-chart-outline" iconColor={colors.purple} iconBg={colors.purpleDim} label="Daily Spend Limit" value="$5,000" />
             <View style={styles.divider} />
             <NavRow icon="cash-outline" iconColor={colors.orange} iconBg={colors.orangeDim} label="ATM Withdrawal Limit" value="$1,000" />
@@ -235,9 +250,9 @@ export default function CardsScreen() {
         </View>
 
         {/* Notifications */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Notifications</Text>
-          <View style={styles.card2}>
+          <View style={[styles.card2, compact && styles.card2Compact]}>
             <ToggleRow
               icon="notifications-outline"
               iconColor={colors.orange}
@@ -250,9 +265,9 @@ export default function CardsScreen() {
         </View>
 
         {/* Security */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Security</Text>
-          <View style={styles.card2}>
+          <View style={[styles.card2, compact && styles.card2Compact]}>
             <ToggleRow
               icon="finger-print-outline"
               iconColor={colors.green}
@@ -271,10 +286,10 @@ export default function CardsScreen() {
         </View>
 
         {/* Danger zone */}
-        <View style={[styles.section, { marginBottom: 0 }]}>
+          <View style={[styles.section, compact && styles.sectionCompact, { marginBottom: 0 }]}>
           <TouchableOpacity style={styles.reportBtn}>
             <Ionicons name="alert-circle-outline" size={18} color={colors.red} />
-            <Text style={styles.reportBtnText}>Report Lost or Stolen Card</Text>
+            <Text style={[styles.reportBtnText, compact && styles.reportBtnTextCompact]}>Report Lost or Stolen Card</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -287,13 +302,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
-  title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
+  title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
   addBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   addBtnText: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
 
-  cardContainer: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  cardContainer: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   card: {
     borderRadius: radius.xl,
     padding: spacing.lg,
@@ -304,7 +319,7 @@ const styles = StyleSheet.create({
   },
   cardFrozen: { opacity: 0.8 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  cardBankName: { color: '#fff', fontSize: font.size.md, fontWeight: font.weight.bold, letterSpacing: 1 },
+  cardBankName: { color: '#fff', fontSize: font.size.md, fontFamily: font.headline.bold, letterSpacing: 1 },
   cardType: { color: 'rgba(255,255,255,0.6)', fontSize: font.size.xs, marginTop: 2 },
   cardWifi: {},
   chip: {
@@ -351,8 +366,8 @@ const styles = StyleSheet.create({
   },
   cardActionLabel: { color: colors.textSecondary, fontSize: font.size.xs, fontWeight: font.weight.medium },
 
-  section: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
-  sectionTitle: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.semibold, marginBottom: spacing.sm },
+  section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
+  sectionTitle: { color: colors.text, fontSize: font.size.md, fontFamily: font.headline.semibold, marginBottom: spacing.sm },
   card2: {
     backgroundColor: colors.surface, borderRadius: radius.lg,
     paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colors.border,
@@ -366,4 +381,16 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: colors.red + '40',
   },
   reportBtnText: { color: colors.red, fontSize: font.size.base, fontWeight: font.weight.semibold },
+  headerCompact: { paddingHorizontal: 16, paddingBottom: 12 },
+  cardContainerCompact: { paddingHorizontal: 16, marginBottom: 16 },
+  cardCompact: { height: 184, padding: 16 },
+  cardNumberCompact: { fontSize: 13, letterSpacing: 1.5 },
+  cardFooterCompact: { gap: 8 },
+  sectionCompact: { paddingHorizontal: 16, marginBottom: 16 },
+  card2Compact: { paddingHorizontal: 12 },
+  reportBtnTextCompact: { fontSize: 14, flexShrink: 1, textAlign: 'center' },
+  cardFooterLabelCompact: { fontSize: 8 },
+  cardFooterValueCompact: { fontSize: 10 },
+  cardActionIconCompact: { width: 44, height: 44 },
+  cardActionLabelCompact: { fontSize: 11 },
 });

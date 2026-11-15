@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-  View, Text, SectionList, TextInput,
-  TouchableOpacity, StyleSheet, StatusBar,
+  View, Text, SectionList, TextInput, ScrollView,
+  TouchableOpacity, StyleSheet, StatusBar, Platform, useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -45,6 +45,9 @@ const FILTERS = ['All', 'Income', 'Expenses', 'Transfers'];
 
 export default function TransactionsScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
+  const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
 
@@ -63,11 +66,11 @@ export default function TransactionsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
-        <Text style={styles.title}>Transactions</Text>
+      <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
+        <Text style={[styles.title, compact && styles.titleCompact]}>Plan</Text>
         <TouchableOpacity style={styles.filterBtn}>
           <Ionicons name="options-outline" size={20} color={colors.green} />
           <Text style={styles.filterBtnText}>Filter</Text>
@@ -75,7 +78,7 @@ export default function TransactionsScreen() {
       </View>
 
       {/* Search */}
-      <View style={styles.searchWrap}>
+      <View style={[styles.searchWrap, compact && styles.searchWrapCompact]}>
         <Ionicons name="search-outline" size={18} color={colors.textTertiary} style={styles.searchIcon} />
         <TextInput
           value={search}
@@ -92,24 +95,28 @@ export default function TransactionsScreen() {
       </View>
 
       {/* Filter Chips */}
-      <View style={styles.chipsRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={[styles.chipsRow, compact && styles.chipsRowCompact]}
+      >
         {FILTERS.map((f) => (
           <TouchableOpacity
             key={f}
             onPress={() => setActiveFilter(f)}
-            style={[styles.chip, activeFilter === f && styles.chipActive]}
+            style={[styles.chip, compact && styles.chipCompact, activeFilter === f && styles.chipActive]}
           >
-            <Text style={[styles.chipText, activeFilter === f && styles.chipTextActive]}>{f}</Text>
+            <Text style={[styles.chipText, compact && styles.chipTextCompact, activeFilter === f && styles.chipTextActive]}>{f}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Transaction List */}
       <SectionList
         sections={filteredData}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: insets.bottom + 100 }}
+        contentContainerStyle={[styles.transactionListContent, compact && styles.transactionListContentCompact, { paddingBottom: insets.bottom + 100 }]}
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionDate}>{section.title}</Text>
@@ -121,7 +128,7 @@ export default function TransactionsScreen() {
         )}
         renderItem={({ item, index, section }) => (
           <>
-            <View style={styles.cardWrap}>
+              <View style={[styles.cardWrap, compact && styles.cardWrapCompact]}>
               <TransactionRow item={item} />
             </View>
             {index < section.data.length - 1 && <View style={styles.divider} />}
@@ -145,16 +152,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
-  title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
+  title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
   filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   filterBtnText: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
 
   searchWrap: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: colors.surface,
-    marginHorizontal: spacing.lg,
+    marginHorizontal: spacing.md,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
@@ -166,7 +173,7 @@ const styles = StyleSheet.create({
 
   chipsRow: {
     flexDirection: 'row', gap: spacing.sm,
-    paddingHorizontal: spacing.lg, marginBottom: spacing.md,
+    paddingHorizontal: spacing.md, marginBottom: spacing.md,
   },
   chip: {
     paddingHorizontal: spacing.md, paddingVertical: 7,
@@ -183,7 +190,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.bg,
   },
-  sectionDate: { color: colors.textSecondary, fontSize: font.size.sm, fontWeight: font.weight.semibold },
+  sectionDate: { color: colors.textSecondary, fontSize: font.size.sm, fontFamily: font.headline.semibold },
   sectionTotal: { color: colors.textTertiary, fontSize: font.size.sm },
 
   cardWrap: { backgroundColor: colors.surface, paddingHorizontal: spacing.md },
@@ -191,4 +198,13 @@ const styles = StyleSheet.create({
 
   empty: { alignItems: 'center', marginTop: spacing.xxl, gap: spacing.md },
   emptyText: { color: colors.textTertiary, fontSize: font.size.base },
+  headerCompact: { paddingHorizontal: 16, paddingBottom: 12 },
+  titleCompact: { fontSize: 22 },
+  searchWrapCompact: { marginHorizontal: 16, paddingHorizontal: 12, paddingVertical: 9, marginBottom: 12 },
+  chipsRowCompact: { gap: 4, paddingHorizontal: 16, marginBottom: 12 },
+  chipCompact: { paddingHorizontal: 8, paddingVertical: 7 },
+  chipTextCompact: { fontSize: 12 },
+  transactionListContent: { paddingHorizontal: spacing.md },
+  transactionListContentCompact: { paddingHorizontal: 16 },
+  cardWrapCompact: { paddingHorizontal: 8 },
 });
