@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  ScrollView, StatusBar, TextInput, Platform,
+  ScrollView, StatusBar, TextInput, Platform, useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,6 +26,8 @@ const NUMPAD = ['1','2','3','4','5','6','7','8','9','.','0','⌫'];
 
 export default function SendPayScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
   const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
   const [activeTab, setActiveTab] = useState('Send');
   const [amount, setAmount] = useState('');
@@ -54,12 +56,12 @@ export default function SendPayScreen() {
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: previewTopInset + spacing.sm }]}>
+      <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
         <Text style={styles.title}>Send & Pay</Text>
       </View>
 
       {/* Tab Bar */}
-      <View style={styles.tabBar}>
+      <View style={[styles.tabBar, compact && styles.tabBarCompact]}>
         {TABS.map((tab) => (
           <TouchableOpacity
             key={tab}
@@ -76,11 +78,11 @@ export default function SendPayScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
       >
         {/* Amount Display */}
-        <View style={styles.amountSection}>
+        <View style={[styles.amountSection, compact && styles.amountSectionCompact]}>
           <Text style={styles.amountLabel}>Amount (CAD)</Text>
           <View style={styles.amountRow}>
-            <Text style={styles.dollar}>$</Text>
-            <Text style={[styles.amountValue, amount === '' && styles.amountPlaceholder]}>
+            <Text style={[styles.dollar, compact && styles.dollarCompact]}>$</Text>
+            <Text style={[styles.amountValue, compact && styles.amountValueCompact, amount === '' && styles.amountPlaceholder]}>
               {displayAmount}
             </Text>
           </View>
@@ -92,16 +94,16 @@ export default function SendPayScreen() {
         </View>
 
         {/* Contacts */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent</Text>
             <TouchableOpacity>
               <Text style={styles.seeAll}>All Contacts</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.contactsRow}>
-            <TouchableOpacity style={styles.addContact}>
-              <View style={styles.addContactCircle}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.contactsRow, compact && styles.contactsRowCompact]}>
+              <TouchableOpacity style={[styles.addContact, compact && styles.addContactCompact]}>
+              <View style={[styles.addContactCircle, compact && styles.addContactCircleCompact]}>
                 <Ionicons name="add" size={24} color={colors.green} />
               </View>
               <Text style={styles.contactName}>New</Text>
@@ -110,10 +112,11 @@ export default function SendPayScreen() {
               <TouchableOpacity
                 key={c.id}
                 onPress={() => setSelectedContact(c.id === selectedContact ? null : c.id)}
-                style={styles.contact}
+                style={[styles.contact, compact && styles.contactCompact]}
               >
                 <View style={[
                   styles.contactAvatar,
+                  compact && styles.contactAvatarCompact,
                   { backgroundColor: c.color + '33' },
                   selectedContact === c.id && styles.contactAvatarActive,
                 ]}>
@@ -132,16 +135,16 @@ export default function SendPayScreen() {
         </View>
 
         {/* Transfer Method */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Method</Text>
           <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
             {METHODS.map((m) => (
               <TouchableOpacity
                 key={m.id}
                 onPress={() => setSelectedMethod(m.id)}
-                style={[styles.methodRow, selectedMethod === m.id && styles.methodRowActive]}
+                style={[styles.methodRow, compact && styles.methodRowCompact, selectedMethod === m.id && styles.methodRowActive]}
               >
-                <View style={[styles.methodIcon, selectedMethod === m.id && { backgroundColor: colors.greenDim }]}>
+                <View style={[styles.methodIcon, compact && styles.methodIconCompact, selectedMethod === m.id && { backgroundColor: colors.greenDim }]}>
                   <Ionicons name={m.icon} size={20} color={selectedMethod === m.id ? colors.green : colors.textSecondary} />
                 </View>
                 <View style={{ flex: 1 }}>
@@ -157,36 +160,36 @@ export default function SendPayScreen() {
         </View>
 
         {/* Note */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Note (optional)</Text>
           <TextInput
             value={note}
             onChangeText={setNote}
             placeholder="What's this for?"
             placeholderTextColor={colors.textTertiary}
-            style={styles.noteInput}
+            style={[styles.noteInput, compact && styles.noteInputCompact]}
           />
         </View>
 
         {/* Numpad */}
-        <View style={styles.numpad}>
+        <View style={[styles.numpad, compact && styles.numpadCompact]}>
           {NUMPAD.map((key) => (
             <TouchableOpacity
               key={key}
-              style={styles.numKey}
+              style={[styles.numKey, compact && styles.numKeyCompact]}
               onPress={() => handleNumpad(key)}
             >
               {key === '⌫' ? (
                 <Ionicons name="backspace-outline" size={22} color={colors.text} />
               ) : (
-                <Text style={styles.numKeyText}>{key}</Text>
+                <Text style={[styles.numKeyText, compact && styles.numKeyTextCompact]}>{key}</Text>
               )}
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Send Button */}
-        <View style={styles.section}>
+        <View style={[styles.section, compact && styles.sectionCompact]}>
           <TouchableOpacity disabled={!canSend} style={{ opacity: canSend ? 1 : 0.4 }}>
             <LinearGradient
               colors={[colors.green, colors.greenBright]}
@@ -309,4 +312,21 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   sendBtnText: { color: '#000', fontSize: font.size.md, fontWeight: font.weight.bold },
+  headerCompact: { paddingHorizontal: 16, paddingBottom: 12 },
+  tabBarCompact: { marginHorizontal: 16, padding: 3, marginBottom: 14 },
+  amountSectionCompact: { paddingVertical: 20 },
+  dollarCompact: { fontSize: 18, marginTop: 4, marginRight: 3 },
+  amountValueCompact: { fontSize: 42, letterSpacing: -1.5 },
+  sectionCompact: { paddingHorizontal: 16, marginBottom: 16 },
+  contactsRowCompact: { gap: 12, paddingRight: 16 },
+  methodRowCompact: { gap: 12, padding: 12 },
+  methodIconCompact: { width: 36, height: 36 },
+  noteInputCompact: { padding: 12 },
+  numpadCompact: { paddingHorizontal: 16, marginBottom: 12 },
+  numKeyCompact: { paddingVertical: 12 },
+  addContactCompact: { width: 60 },
+  addContactCircleCompact: { width: 50, height: 50, borderRadius: 25 },
+  contactCompact: { width: 60 },
+  contactAvatarCompact: { width: 50, height: 50, borderRadius: 25 },
+  numKeyTextCompact: { fontSize: 20 },
 });

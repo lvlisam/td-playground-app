@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -61,33 +62,35 @@ const accounts = [
   },
 ];
 
-function AccountRow({ account, last }: { account: (typeof accounts)[number]; last: boolean }) {
+function AccountRow({ account, last, compact }: { account: (typeof accounts)[number]; last: boolean; compact: boolean }) {
   return (
     <TouchableOpacity
       accessibilityRole="button"
       accessibilityLabel={`${account.name}, ${account.amount}`}
-      style={[styles.accountRow, !last && styles.accountDivider]}
+      style={[styles.accountRow, compact && styles.accountRowCompact, !last && styles.accountDivider]}
     >
-      <View style={[styles.accountMark, { backgroundColor: account.swatch }]}>
+      <View style={[styles.accountMark, compact && styles.accountMarkCompact, { backgroundColor: account.swatch }]}>
         {account.id === 'family' ? (
-          <Ionicons name="people-outline" size={19} color={palette.ink} />
+          <Ionicons name="people-outline" size={compact ? 17 : 19} color={palette.ink} />
         ) : (
           <View style={styles.accountMarkLine} />
         )}
       </View>
       <View style={styles.accountCopy}>
-        <Text numberOfLines={1} style={styles.accountName}>{account.name}</Text>
-        <Text numberOfLines={1} style={styles.accountDetail}>{account.detail}</Text>
-        {account.note ? <Text numberOfLines={1} style={styles.accountNote}>{account.note}</Text> : null}
+        <Text numberOfLines={compact ? 2 : 1} style={[styles.accountName, compact && styles.accountNameCompact]}>{account.name}</Text>
+        <Text numberOfLines={1} style={[styles.accountDetail, compact && styles.accountDetailCompact]}>{account.detail}</Text>
+        {account.note ? <Text numberOfLines={compact ? 2 : 1} style={[styles.accountNote, compact && styles.accountNoteCompact]}>{account.note}</Text> : null}
       </View>
-      <Text numberOfLines={1} style={styles.accountAmount}>{account.amount}</Text>
-      <Ionicons name="chevron-forward" size={17} color="rgba(22,25,23,0.58)" />
+      <Text numberOfLines={1} style={[styles.accountAmount, compact && styles.accountAmountCompact]}>{account.amount}</Text>
+      <Ionicons name="chevron-forward" size={compact ? 14 : 17} color="rgba(22,25,23,0.58)" />
     </TouchableOpacity>
   );
 }
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compact = width < 360;
   const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
 
   return (
@@ -97,7 +100,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 78 }}
       >
-        <View style={styles.hero}>
+        <View style={[styles.hero, compact && styles.heroCompact]}>
           <Image
             source={require('../../assets/nyc-skyline.png')}
             resizeMode="cover"
@@ -109,60 +112,60 @@ export default function DashboardScreen() {
             locations={[0, 0.44, 0.72, 1]}
             style={[StyleSheet.absoluteFill, styles.heroGradient]}
           />
-          <View style={[styles.heroForeground, { paddingTop: previewTopInset + 12 }]}>
-            <View style={styles.topBar}>
-            <View style={styles.identity}>
-              <View style={styles.tdLogo}><Text style={styles.tdLogoText}>TD</Text></View>
+          <View style={[styles.heroForeground, compact && styles.heroForegroundCompact, { paddingTop: previewTopInset + (compact ? 8 : 12) }]}>
+            <View style={[styles.topBar, compact && styles.topBarCompact]}>
+            <View style={[styles.identity, compact && styles.identityCompact]}>
+              <View style={[styles.tdLogo, compact && styles.tdLogoCompact]}><Text style={[styles.tdLogoText, compact && styles.tdLogoTextCompact]}>TD</Text></View>
               <View>
-                <Text style={styles.greeting}>Good afternoon,</Text>
-                <Text style={styles.customerName}>Maya <Ionicons name="chevron-forward" size={15} color="#FFFFFF" /></Text>
+                <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
+                <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya <Ionicons name="chevron-forward" size={compact ? 13 : 15} color="#FFFFFF" /></Text>
               </View>
             </View>
-            <View style={styles.topActions}>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" style={styles.tediButton}>
-                <View style={styles.tediMark}><Ionicons name="sparkles-outline" size={18} color={palette.green} /></View>
-                <Text style={styles.tediText}>Tedi</Text>
+            <View style={[styles.topActions, compact && styles.topActionsCompact]}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" style={[styles.tediButton, compact && styles.tediButtonCompact]}>
+                <View style={[styles.tediMark, compact && styles.tediMarkCompact]}><Ionicons name="sparkles-outline" size={compact ? 14 : 18} color={palette.green} /></View>
+                <Text style={[styles.tediText, compact && styles.tediTextCompact]}>Tedi</Text>
               </TouchableOpacity>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Notifications, 3 unread" style={styles.notificationButton}>
-                <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Notifications, 3 unread" style={[styles.notificationButton, compact && styles.notificationButtonCompact]}>
+                <Ionicons name="notifications-outline" size={compact ? 18 : 22} color="#FFFFFF" />
                 <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.locationPill}>
+          <View style={[styles.locationPill, compact && styles.locationPillCompact]}>
             <View style={styles.liveDot} />
             <Ionicons name="location-outline" size={15} color={palette.green} />
-            <Text style={styles.locationText}>New York, NY</Text>
+            <Text style={[styles.locationText, compact && styles.locationTextCompact]}>New York, NY</Text>
             <Text style={styles.locationDivider}>·</Text>
-            <Text style={styles.locationMode}>Local view</Text>
+            <Text style={[styles.locationMode, compact && styles.locationModeCompact]}>Local view</Text>
           </View>
 
-          <View style={styles.balanceBlock}>
-            <View style={styles.balanceLabelRow}>
-              <Text style={styles.balanceLabel}>All your money</Text>
+          <View style={[styles.balanceBlock, compact && styles.balanceBlockCompact]}>
+            <View style={[styles.balanceLabelRow, compact && styles.balanceLabelRowCompact]}>
+              <Text style={[styles.balanceLabel, compact && styles.balanceLabelCompact]}>All your money</Text>
               <Ionicons name="eye-outline" size={19} color="rgba(255,255,255,0.84)" />
               <Ionicons name="volume-medium-outline" size={19} color="rgba(255,255,255,0.84)" />
             </View>
-            <Text style={styles.balance}>$70,062.17</Text>
+            <Text style={[styles.balance, compact && styles.balanceCompact]}>$70,062.17</Text>
           </View>
           </View>
         </View>
 
-        <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Your accounts</Text>
-          <TouchableOpacity accessibilityRole="button" style={styles.relationshipBanner}>
-            <View style={styles.selectPill}>
-              <Ionicons name="ribbon-outline" size={16} color={palette.ink} />
-              <Text style={styles.selectText}>SELECT</Text>
+        <View style={[styles.content, compact && styles.contentCompact]}>
+          <Text style={[styles.sectionTitle, compact && styles.sectionTitleCompact]}>Your accounts</Text>
+          <TouchableOpacity accessibilityRole="button" style={[styles.relationshipBanner, compact && styles.relationshipBannerCompact]}>
+            <View style={[styles.selectPill, compact && styles.selectPillCompact]}>
+              <Ionicons name="ribbon-outline" size={compact ? 14 : 16} color={palette.ink} />
+              <Text style={[styles.selectText, compact && styles.selectTextCompact]}>SELECT</Text>
             </View>
-            <Text style={styles.relationshipText}>Your relationship tier</Text>
+            <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>Your relationship tier</Text>
             <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
           </TouchableOpacity>
 
           <View style={styles.accountList}>
             {accounts.map((account, index) => (
-              <AccountRow key={account.id} account={account} last={index === accounts.length - 1} />
+              <AccountRow key={account.id} account={account} last={index === accounts.length - 1} compact={compact} />
             ))}
           </View>
 
@@ -249,4 +252,36 @@ const styles = StyleSheet.create({
   offerEyebrow: { color: '#36873A', fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
   offerTitle: { color: palette.ink, fontSize: 13, fontWeight: '700', marginTop: 2 },
   offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
+  heroCompact: { minHeight: 248 },
+  heroForegroundCompact: { paddingBottom: 20 },
+  topBarCompact: { paddingHorizontal: 14 },
+  identityCompact: { gap: 6 },
+  tdLogoCompact: { width: 32, height: 32, borderRadius: 8 },
+  tdLogoTextCompact: { fontSize: 17 },
+  greetingCompact: { fontSize: 11, lineHeight: 15 },
+  customerNameCompact: { fontSize: 15, lineHeight: 19 },
+  topActionsCompact: { gap: 4 },
+  tediButtonCompact: { height: 36, paddingHorizontal: 6, gap: 5 },
+  tediMarkCompact: { width: 24, height: 24 },
+  tediTextCompact: { fontSize: 12, paddingRight: 2 },
+  notificationButtonCompact: { width: 34, height: 34 },
+  locationPillCompact: { gap: 5, marginTop: 14, marginLeft: 14, paddingHorizontal: 8, paddingVertical: 6 },
+  locationTextCompact: { fontSize: 11 },
+  locationModeCompact: { fontSize: 11 },
+  balanceBlockCompact: { marginTop: 14, paddingHorizontal: 14 },
+  balanceLabelRowCompact: { gap: 8 },
+  balanceLabelCompact: { fontSize: 13 },
+  balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
+  contentCompact: { paddingHorizontal: 12 },
+  sectionTitleCompact: { fontSize: 17, marginBottom: 9 },
+  relationshipBannerCompact: { minHeight: 44, paddingHorizontal: 8, gap: 8, marginBottom: 9, borderRadius: 14 },
+  selectPillCompact: { height: 28, paddingHorizontal: 8, gap: 4 },
+  selectTextCompact: { fontSize: 10 },
+  relationshipTextCompact: { fontSize: 12 },
+  accountRowCompact: { minHeight: 66, paddingHorizontal: 9, gap: 7 },
+  accountMarkCompact: { width: 30, height: 30, borderRadius: 7 },
+  accountNameCompact: { fontSize: 13, lineHeight: 16 },
+  accountDetailCompact: { fontSize: 11, lineHeight: 14 },
+  accountNoteCompact: { fontSize: 10, lineHeight: 13 },
+  accountAmountCompact: { fontSize: 12, maxWidth: 78, flexShrink: 0 },
 });
