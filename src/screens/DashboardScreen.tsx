@@ -130,11 +130,21 @@ export default function DashboardScreen() {
               <View style={[styles.tdLogo, compact && styles.tdLogoCompact]}><Text style={[styles.tdLogoText, compact && styles.tdLogoTextCompact]}>TD</Text></View>
               <View>
                 <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
-                <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya <Ionicons name="chevron-forward" size={compact ? 13 : 15} color={colors.white} /></Text>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Maya, customer settings"
+                  accessibilityHint="Opens customer settings"
+                  onPress={() => navigation.navigate('Settings')}
+                  style={styles.customerProfileButton}
+                >
+                  <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya</Text>
+                  <Ionicons name="person-circle-outline" size={compact ? 16 : 18} color={colors.white} />
+                  <Ionicons name="chevron-forward" size={compact ? 13 : 15} color={colors.white} />
+                </TouchableOpacity>
               </View>
             </View>
             <View style={[styles.topActions, compact && styles.topActionsCompact]}>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" style={[styles.tediButton, compact && styles.tediButtonCompact]}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" onPress={() => navigation.navigate('Tedi')} style={[styles.tediButton, compact && styles.tediButtonCompact]}>
                 <View style={[styles.tediMark, compact && styles.tediMarkCompact]}><Ionicons name="sparkles-outline" size={compact ? 14 : 18} color={palette.green} /></View>
                 <Text style={[styles.tediText, compact && styles.tediTextCompact]}>Tedi</Text>
               </TouchableOpacity>
@@ -162,7 +172,7 @@ export default function DashboardScreen() {
             <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={palette.green} />
             <View style={styles.feeNoticeCopy}>
               <Text style={styles.feeNoticeText}>Fee waived this month</Text>
-              <Text style={styles.feeNoticeSubtext}>Direct deposit covers your $5 monthly fee</Text>
+              <Text style={[styles.feeNoticeSubtext, compact && styles.feeNoticeSubtextCompact]}>Direct deposit covers your $5 monthly fee</Text>
             </View>
           </View>
 
@@ -257,6 +267,7 @@ const styles = StyleSheet.create({
   tdLogo: { width: 42, height: 42, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
   tdLogoText: { color: colors.white, fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
+  customerProfileButton: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tediButton: { height: 44, paddingHorizontal: 9, borderRadius: 24, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 7 },
@@ -272,7 +283,8 @@ const styles = StyleSheet.create({
   feeNotice: { minHeight: 62, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, paddingVertical: 9, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
   feeNoticeCopy: { flex: 1, minWidth: 0, gap: 2 },
   feeNoticeText: { color: colors.white, fontSize: 14, lineHeight: 19, fontWeight: '600' },
-  feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 14, lineHeight: 19 },
+  feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 11, lineHeight: 15 },
+  feeNoticeSubtextCompact: { fontSize: 10, lineHeight: 13 },
   moveMoneyButton: { minHeight: 48, borderRadius: 14, backgroundColor: palette.green, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   moveMoneyText: { flex: 1, color: palette.ink, fontSize: 14, fontWeight: '700', marginLeft: 10 },
   accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },

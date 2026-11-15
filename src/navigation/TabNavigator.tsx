@@ -8,6 +8,7 @@ import TransactionsScreen from '../screens/TransactionsScreen';
 import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
+import TediScreen from '../screens/TediScreen';
 import { colors, font, radius } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -136,11 +137,16 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
+                    name="Tedi"
+                    component={TediScreen}
+                    options={{
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'sparkles' : 'sparkles-outline'} focused={focused} />,
+                    }}
+                  />
+                  <Tab.Screen
                     name="Settings"
                     component={CardsScreen}
-                    options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'settings' : 'settings-outline'} focused={focused} />,
-                    }}
+                    options={{ tabBarButton: () => null }}
                   />
               </Tab.Navigator>
             </View>
