@@ -77,9 +77,9 @@ function AccountRow({ account, last, compact }: { account: (typeof accounts)[num
         )}
       </View>
       <View style={styles.accountCopy}>
-        <Text numberOfLines={compact ? 2 : 1} style={[styles.accountName, compact && styles.accountNameCompact]}>{account.name}</Text>
+        <Text numberOfLines={1} style={[styles.accountName, compact && styles.accountNameCompact]}>{account.name}</Text>
         <Text numberOfLines={1} style={[styles.accountDetail, compact && styles.accountDetailCompact]}>{account.detail}</Text>
-        {account.note ? <Text numberOfLines={compact ? 2 : 1} style={[styles.accountNote, compact && styles.accountNoteCompact]}>{account.note}</Text> : null}
+        {account.note ? <Text numberOfLines={1} style={[styles.accountNote, compact && styles.accountNoteCompact]}>{account.note}</Text> : null}
       </View>
       <Text numberOfLines={1} style={[styles.accountAmount, compact && styles.accountAmountCompact]}>{account.amount}</Text>
       <Ionicons name="chevron-forward" size={compact ? 14 : 17} color="rgba(22,25,23,0.58)" />
@@ -91,7 +91,7 @@ export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
-  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
+  const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
 
   return (
     <View style={styles.container}>
@@ -252,8 +252,8 @@ const styles = StyleSheet.create({
   offerEyebrow: { color: '#36873A', fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
   offerTitle: { color: palette.ink, fontSize: 13, fontWeight: '700', marginTop: 2 },
   offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
-  heroCompact: { minHeight: 248 },
-  heroForegroundCompact: { paddingBottom: 20 },
+  heroCompact: { minHeight: 200 },
+  heroForegroundCompact: { paddingBottom: 16 },
   topBarCompact: { paddingHorizontal: 14 },
   identityCompact: { gap: 6 },
   tdLogoCompact: { width: 32, height: 32, borderRadius: 8 },
@@ -273,15 +273,15 @@ const styles = StyleSheet.create({
   balanceLabelCompact: { fontSize: 13 },
   balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
   contentCompact: { paddingHorizontal: 12 },
-  sectionTitleCompact: { fontSize: 17, marginBottom: 9 },
-  relationshipBannerCompact: { minHeight: 44, paddingHorizontal: 8, gap: 8, marginBottom: 9, borderRadius: 14 },
+  sectionTitleCompact: { fontSize: 17, marginBottom: 6 },
+  relationshipBannerCompact: { minHeight: 40, paddingHorizontal: 8, gap: 8, marginBottom: 8, borderRadius: 14 },
   selectPillCompact: { height: 28, paddingHorizontal: 8, gap: 4 },
   selectTextCompact: { fontSize: 10 },
   relationshipTextCompact: { fontSize: 12 },
-  accountRowCompact: { minHeight: 66, paddingHorizontal: 9, gap: 7 },
+  accountRowCompact: { minHeight: 50, paddingHorizontal: 9, gap: 7 },
   accountMarkCompact: { width: 30, height: 30, borderRadius: 7 },
   accountNameCompact: { fontSize: 13, lineHeight: 16 },
-  accountDetailCompact: { fontSize: 11, lineHeight: 14 },
-  accountNoteCompact: { fontSize: 10, lineHeight: 13 },
+  accountDetailCompact: { fontSize: 10, lineHeight: 13 },
+  accountNoteCompact: { fontSize: 10, lineHeight: 12 },
   accountAmountCompact: { fontSize: 12, maxWidth: 78, flexShrink: 0 },
 });

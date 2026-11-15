@@ -28,7 +28,7 @@ export default function SendPayScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
-  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
+  const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [activeTab, setActiveTab] = useState('Send');
   const [amount, setAmount] = useState('');
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export default function SendPayScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Header */}
       <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>

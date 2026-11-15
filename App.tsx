@@ -20,7 +20,7 @@ export default function App() {
           },
         }}
       >
-        <StatusBar style="light" />
+        <StatusBar style="auto" />
         <TabNavigator />
       </NavigationContainer>
     </SafeAreaProvider>

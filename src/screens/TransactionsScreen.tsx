@@ -47,7 +47,7 @@ export default function TransactionsScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
-  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
+  const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
 
@@ -66,11 +66,11 @@ export default function TransactionsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Header */}
       <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
-        <Text style={[styles.title, compact && styles.titleCompact]}>Transactions</Text>
+        <Text style={[styles.title, compact && styles.titleCompact]}>Plan</Text>
         <TouchableOpacity style={styles.filterBtn}>
           <Ionicons name="options-outline" size={20} color={colors.green} />
           <Text style={styles.filterBtnText}>Filter</Text>

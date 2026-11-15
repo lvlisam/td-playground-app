@@ -105,7 +105,7 @@ export default function CardsScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
-  const previewTopInset = Platform.OS === 'web' ? Math.max(insets.top, 48) : insets.top;
+  const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [frozen, setFrozen] = useState(false);
   const [contactless, setContactless] = useState(true);
   const [onlinePayments, setOnlinePayments] = useState(true);
@@ -114,14 +114,14 @@ export default function CardsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
       >
         {/* Header */}
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
-          <Text style={styles.title}>Cards</Text>
+          <Text style={styles.title}>Settings</Text>
           <TouchableOpacity style={styles.addBtn}>
             <Ionicons name="add" size={20} color={colors.green} />
             <Text style={styles.addBtnText}>Add Card</Text>

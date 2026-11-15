@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import SendPayScreen from '../screens/SendPayScreen';
+import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
 import { font, radius } from '../theme';
 
@@ -40,9 +41,9 @@ function TabIcon({ name, focused }: TabIconProps) {
 export default function TabNavigator() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const showDeviceFrame = Platform.OS === 'web';
+  const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const compactPreview = showDeviceFrame && width < 650;
-  const desktopPreview = showDeviceFrame && !compactPreview;
+  const desktopPreview = showDeviceFrame;
   const deviceWidth = compactPreview
     ? Math.min(width - 28, (height - 24) * 0.47)
     : Math.min(430, width - 32);
@@ -69,7 +70,7 @@ export default function TabNavigator() {
         )}
         <View style={[styles.deviceRim, !showDeviceFrame && styles.nativeRim]}>
           <View style={[styles.deviceBezel, !showDeviceFrame && styles.nativeBezel]}>
-            <View style={styles.deviceScreen}>
+            <View style={[styles.deviceScreen, !showDeviceFrame && styles.nativeScreen]}>
               <Tab.Navigator
                   screenOptions={{
                     headerShown: false,
@@ -88,11 +89,12 @@ export default function TabNavigator() {
                     tabBarActiveTintColor: frameColors.green,
                     tabBarInactiveTintColor: frameColors.muted,
                     tabBarLabelStyle: {
-                      fontSize: font.size.xs,
+                      fontSize: width < 360 ? 9 : font.size.xs,
                       fontWeight: font.weight.medium,
-                      marginBottom: 5,
+                      textAlign: 'center',
+                      marginBottom: 4,
                     },
-                    tabBarItemStyle: { paddingTop: 4 },
+                    tabBarItemStyle: { paddingTop: 2, minWidth: 0 },
                   }}
                 >
                   <Tab.Screen
@@ -103,29 +105,31 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
-                    name="Activity"
+                    name="Plan"
                     component={TransactionsScreen}
                     options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'list' : 'list-outline'} focused={focused} />,
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'analytics' : 'analytics-outline'} focused={focused} />,
                     }}
                   />
                   <Tab.Screen
-                    name="Send"
+                    name="Pay & Transfer"
                     component={SendPayScreen}
                     options={{
-                      tabBarIcon: () => (
-                        <View style={styles.sendTab}>
-                          <Ionicons name="paper-plane" size={19} color={frameColors.bezel} />
-                        </View>
-                      ),
-                      tabBarLabel: () => null,
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'swap-horizontal' : 'swap-horizontal-outline'} focused={focused} />,
                     }}
                   />
                   <Tab.Screen
-                    name="Cards"
+                    name="Benefits"
+                    component={BenefitsScreen}
+                    options={{
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'gift' : 'gift-outline'} focused={focused} />,
+                    }}
+                  />
+                  <Tab.Screen
+                    name="Settings"
                     component={CardsScreen}
                     options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'card' : 'card-outline'} focused={focused} />,
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'settings' : 'settings-outline'} focused={focused} />,
                     }}
                   />
               </Tab.Navigator>
@@ -167,6 +171,7 @@ const styles = StyleSheet.create({
   },
   nativeBezel: { borderRadius: 0, padding: 0, backgroundColor: frameColors.screen },
   deviceScreen: { flex: 1, borderRadius: 37, overflow: 'hidden', backgroundColor: frameColors.screen },
+  nativeScreen: { borderRadius: 0 },
   hardwareButton: {
     position: 'absolute',
     zIndex: 2,
