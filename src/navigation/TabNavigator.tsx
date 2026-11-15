@@ -11,6 +11,7 @@ import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
 import TediScreen from '../screens/TediScreen';
 import AccountServicingScreen from '../screens/AccountServicingScreen';
+import AccountSettingsScreen from '../screens/AccountSettingsScreen';
 import { AccountsProvider } from '../accounts';
 import { colors, font, radius } from '../theme';
 
@@ -108,20 +109,52 @@ function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<Para
   );
 }
 
+function DesktopCustomerInsights() {
+  const personas = [
+    { initials: 'AR', name: 'Ava', detail: 'Planning for a growing family', need: 'A goal plan that flexes with life.' },
+    { initials: 'JM', name: 'Jordan', detail: 'Saving for a first home', need: 'A clearer path from today to someday.' },
+    { initials: 'SK', name: 'Sam', detail: 'Running a small business', need: 'One simpler view of personal and business money.' },
+  ];
+
+  return (
+    <View style={styles.desktopInsightsPanel} accessibilityLabel="Illustrative TD customer personas and needs">
+      <View style={styles.insightsEyebrowRow}>
+        <Ionicons name="people-outline" size={14} color={colors.greenDeep} />
+        <Text style={styles.insightsEyebrow}>ILLUSTRATIVE DESIGN LENS</Text>
+      </View>
+      <Text accessibilityRole="header" style={styles.insightsTitle}>What TD customers may want</Text>
+      <Text style={styles.insightsIntro}>Clear everyday money, meaningful next steps, and guidance that adapts when life changes.</Text>
+      <View style={styles.personaList}>
+        {personas.map((persona) => (
+          <View key={persona.initials} style={styles.personaRow}>
+            <View style={styles.personaAvatar}><Text style={styles.personaInitials}>{persona.initials}</Text></View>
+            <View style={styles.personaCopy}>
+              <Text style={styles.personaName}>{persona.name}</Text>
+              <Text style={styles.personaDetail}>{persona.detail}</Text>
+              <Text style={styles.personaNeed}>{persona.need}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+      <View style={styles.customerQuoteCard}>
+        <Ionicons name="chatbubble-ellipses-outline" size={17} color={colors.greenDeep} />
+        <Text style={styles.customerQuote}>“Help me see what’s safe to spend and keep my bigger goals moving.”</Text>
+        <Text style={styles.customerQuoteAttribution}>Ava · family planner</Text>
+        <Text style={styles.quoteDisclaimer}>Illustrative persona quote, not a verbatim customer testimonial.</Text>
+      </View>
+    </View>
+  );
+}
+
 export default function TabNavigator() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const [activeTab, setActiveTab] = React.useState('Home');
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
-  const compactPreview = showDeviceFrame && width < 650;
-  const desktopPreview = showDeviceFrame;
-  const deviceWidth = compactPreview
-    ? Math.min(width - 28, (height - 24) * 0.47)
-    : Math.min(430, width - 32);
-  const deviceHeight = compactPreview
-    ? Math.min(height - 24, deviceWidth / 0.47)
-    : Math.max(480, height - 28);
+  const showCustomerInsights = showDeviceFrame && width >= 1100;
+  const deviceWidth = showDeviceFrame ? Math.min(390, width - 32, (height - 32) * 0.47) : width;
+  const deviceHeight = showDeviceFrame ? deviceWidth / 0.47 : height;
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage]}>
       {showDeviceFrame && <DesktopNavigationMenu navigation={navigation} />}
@@ -129,8 +162,7 @@ export default function TabNavigator() {
         style={[
           styles.device,
           !showDeviceFrame && styles.nativeDevice,
-          compactPreview && { width: deviceWidth, height: deviceHeight },
-          desktopPreview && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
+          showDeviceFrame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
         ]}
       >
         {showDeviceFrame && (
@@ -165,7 +197,10 @@ export default function TabNavigator() {
                     },
                     tabBarActiveTintColor: frameColors.green,
                     tabBarInactiveTintColor: frameColors.muted,
+                    tabBarLabelPosition: 'below-icon',
                     tabBarLabelStyle: {
+                      width: '100%',
+                      flexShrink: 1,
                       fontFamily: font.body.medium,
                       fontSize: width < 360 ? 9 : 10.5,
                       fontWeight: font.weight.medium,
@@ -173,7 +208,7 @@ export default function TabNavigator() {
                       textAlign: 'center',
                       marginBottom: 2,
                     },
-                    tabBarItemStyle: { flex: 1, paddingHorizontal: 0, paddingVertical: 3, minWidth: 0 },
+                    tabBarItemStyle: { flex: 1, flexDirection: 'column', paddingHorizontal: 0, paddingVertical: 3, minWidth: 0 },
                     tabBarButton: (props) => (
                       <TouchableOpacity
                         {...props}
@@ -229,6 +264,11 @@ export default function TabNavigator() {
                     options={{ tabBarButton: () => null }}
                   />
                   <Tab.Screen
+                    name="Account settings"
+                    component={AccountSettingsScreen}
+                    options={{ tabBarButton: () => null }}
+                  />
+                  <Tab.Screen
                     name="Card Manager"
                     component={CardsScreen}
                     options={{ tabBarButton: () => null }}
@@ -250,13 +290,14 @@ export default function TabNavigator() {
           </>
         )}
       </View>
+      {showCustomerInsights ? <DesktopCustomerInsights /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
-  previewStage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20, paddingHorizontal: 16, backgroundColor: frameColors.stage },
+  previewStage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingHorizontal: 16, backgroundColor: frameColors.stage },
   desktopMenu: { width: 152, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
   desktopMenuHeading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 5 },
   desktopMenuBrandMark: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.greenDeep, alignItems: 'center', justifyContent: 'center' },
@@ -267,6 +308,23 @@ const styles = StyleSheet.create({
   desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },
+  desktopInsightsPanel: { width: 286, maxHeight: '92%', padding: 18, borderRadius: 20, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 12, shadowColor: colors.text, shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.06, shadowRadius: 14, elevation: 2 },
+  insightsEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  insightsEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold, letterSpacing: 0.7 },
+  insightsTitle: { color: colors.text, fontSize: 21, lineHeight: 26, fontFamily: font.headline.bold },
+  insightsIntro: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
+  personaList: { gap: 10 },
+  personaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 9 },
+  personaAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  personaInitials: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
+  personaCopy: { flex: 1, gap: 1 },
+  personaName: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.semibold },
+  personaDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  personaNeed: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontFamily: font.body.medium },
+  customerQuoteCard: { padding: 12, borderRadius: 14, backgroundColor: colors.greenDim, gap: 6 },
+  customerQuote: { color: colors.text, fontSize: 13, lineHeight: 19, fontFamily: font.headline.semibold },
+  customerQuoteAttribution: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontFamily: font.body.bold },
+  quoteDisclaimer: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
   device: { position: 'relative', flex: 1, width: '100%' },
   nativeDevice: { backgroundColor: frameColors.screen },
   deviceRim: {

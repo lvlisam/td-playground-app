@@ -202,6 +202,7 @@ export default function FamilyPlanBuilder() {
               key={goal.id}
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={`${goal.title}. ${goal.description}`}
               onPress={() => selectGoal(goal)}
               style={[styles.goalOption, selected && styles.goalOptionSelected]}
@@ -321,6 +322,7 @@ export default function FamilyPlanBuilder() {
                     key={option.id}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     onPress={() => setPlanningPriority(option.id)}
                     style={[styles.priorityOption, selected && styles.priorityOptionSelected]}
                   >
@@ -341,6 +343,7 @@ export default function FamilyPlanBuilder() {
                     key={option.id}
                     accessibilityRole="checkbox"
                     accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     accessibilityLabel={option.label}
                     onPress={() => toggleOtherGoal(option.id)}
                     style={[styles.otherGoalOption, selected && styles.otherGoalOptionSelected]}
