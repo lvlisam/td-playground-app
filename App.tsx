@@ -3,6 +3,14 @@ import { Platform, Text, type TextProps } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import {
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from '@expo-google-fonts/inter';
+import { font } from './src/theme';
 import TabNavigator from './src/navigation/TabNavigator';
 
 const TextWithDefaults = Text as typeof Text & { defaultProps?: TextProps };
@@ -15,6 +23,13 @@ TextWithDefaults.defaultProps = {
 };
 
 export default function App() {
+  useFonts({
+    [font.headline.medium]: Inter_500Medium,
+    [font.headline.semibold]: Inter_600SemiBold,
+    [font.headline.bold]: Inter_700Bold,
+    [font.headline.heavy]: Inter_800ExtraBold,
+  });
+
   return (
     <SafeAreaProvider>
       <NavigationContainer

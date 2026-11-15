@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   merchant: {
     color: colors.text,
     fontSize: font.size.base,
-    fontWeight: font.weight.medium,
+    fontFamily: font.headline.medium,
   },
   category: {
     color: colors.textSecondary,

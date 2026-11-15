@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
-  title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
+  title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
   addBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   addBtnText: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
 
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   cardFrozen: { opacity: 0.8 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  cardBankName: { color: '#fff', fontSize: font.size.md, fontWeight: font.weight.bold, letterSpacing: 1 },
+  cardBankName: { color: '#fff', fontSize: font.size.md, fontFamily: font.headline.bold, letterSpacing: 1 },
   cardType: { color: 'rgba(255,255,255,0.6)', fontSize: font.size.xs, marginTop: 2 },
   cardWifi: {},
   chip: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   cardActionLabel: { color: colors.textSecondary, fontSize: font.size.xs, fontWeight: font.weight.medium },
 
   section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
-  sectionTitle: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.semibold, marginBottom: spacing.sm },
+  sectionTitle: { color: colors.text, fontSize: font.size.md, fontFamily: font.headline.semibold, marginBottom: spacing.sm },
   card2: {
     backgroundColor: colors.surface, borderRadius: radius.lg,
     paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colors.border,

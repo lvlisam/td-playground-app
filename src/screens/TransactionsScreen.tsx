@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
-  title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
+  title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
   filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   filterBtnText: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
 
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.bg,
   },
-  sectionDate: { color: colors.textSecondary, fontSize: font.size.sm, fontWeight: font.weight.semibold },
+  sectionDate: { color: colors.textSecondary, fontSize: font.size.sm, fontFamily: font.headline.semibold },
   sectionTotal: { color: colors.textTertiary, fontSize: font.size.sm },
 
   cardWrap: { backgroundColor: colors.surface, paddingHorizontal: spacing.md },

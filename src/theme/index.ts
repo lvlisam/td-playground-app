@@ -46,6 +46,12 @@ export const radius = {
 };
 
 export const font = {
+  headline: {
+    medium: 'Inter_500Medium',
+    semibold: 'Inter_600SemiBold',
+    bold: 'Inter_700Bold',
+    heavy: 'Inter_800ExtraBold',
+  },
   size: {
     xs: 12,
     sm: 14,

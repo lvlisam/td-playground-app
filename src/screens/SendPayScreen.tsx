@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: spacing.md, paddingBottom: spacing.md,
   },
-  title: { color: colors.text, fontSize: font.size.xl, fontWeight: font.weight.bold },
+  title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
 
   tabBar: {
     flexDirection: 'row',
@@ -233,13 +233,13 @@ const styles = StyleSheet.create({
   amountLabel: { color: colors.textSecondary, fontSize: font.size.sm, marginBottom: spacing.sm },
   amountRow: { flexDirection: 'row', alignItems: 'flex-start' },
   dollar: { color: colors.textSecondary, fontSize: font.size.xl, marginTop: 6, marginRight: 4 },
-  amountValue: { color: colors.text, fontSize: 56, fontWeight: font.weight.heavy, letterSpacing: -2 },
+  amountValue: { color: colors.text, fontSize: 56, fontFamily: font.headline.heavy, letterSpacing: -2 },
   amountPlaceholder: { color: colors.textTertiary },
   amountTo: { color: colors.textSecondary, fontSize: font.size.sm, marginTop: spacing.xs },
 
   section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  sectionTitle: { color: colors.text, fontSize: font.size.md, fontWeight: font.weight.semibold, marginBottom: spacing.sm },
+  sectionTitle: { color: colors.text, fontSize: font.size.md, fontFamily: font.headline.semibold, marginBottom: spacing.sm },
   seeAll: { color: colors.green, fontSize: font.size.sm },
 
   contactsRow: { gap: spacing.md, paddingRight: spacing.lg },

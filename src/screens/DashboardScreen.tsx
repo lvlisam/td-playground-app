@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { font } from '../theme';
 
 const palette = {
   background: '#F4F5F3',
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
   tdLogo: { width: 42, height: 42, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
   tdLogoText: { color: '#FFFFFF', fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
-  customerName: { color: '#FFFFFF', fontSize: 17, fontWeight: '700', lineHeight: 22 },
+  customerName: { color: '#FFFFFF', fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tediButton: { height: 44, paddingHorizontal: 9, borderRadius: 24, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 7 },
   tediMark: { width: 30, height: 30, borderRadius: 16, backgroundColor: palette.ink, alignItems: 'center', justifyContent: 'center' },
@@ -213,9 +214,9 @@ const styles = StyleSheet.create({
   balanceBlock: { marginTop: 22, paddingHorizontal: 18 },
   balanceLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 11 },
   balanceLabel: { color: 'rgba(255,255,255,0.84)', fontSize: 15, marginRight: 2 },
-  balance: { color: '#FFFFFF', fontSize: 38, lineHeight: 46, fontWeight: '800', letterSpacing: -1.6, marginTop: 5 },
+  balance: { color: '#FFFFFF', fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
   content: { paddingHorizontal: 16, marginTop: -5 },
-  sectionTitle: { color: palette.ink, fontSize: 18, fontWeight: '700', marginBottom: 10 },
+  sectionTitle: { color: palette.ink, fontSize: 18, fontFamily: font.headline.bold, marginBottom: 10 },
   feeNotice: { minHeight: 48, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
   feeNoticeText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
   moveMoneyButton: { minHeight: 48, borderRadius: 14, backgroundColor: palette.green, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
@@ -234,13 +235,13 @@ const styles = StyleSheet.create({
   offersTitleGroup: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   smallTdLogo: { width: 26, height: 26, borderRadius: 7, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
   smallTdLogoText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800', letterSpacing: -1 },
-  offersTitle: { color: palette.ink, fontSize: 17, fontWeight: '700' },
+  offersTitle: { color: palette.ink, fontSize: 17, fontFamily: font.headline.bold },
   offerCount: { color: 'rgba(22,25,23,0.58)', fontSize: 11 },
   offerCard: { minHeight: 86, borderRadius: 17, backgroundColor: palette.surface, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 6 },
   offerIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: 'rgba(70,182,73,0.12)', alignItems: 'center', justifyContent: 'center' },
   offerCopy: { flex: 1 },
   offerEyebrow: { color: '#36873A', fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
-  offerTitle: { color: palette.ink, fontSize: 13, fontWeight: '700', marginTop: 2 },
+  offerTitle: { color: palette.ink, fontSize: 13, fontFamily: font.headline.bold, marginTop: 2 },
   offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
   heroCompact: { minHeight: 200 },
   heroForegroundCompact: { paddingBottom: 16 },
