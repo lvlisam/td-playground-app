@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DashboardScreen from '../screens/DashboardScreen';
-import TransactionsScreen from '../screens/TransactionsScreen';
+import PlanScreen from '../screens/PlanScreen';
 import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
@@ -139,7 +139,7 @@ export default function TabNavigator() {
                   />
                   <Tab.Screen
                     name="Plan"
-                    component={TransactionsScreen}
+                    component={PlanScreen}
                     options={{
                       tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'analytics' : 'analytics-outline'} focused={focused} />,
                     }}

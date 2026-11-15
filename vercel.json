@@ -1,4 +1,10 @@
 {
   "buildCommand": "npm run build:web",
-  "outputDirectory": "dist"
+  "devCommand": "npm run web -- --port $PORT",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/plan-insights.ts": {
+      "maxDuration": 30
+    }
+  }
 }

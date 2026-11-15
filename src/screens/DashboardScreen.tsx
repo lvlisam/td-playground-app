@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import {
   Image,
@@ -23,33 +23,6 @@ const palette = {
   green: colors.green,
   greenDeep: colors.greenDeep,
 };
-
-const accountInsights = [
-  {
-    id: 'savings',
-    icon: 'trending-up-outline',
-    eyebrow: 'SAVINGS',
-    title: 'Your savings are on a roll',
-    metric: '+$240',
-    detail: 'You added more to savings this month than last.',
-  },
-  {
-    id: 'spending',
-    icon: 'restaurant-outline',
-    eyebrow: 'SPENDING',
-    title: 'Dining spend is trending down',
-    metric: '−12%',
-    detail: 'You spent less dining out than in the prior month.',
-  },
-  {
-    id: 'rewards',
-    icon: 'sparkles-outline',
-    eyebrow: 'CARD REWARDS',
-    title: 'Points are ready to use',
-    metric: '18,420 pts',
-    detail: 'Your TD Double Up Card rewards are adding up.',
-  },
-] as const;
 
 const accounts = [
   {
@@ -79,9 +52,10 @@ const accounts = [
 
 function AccountRow({ account, last, compact }: { account: (typeof accounts)[number]; last: boolean; compact: boolean }) {
   return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      accessibilityLabel={`${account.name}, ${account.amount}`}
+    <View
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={`${account.name}, ${account.amount}. ${account.detail}${account.note ? `. ${account.note}` : ''}`}
       style={[styles.accountRow, compact && styles.accountRowCompact, !last && styles.accountDivider]}
     >
       <View style={[styles.accountMark, compact && styles.accountMarkCompact, { backgroundColor: account.swatch }]}>
@@ -93,30 +67,79 @@ function AccountRow({ account, last, compact }: { account: (typeof accounts)[num
         {account.note ? <Text numberOfLines={1} style={[styles.accountNote, compact && styles.accountNoteCompact]}>{account.note}</Text> : null}
       </View>
       <Text numberOfLines={1} style={[styles.accountAmount, compact && styles.accountAmountCompact]}>{account.amount}</Text>
-      <Ionicons name="chevron-forward" size={compact ? 14 : 17} color="rgba(22,25,23,0.58)" />
-    </TouchableOpacity>
+    </View>
   );
 }
 
 function FinancialHealthCard({ compact }: { compact: boolean }) {
+  const [accountsExpanded, setAccountsExpanded] = useState(false);
+
   return (
-    <View
-      accessibilityRole="text"
-      accessibilityLabel="Financial health score 82 out of 100. Strong. Fee waived this month because direct deposit covers the 5 dollar monthly fee."
-      style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}
-    >
+    <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
       <View style={styles.healthHeader}>
-        <View>
-          <Text style={[styles.healthTitle, compact && styles.healthTitleCompact]}>Financial health</Text>
-          <Text style={styles.healthStatus}>Strong</Text>
+        <View style={styles.healthIdentity}>
+          <View style={styles.healthTdLogo}><Text style={styles.healthTdLogoText}>TD</Text></View>
+          <View>
+            <Text style={[styles.healthTitle, compact && styles.healthTitleCompact]}>Financial health</Text>
+            <Text style={styles.healthStatus}>Strong this month</Text>
+          </View>
         </View>
-        <Text style={[styles.healthScore, compact && styles.healthScoreCompact]}>
-          82<Text style={styles.healthScoreScale}> / 100</Text>
-        </Text>
+        <View style={styles.healthScoreGroup}>
+          <Text style={styles.healthScoreLabel}>HEALTH SCORE</Text>
+          <Text accessibilityLabel="Score 82 out of 100" style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+            82<Text style={styles.healthScoreScale}> / 100</Text>
+          </Text>
+        </View>
       </View>
-      <View accessibilityLabel="82 percent" style={styles.healthMeterTrack}>
+      <View style={styles.totalBalanceRow}>
+        <View>
+          <Text style={styles.totalBalanceLabel}>TOTAL DEPOSIT BALANCE</Text>
+          <Text style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>$60,062.17</Text>
+          <Text style={styles.totalBalanceDetail}>Checking + savings</Text>
+        </View>
+        <View style={styles.totalBalanceIcon}>
+          <Ionicons name="wallet-outline" size={20} color={colors.greenDeep} />
+        </View>
+      </View>
+      <View accessibilityLabel="Financial health score: 82 percent" style={styles.healthMeterTrack}>
         <View style={styles.healthMeterFill} />
       </View>
+
+      <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
+        <View style={styles.healthMetricTile}>
+          <Text style={styles.healthMetricLabel}>LEFT TO SPEND</Text>
+          <Text numberOfLines={1} style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>$6,842.17</Text>
+          <Text style={styles.healthMetricDetail}>Checking · before upcoming bills</Text>
+        </View>
+        <View style={styles.healthMetricTile}>
+          <Text style={styles.healthMetricLabel}>SAVED IN MAY</Text>
+          <Text style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>+$240</Text>
+          <Text style={styles.healthMetricDetail}>+$60 vs. April (+$180)</Text>
+        </View>
+      </View>
+
+      <View style={styles.healthDivider} />
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={`Your accounts, ${accounts.length} linked`}
+        accessibilityHint={accountsExpanded ? 'Hides your linked accounts' : 'Shows your linked accounts'}
+        accessibilityState={{ expanded: accountsExpanded }}
+        onPress={() => setAccountsExpanded((expanded) => !expanded)}
+        style={styles.accountSectionHeader}
+      >
+        <View style={styles.accountSectionCopy}>
+          <Text style={styles.accountSectionTitle}>Your accounts</Text>
+          <Text style={styles.linkedAccountCount}>{accounts.length} linked</Text>
+        </View>
+        <Ionicons name={accountsExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
+      </TouchableOpacity>
+      {accountsExpanded ? (
+        <View style={styles.accountList}>
+          {accounts.map((account, index) => (
+            <AccountRow key={account.id} account={account} last={index === accounts.length - 1} compact={compact} />
+          ))}
+        </View>
+      ) : null}
       <View style={styles.healthDivider} />
       <View style={[styles.feeNotice, compact && styles.feeNoticeCompact]}>
         <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={colors.green} />
@@ -145,7 +168,7 @@ export default function DashboardScreen() {
       >
         <View style={[styles.hero, compact && styles.heroCompact]}>
           <Image
-            source={require('../../assets/td-human-banking-hero.png')}
+            source={require('../../assets/td-family-hero.png')}
             resizeMode="cover"
             style={[StyleSheet.absoluteFill, styles.heroImage]}
             accessible={false}
@@ -155,10 +178,9 @@ export default function DashboardScreen() {
             locations={[0, 0.44, 0.72, 1]}
             style={[StyleSheet.absoluteFill, styles.heroGradient]}
           />
-          <View style={[styles.heroForeground, compact && styles.heroForegroundCompact, { paddingTop: previewTopInset + (compact ? 8 : 12) }]}>
+          <View style={[styles.heroForeground, compact && styles.heroForegroundCompact, { paddingTop: previewTopInset + (compact ? 2 : 8) }]}>
             <View style={[styles.topBar, compact && styles.topBarCompact]}>
-            <View style={[styles.identity, compact && styles.identityCompact]}>
-              <View style={[styles.tdLogo, compact && styles.tdLogoCompact]}><Text style={[styles.tdLogoText, compact && styles.tdLogoTextCompact]}>TD</Text></View>
+              <View style={[styles.identity, compact && styles.identityCompact]}>
               <View>
                 <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
                 <TouchableOpacity
@@ -177,6 +199,17 @@ export default function DashboardScreen() {
                   <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya</Text>
                   <Ionicons name="chevron-forward" size={compact ? 13 : 15} color={colors.white} />
                 </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="TD Select relationship tier. View benefits"
+                  accessibilityHint="Opens your TD relationship benefits"
+                  onPress={() => navigation.navigate('Benefits')}
+                  style={[styles.relationshipBadge, compact && styles.relationshipBadgeCompact]}
+                >
+                  <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.white} />
+                  <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>TD Select</Text>
+                  <Ionicons name="chevron-forward" size={9} color={colors.white} />
+                </TouchableOpacity>
               </View>
             </View>
             <View style={[styles.topActions, compact && styles.topActionsCompact]}>
@@ -187,22 +220,13 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          <View style={[styles.balanceBlock, compact && styles.balanceBlockCompact]}>
-            <Text style={[styles.balance, compact && styles.balanceCompact]}>$60,062.17</Text>
-          </View>
+
           </View>
         </View>
 
         <FinancialHealthCard compact={compact} />
 
         <View style={[styles.content, compact && styles.contentCompact]}>
-          <Text style={[styles.sectionTitle, compact && styles.sectionTitleCompact]}>Your accounts</Text>
-          <View style={styles.accountList}>
-            {accounts.map((account, index) => (
-              <AccountRow key={account.id} account={account} last={index === accounts.length - 1} compact={compact} />
-            ))}
-          </View>
-
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
@@ -220,41 +244,6 @@ export default function DashboardScreen() {
             <Ionicons name="chevron-forward" size={17} color="rgba(22,25,23,0.58)" />
           </TouchableOpacity>
 
-          <View style={styles.insightsHeading}>
-            <View>
-              <Text style={styles.insightsTitle}>Account insights</Text>
-              <Text style={styles.insightsSubtitle}>A closer look at your money</Text>
-            </View>
-            <Text style={styles.insightsSwipe}>SWIPE <Ionicons name="arrow-forward" size={11} color={colors.textSecondary} /></Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToInterval={244}
-            decelerationRate="fast"
-            contentContainerStyle={styles.insightsRail}
-            accessibilityLabel="Account insights, swipe horizontally to explore"
-          >
-            {accountInsights.map((insight) => (
-              <View
-                key={insight.id}
-                accessible
-                accessibilityRole="text"
-                accessibilityLabel={`${insight.eyebrow}: ${insight.title}. ${insight.metric}. ${insight.detail}`}
-                style={styles.insightCard}
-              >
-                <View style={styles.insightCardTop}>
-                  <View style={styles.insightIcon}>
-                    <Ionicons name={insight.icon} size={18} color={palette.greenDeep} />
-                  </View>
-                  <Text style={styles.insightEyebrow}>{insight.eyebrow}</Text>
-                </View>
-                <Text style={styles.insightMetric}>{insight.metric}</Text>
-                <Text style={styles.insightTitle}>{insight.title}</Text>
-                <Text style={styles.insightDetail}>{insight.detail}</Text>
-              </View>
-            ))}
-          </ScrollView>
         </View>
       </ScrollView>
     </View>
@@ -263,7 +252,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
-  hero: { minHeight: 286, position: 'relative', overflow: 'hidden' },
+  hero: { minHeight: 172, position: 'relative', overflow: 'hidden' },
   heroImage: { width: '100%', height: '100%', zIndex: 0 },
   heroGradient: { zIndex: 1 },
   heroForeground: { zIndex: 2, paddingBottom: 30 },
@@ -274,43 +263,61 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  tdLogo: { width: 42, height: 42, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
-  tdLogoText: { color: colors.white, fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
   customerProfileButton: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  relationshipBadge: { alignSelf: 'flex-start', marginLeft: 52, marginTop: 2, flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.34)' },
+  relationshipBadgeCompact: { marginLeft: 46, paddingHorizontal: 6 },
+  relationshipText: { color: colors.white, fontSize: 10, lineHeight: 13, fontWeight: '700', letterSpacing: 0.2 },
+  relationshipTextCompact: { fontSize: 9, lineHeight: 12 },
   customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, overflow: 'hidden' },
   customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
-  balanceBlock: { marginTop: 38, paddingHorizontal: 18 },
-  balance: { color: colors.white, fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
-  financialHealthCard: { marginHorizontal: 16, marginTop: -8, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: palette.ink, gap: 10 },
+  financialHealthCard: { marginHorizontal: 16, marginTop: -8, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 10 },
   healthHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  healthTitle: { color: colors.white, fontSize: 15, lineHeight: 20, fontWeight: '700' },
-  healthStatus: { color: colors.greenBright, fontSize: 12, lineHeight: 17, fontWeight: '600', marginTop: 2 },
-  healthScore: { color: colors.white, fontSize: 24, lineHeight: 28, fontFamily: font.headline.bold },
-  healthScoreScale: { color: 'rgba(255,255,255,0.66)', fontSize: 12, fontFamily: font.body.regular },
-  healthMeterTrack: { height: 7, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
-  healthMeterFill: { width: '82%', height: '100%', borderRadius: 4, backgroundColor: colors.greenBright },
-  healthDivider: { height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,0.2)' },
+  healthIdentity: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  healthTdLogo: { width: 34, height: 34, borderRadius: 9, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
+  healthTdLogoText: { color: colors.white, fontSize: 17, fontWeight: '800', letterSpacing: -1 },
+  healthTitle: { color: palette.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' },
+  healthStatus: { color: colors.greenDeep, fontSize: 12, lineHeight: 17, fontWeight: '600', marginTop: 2 },
+  healthScoreGroup: { alignItems: 'flex-end', gap: 1 },
+  healthScoreLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 12, fontWeight: '700', letterSpacing: 0.5 },
+  healthScore: { color: colors.greenDeep, fontSize: 24, lineHeight: 28, fontFamily: font.headline.bold },
+  healthScoreScale: { color: colors.textSecondary, fontSize: 12, fontFamily: font.body.regular },
+  totalBalanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
+  totalBalanceLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
+  totalBalanceValue: { color: palette.ink, fontSize: 21, lineHeight: 26, fontFamily: font.headline.bold },
+  totalBalanceDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  totalBalanceIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  healthMeterTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
+  healthMeterFill: { width: '82%', height: '100%', borderRadius: 4, backgroundColor: colors.green },
+  healthMetrics: { flexDirection: 'row', gap: 8 },
+  healthMetricTile: { flex: 1, minWidth: 0, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid, gap: 3 },
+  healthMetricLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
+  healthMetricValue: { color: palette.ink, fontSize: 19, lineHeight: 24, fontFamily: font.headline.bold },
+  healthMetricDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  healthDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderFaint },
+  accountSectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 38 },
+  accountSectionCopy: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  accountSectionTitle: { color: palette.ink, fontSize: 14, fontFamily: font.headline.semibold },
+  linkedAccountCount: { color: colors.textSecondary, fontSize: 11 },
   content: { paddingHorizontal: 16, marginTop: -5 },
-  sectionTitle: { color: palette.ink, fontSize: 18, fontFamily: font.headline.bold, marginBottom: 10 },
   feeNotice: { minHeight: 42, flexDirection: 'row', alignItems: 'center', gap: 10 },
   feeNoticeCopy: { flex: 1, minWidth: 0, gap: 2 },
-  feeNoticeText: { color: colors.white, fontSize: 14, lineHeight: 19, fontWeight: '600' },
-  feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 11, lineHeight: 15, fontFamily: font.body.regular },
-  accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
-  accountRow: { minHeight: 65, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 10 },
-  accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(22,25,23,0.16)' },
-  accountMark: { width: 38, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  feeNoticeText: { color: palette.ink, fontSize: 14, lineHeight: 19, fontWeight: '600' },
+  feeNoticeSubtext: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, fontFamily: font.body.regular },
+  accountList: { backgroundColor: colors.surface, borderRadius: 12, overflow: 'hidden' },
+  accountRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, gap: 8 },
+  accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderFaint },
+  accountMark: { width: 36, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   accountMarkLine: { width: 22, height: 3, borderRadius: 2, backgroundColor: 'rgba(22,25,23,0.3)', marginTop: 12 },
   accountCopy: { flex: 1, minWidth: 0 },
-  accountName: { color: palette.ink, fontSize: 14, fontWeight: '600', lineHeight: 18 },
-  accountDetail: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15 },
-  accountNote: { color: colors.greenDeep, fontSize: 10, fontWeight: '600', lineHeight: 14 },
-  accountAmount: { color: palette.ink, fontSize: 14, fontWeight: '700', maxWidth: 102, textAlign: 'right' },
+  accountName: { color: palette.ink, fontSize: 13, fontWeight: '600', lineHeight: 17 },
+  accountDetail: { color: colors.textSecondary, fontSize: 11, lineHeight: 14 },
+  accountNote: { color: colors.greenDeep, fontSize: 10, fontWeight: '600', lineHeight: 13 },
+  accountAmount: { color: palette.ink, fontSize: 13, fontWeight: '700', maxWidth: 104, textAlign: 'right' },
   offersHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 9 },
   offersTitleGroup: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   smallTdLogo: { width: 26, height: 26, borderRadius: 7, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
@@ -323,36 +330,23 @@ const styles = StyleSheet.create({
   offerEyebrow: { color: colors.greenDeep, fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
   offerTitle: { color: palette.ink, fontSize: 13, fontFamily: font.headline.bold, marginTop: 2 },
   offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
-  insightsHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 17, marginBottom: 9 },
-  insightsTitle: { color: palette.ink, fontSize: 17, fontFamily: font.headline.bold },
-  insightsSubtitle: { color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginTop: 1 },
-  insightsSwipe: { color: colors.textSecondary, fontSize: 10, fontWeight: '700', letterSpacing: 0.6, paddingBottom: 2 },
-  insightsRail: { gap: 10, paddingHorizontal: 12, paddingBottom: 4 },
-  insightCard: { width: 234, minHeight: 178, borderRadius: 18, backgroundColor: palette.surface, borderWidth: 1, borderColor: 'rgba(22,25,23,0.08)', padding: 14 },
-  insightCardTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  insightIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
-  insightEyebrow: { color: colors.greenDeep, fontSize: 10, fontWeight: '700', letterSpacing: 0.7 },
-  insightMetric: { color: palette.ink, fontSize: 22, lineHeight: 27, fontFamily: font.headline.bold, marginTop: 9 },
-  insightTitle: { color: palette.ink, fontSize: 14, lineHeight: 19, fontFamily: font.headline.semibold, marginTop: 1 },
-  insightDetail: { color: colors.textSecondary, fontSize: 14, lineHeight: 19, marginTop: 5 },
-  heroCompact: { minHeight: 200 },
-  heroForegroundCompact: { paddingBottom: 16 },
+
+  heroCompact: { minHeight: 150 },
+  heroForegroundCompact: { paddingBottom: 10 },
   topBarCompact: { paddingHorizontal: 14 },
   identityCompact: { gap: 6 },
-  tdLogoCompact: { width: 32, height: 32, borderRadius: 8 },
-  tdLogoTextCompact: { fontSize: 17 },
   greetingCompact: { fontSize: 11, lineHeight: 15 },
   customerAvatarCompact: { width: 40, height: 40, borderRadius: 20 },
   customerNameCompact: { fontSize: 15, lineHeight: 19 },
   topActionsCompact: { gap: 4 },
   notificationButtonCompact: { width: 34, height: 34 },
-  balanceBlockCompact: { marginTop: 30, paddingHorizontal: 14 },
-  balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
   financialHealthCardCompact: { marginHorizontal: 12, marginTop: -6, marginBottom: 12, padding: 12, gap: 8 },
   healthTitleCompact: { fontSize: 14, lineHeight: 18 },
   healthScoreCompact: { fontSize: 22, lineHeight: 26 },
+  totalBalanceValueCompact: { fontSize: 20, lineHeight: 24 },
+  healthMetricsCompact: { gap: 6 },
+  healthMetricValueCompact: { fontSize: 17, lineHeight: 21 },
   contentCompact: { paddingHorizontal: 12 },
-  sectionTitleCompact: { fontSize: 17, marginBottom: 6 },
   feeNoticeCompact: { minHeight: 38, gap: 9 },
   feeNoticeSubtextCompact: { fontSize: 10, lineHeight: 13 },
   accountRowCompact: { minHeight: 50, paddingHorizontal: 9, gap: 7 },
