@@ -1,8 +1,8 @@
 import React from 'react';
-import { Image, Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DashboardScreen from '../screens/DashboardScreen';
 import PlanScreen from '../screens/PlanScreen';
@@ -19,7 +19,7 @@ const frameColors = {
   screen: colors.bg,
   bezel: colors.text,
   white: colors.surface,
-  green: colors.green,
+  green: colors.greenDeep,
   muted: colors.textSecondary,
 };
 
@@ -40,30 +40,77 @@ function TabIcon({ name, focused }: TabIconProps) {
   );
 }
 
-function TransferTabIcon() {
+function TransferTabIcon({ focused }: { focused: boolean }) {
+  return <TabIcon name="swap-horizontal" focused={focused} />;
+}
+
+function PhoneStatusBar({ light }: { light: boolean }) {
+  const statusColor = light ? frameColors.white : frameColors.bezel;
+
   return (
-    <View style={styles.sendTabShadow}>
-      <LinearGradient
-        colors={[colors.greenBright, colors.green, colors.greenDeep]}
-        locations={[0, 0.58, 1]}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
-        style={styles.sendTab}
-      >
-        <Image
-          source={require('../../assets/transfer-tab-icon.png')}
-          style={styles.airplaneImage}
-          resizeMode="cover"
-          accessible={false}
-        />
-      </LinearGradient>
+    <View pointerEvents="none" accessible={false} style={styles.phoneStatusBar}>
+      <Text style={[styles.phoneStatusTime, { color: statusColor }]}>9:41</Text>
+      <View style={styles.phoneStatusIndicators}>
+        <View style={styles.signalBars}>
+          <View style={[styles.signalBar, styles.signalBarOne, { backgroundColor: statusColor }]} />
+          <View style={[styles.signalBar, styles.signalBarTwo, { backgroundColor: statusColor }]} />
+          <View style={[styles.signalBar, styles.signalBarThree, { backgroundColor: statusColor }]} />
+          <View style={[styles.signalBar, styles.signalBarFour, { backgroundColor: statusColor }]} />
+        </View>
+        <Ionicons name="wifi" size={14} color={statusColor} />
+        <View style={styles.batteryGroup}>
+          <View style={[styles.batteryShell, { borderColor: statusColor }]}>
+            <View style={[styles.batteryCharge, { backgroundColor: statusColor }]} />
+          </View>
+          <View style={[styles.batteryCap, { backgroundColor: statusColor }]} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const desktopNavigationItems = [
+  { label: 'Home', route: 'Home', icon: 'home-outline' },
+  { label: 'Plan', route: 'Plan', icon: 'analytics-outline' },
+  { label: 'Move money', route: 'Pay & Transfer', icon: 'swap-horizontal' },
+  { label: 'Benefits', route: 'Benefits', icon: 'gift-outline' },
+  { label: 'Tedi', route: 'Tedi', icon: 'sparkles-outline' },
+] as const;
+
+function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
+  return (
+    <View style={styles.desktopMenu}>
+      <View style={styles.desktopMenuHeading}>
+        <View style={styles.desktopMenuBrandMark}><Text style={styles.desktopMenuBrandText}>TD</Text></View>
+        <View>
+          <Text style={styles.desktopMenuBrandTitle}>TD Banking</Text>
+          <Text style={styles.desktopMenuBrandCaption}>Quick access</Text>
+        </View>
+      </View>
+      <View style={styles.desktopMenuDivider} />
+      {desktopNavigationItems.map((item) => (
+        <TouchableOpacity
+          key={item.route}
+          accessibilityRole="button"
+          accessibilityLabel={`Go to ${item.label}`}
+          onPress={() => navigation.navigate(item.route)}
+          style={styles.desktopMenuButton}
+        >
+          <View style={styles.desktopMenuIcon}>
+            <Ionicons name={item.icon} size={17} color={colors.greenDeep} />
+          </View>
+          <Text numberOfLines={1} style={styles.desktopMenuLabel}>{item.label}</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }
 
 export default function TabNavigator() {
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const [activeTab, setActiveTab] = React.useState('Home');
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const compactPreview = showDeviceFrame && width < 650;
   const desktopPreview = showDeviceFrame;
@@ -75,12 +122,13 @@ export default function TabNavigator() {
     : Math.max(480, height - 28);
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage]}>
+      {showDeviceFrame && <DesktopNavigationMenu navigation={navigation} />}
       <View
         style={[
           styles.device,
           !showDeviceFrame && styles.nativeDevice,
           compactPreview && { width: deviceWidth, height: deviceHeight },
-          desktopPreview && { width: deviceWidth, height: deviceHeight },
+          desktopPreview && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
         ]}
       >
         {showDeviceFrame && (
@@ -95,6 +143,9 @@ export default function TabNavigator() {
           <View style={[styles.deviceBezel, !showDeviceFrame && styles.nativeBezel]}>
             <View style={[styles.deviceScreen, !showDeviceFrame && styles.nativeScreen]}>
               <Tab.Navigator
+                  screenListeners={({ route }) => ({
+                    focus: () => setActiveTab(route.name),
+                  })}
                   screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
@@ -112,12 +163,14 @@ export default function TabNavigator() {
                     tabBarActiveTintColor: frameColors.green,
                     tabBarInactiveTintColor: frameColors.muted,
                     tabBarLabelStyle: {
+                      fontFamily: font.body.medium,
                       fontSize: width < 360 ? 9 : 10.5,
                       fontWeight: font.weight.medium,
+                      lineHeight: width < 360 ? 11 : 13,
                       textAlign: 'center',
-                      marginBottom: 3,
+                      marginBottom: 2,
                     },
-                    tabBarItemStyle: { paddingHorizontal: 1, paddingVertical: 3, minWidth: 0 },
+                    tabBarItemStyle: { flex: 1, paddingHorizontal: 0, paddingVertical: 3, minWidth: 0 },
                     tabBarButton: (props) => (
                       <TouchableOpacity
                         {...props}
@@ -148,8 +201,9 @@ export default function TabNavigator() {
                     name="Pay & Transfer"
                     component={SendPayScreen}
                     options={{
-                      tabBarAccessibilityLabel: 'Pay & Transfer',
-                      tabBarIcon: () => <TransferTabIcon />,
+                      tabBarLabel: 'Move money',
+                      tabBarAccessibilityLabel: 'Move money',
+                      tabBarIcon: ({ focused }) => <TransferTabIcon focused={focused} />,
                     }}
                   />
                   <Tab.Screen
@@ -167,17 +221,22 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
-                    name="Settings"
+                    name="Card Manager"
                     component={CardsScreen}
                     options={{ tabBarButton: () => null }}
                   />
               </Tab.Navigator>
+              {Platform.OS === 'web' && <PhoneStatusBar light={activeTab === 'Home'} />}
             </View>
           </View>
         </View>
         {showDeviceFrame && (
           <>
-            <View pointerEvents="none" accessible={false} style={styles.dynamicIsland} />
+            <View pointerEvents="none" accessible={false} style={styles.dynamicIsland}>
+              <View style={styles.cameraLens}>
+                <View style={styles.cameraLensCenter} />
+              </View>
+            </View>
             <View pointerEvents="none" accessible={false} style={styles.homeIndicator} />
           </>
         )}
@@ -188,7 +247,17 @@ export default function TabNavigator() {
 
 const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
-  previewStage: { alignItems: 'center', justifyContent: 'center', backgroundColor: frameColors.stage },
+  previewStage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20, paddingHorizontal: 16, backgroundColor: frameColors.stage },
+  desktopMenu: { width: 152, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
+  desktopMenuHeading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 5 },
+  desktopMenuBrandMark: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.greenDeep, alignItems: 'center', justifyContent: 'center' },
+  desktopMenuBrandText: { color: frameColors.white, fontSize: 12, fontWeight: '800', letterSpacing: -0.5 },
+  desktopMenuBrandTitle: { color: colors.text, fontSize: 12, lineHeight: 15, fontFamily: font.headline.semibold },
+  desktopMenuBrandCaption: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  desktopMenuDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderFaint, marginBottom: 3 },
+  desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
+  desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },
   device: { position: 'relative', flex: 1, width: '100%' },
   nativeDevice: { backgroundColor: frameColors.screen },
   deviceRim: {
@@ -242,6 +311,21 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: 'rgba(22,25,23,0.72)',
   },
+  cameraLens: { width: 12, height: 12, borderRadius: 6, borderWidth: 1, borderColor: '#283342', backgroundColor: '#111923', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 13 },
+  cameraLensCenter: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#294A68' },
+  phoneStatusBar: { position: 'absolute', zIndex: 4, top: 6, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
+  phoneStatusTime: { color: frameColors.white, fontSize: 11, lineHeight: 14, fontFamily: font.body.bold },
+  phoneStatusIndicators: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  signalBars: { height: 11, flexDirection: 'row', alignItems: 'flex-end', gap: 1 },
+  signalBar: { width: 2, borderRadius: 1, backgroundColor: frameColors.white },
+  signalBarOne: { height: 3 },
+  signalBarTwo: { height: 5 },
+  signalBarThree: { height: 7 },
+  signalBarFour: { height: 9 },
+  batteryGroup: { flexDirection: 'row', alignItems: 'center', gap: 1 },
+  batteryShell: { width: 18, height: 9, borderRadius: 3, borderWidth: 1, borderColor: frameColors.white, padding: 1, justifyContent: 'center' },
+  batteryCharge: { width: '78%', height: '100%', borderRadius: 1, backgroundColor: frameColors.white },
+  batteryCap: { width: 2, height: 4, borderTopRightRadius: 1, borderBottomRightRadius: 1, backgroundColor: frameColors.white },
 
   tabButton: {
     flex: 1,
@@ -261,26 +345,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabIconActive: { backgroundColor: colors.greenDim },
-  sendTabShadow: {
-    width: 50,
-    height: 50,
-    borderRadius: radius.full,
-    transform: [{ translateY: -15 }],
-    shadowColor: colors.greenDeep,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.38,
-    shadowRadius: 5,
-    elevation: 9,
-  },
-  sendTab: {
-    width: 50,
-    height: 50,
-    borderRadius: radius.full,
-    borderWidth: 2,
-    borderColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  airplaneImage: { width: 34, height: 34, borderRadius: 17 },
 });

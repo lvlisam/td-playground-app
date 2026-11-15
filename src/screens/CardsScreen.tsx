@@ -121,9 +121,9 @@ export default function CardsScreen() {
       >
         {/* Header */}
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
-          <Text style={styles.title}>Settings</Text>
+          <Text style={styles.title}>Card manager</Text>
           <TouchableOpacity style={styles.addBtn}>
-            <Ionicons name="add" size={20} color={colors.green} />
+            <Ionicons name="add" size={20} color={colors.greenDeep} />
             <Text style={styles.addBtnText}>Add Card</Text>
           </TouchableOpacity>
         </View>
@@ -131,7 +131,7 @@ export default function CardsScreen() {
         {/* Virtual Card */}
         <View style={[styles.cardContainer, compact && styles.cardContainerCompact]}>
           <LinearGradient
-            colors={[colors.greenDark, colors.greenDeep, colors.green]}
+            colors={[colors.text, colors.greenDeep, colors.green]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1.2, y: 1 }}
             style={[styles.card, compact && styles.cardCompact, frozen && styles.cardFrozen]}
@@ -193,7 +193,7 @@ export default function CardsScreen() {
             ].map((a) => (
               <TouchableOpacity key={a.label} style={styles.cardAction}>
                 <View style={[styles.cardActionIcon, compact && styles.cardActionIconCompact]}>
-                  <Ionicons name={a.icon} size={18} color={colors.green} />
+                  <Ionicons name={a.icon} size={18} color={colors.greenDeep} />
                 </View>
                 <Text style={[styles.cardActionLabel, compact && styles.cardActionLabelCompact]}>{a.label}</Text>
               </TouchableOpacity>
@@ -217,7 +217,7 @@ export default function CardsScreen() {
             <View style={styles.divider} />
             <ToggleRow
               icon="wifi-outline"
-              iconColor={colors.green}
+              iconColor={colors.greenDeep}
               iconBg={colors.greenDim}
               label="Contactless Payments"
               description="Tap to pay at terminals"
@@ -270,7 +270,7 @@ export default function CardsScreen() {
           <View style={[styles.card2, compact && styles.card2Compact]}>
             <ToggleRow
               icon="finger-print-outline"
-              iconColor={colors.green}
+              iconColor={colors.greenDeep}
               iconBg={colors.greenDim}
               label="Face ID / Touch ID"
               value={biometric}
@@ -279,7 +279,7 @@ export default function CardsScreen() {
             <View style={styles.divider} />
             <NavRow icon="key-outline" iconColor={colors.red} iconBg={colors.redDim} label="Change PIN" />
             <View style={styles.divider} />
-            <NavRow icon="shield-checkmark-outline" iconColor={colors.green} iconBg={colors.greenDim} label="Two-Factor Authentication" value="On" />
+            <NavRow icon="shield-checkmark-outline" iconColor={colors.greenDeep} iconBg={colors.greenDim} label="Two-Factor Authentication" value="On" />
             <View style={styles.divider} />
             <NavRow icon="document-text-outline" iconColor={colors.textSecondary} iconBg={colors.surfaceHigh} label="Privacy Policy" />
           </View>
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   title: { color: colors.text, fontSize: font.size.xl, fontFamily: font.headline.bold },
   addBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  addBtnText: { color: colors.green, fontSize: font.size.sm, fontWeight: font.weight.medium },
+  addBtnText: { color: colors.greenDeep, fontSize: font.size.sm, fontWeight: font.weight.medium },
 
   cardContainer: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   card: {

@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   fieldLabel: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '600', marginBottom: 6 },
   goalGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   goalOption: { width: '47%', minHeight: 88, padding: 10, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 4 },
-  goalOptionSelected: { borderColor: colors.green, backgroundColor: colors.greenDim },
+  goalOptionSelected: { borderColor: colors.greenDeep, backgroundColor: colors.greenDim },
   goalTitle: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '600' },
   goalTitleSelected: { color: colors.greenDeep },
   goalDescription: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },

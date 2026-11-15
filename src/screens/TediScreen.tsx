@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 
-type TediDestination = 'Plan' | 'Pay & Transfer' | 'Benefits' | 'Settings';
+type TediDestination = 'Home' | 'Plan' | 'Pay & Transfer' | 'Benefits';
 
 type TediAction = {
   label: string;
@@ -47,13 +47,13 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
 
   if (/card|freeze|pin/.test(input)) {
     return {
-      text: 'You can find your card controls and settings in your profile.',
-      action: { label: 'Open card settings', destination: 'Settings' },
+      text: 'You can manage your TD Double Up Card from its account on Home.',
+      action: { label: 'Go to Home', destination: 'Home' },
     };
   }
 
   return {
-    text: 'I can help you find spending insights, transfers, benefits, or card settings. Which would you like to explore?',
+    text: 'I can help you find spending insights, transfers, benefits, or card controls. Which would you like to explore?',
   };
 }
 
@@ -70,7 +70,7 @@ export default function TediScreen() {
     {
       id: 0,
       role: 'assistant',
-      text: 'Good afternoon, Maya. I can help you find spending insights, send money, explore benefits, or manage your card.',
+      text: 'Good afternoon, Ava. I can help you find spending insights, send money, explore benefits, or manage your card.',
     },
   ]);
 

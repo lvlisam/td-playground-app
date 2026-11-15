@@ -14,7 +14,7 @@ const TABS = ['Send', 'Request', 'Pay Bill'];
 const CONTACTS = [
   { id: '1', name: 'Sarah M.', initials: 'SM', color: colors.purple, recent: '$120.00' },
   { id: '2', name: 'Jake P.', initials: 'JP', color: colors.blue, recent: '$45.50' },
-  { id: '3', name: 'Mum', initials: 'M', color: colors.green, recent: '$200.00' },
+  { id: '3', name: 'Mum', initials: 'M', color: colors.greenDeep, recent: '$200.00' },
   { id: '4', name: 'Tom R.', initials: 'TR', color: colors.orange, recent: '$75.00' },
 ];
 
@@ -138,7 +138,7 @@ export default function SendPayScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.contactsRow, compact && styles.contactsRowCompact]}>
               <TouchableOpacity style={[styles.addContact, compact && styles.addContactCompact]}>
               <View style={[styles.addContactCircle, compact && styles.addContactCircleCompact]}>
-                <Ionicons name="add" size={24} color={colors.green} />
+                <Ionicons name="add" size={24} color={colors.greenDeep} />
               </View>
               <Text style={styles.contactName}>New</Text>
             </TouchableOpacity>
@@ -179,7 +179,7 @@ export default function SendPayScreen() {
                 style={[styles.methodRow, compact && styles.methodRowCompact, selectedMethod === m.id && styles.methodRowActive]}
               >
                 <View style={[styles.methodIcon, compact && styles.methodIconCompact, selectedMethod === m.id && { backgroundColor: colors.greenDim }]}>
-                  <Ionicons name={m.icon} size={20} color={selectedMethod === m.id ? colors.green : colors.textSecondary} />
+                  <Ionicons name={m.icon} size={20} color={selectedMethod === m.id ? colors.greenDeep : colors.textSecondary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.methodLabel}>{m.label}</Text>
@@ -226,7 +226,7 @@ export default function SendPayScreen() {
         <View style={[styles.section, compact && styles.sectionCompact]}>
           <TouchableOpacity disabled={!canSend} style={{ opacity: canSend ? 1 : 0.4 }}>
             <LinearGradient
-              colors={[colors.green, colors.greenBright]}
+              colors={[colors.greenDeep, colors.green]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.sendBtn}
             >
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   sectionTitle: { color: colors.text, fontSize: font.size.md, fontFamily: font.headline.semibold, marginBottom: spacing.sm },
-  seeAll: { color: colors.green, fontSize: font.size.sm },
+  seeAll: { color: colors.greenDeep, fontSize: font.size.sm },
 
   contactsRow: { gap: spacing.md, paddingRight: spacing.lg },
   contact: { alignItems: 'center', gap: 4, width: 64 },
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'transparent',
   },
-  contactAvatarActive: { borderColor: colors.green },
+  contactAvatarActive: { borderColor: colors.greenDeep },
   contactCheck: {
     position: 'absolute', top: -2, right: -2,
     width: 18, height: 18, borderRadius: 9,
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     width: 56, height: 56, borderRadius: 28,
     backgroundColor: colors.greenDim,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: colors.green + '40',
+    borderWidth: 1, borderColor: colors.greenDeep + '40',
   },
 
   methodRow: {
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface, borderRadius: radius.lg,
     padding: spacing.md, borderWidth: 1, borderColor: colors.border,
   },
-  methodRowActive: { borderColor: colors.green },
+  methodRowActive: { borderColor: colors.greenDeep },
   methodIcon: {
     width: 40, height: 40, borderRadius: radius.md,
     backgroundColor: colors.surfaceHigh,
@@ -323,8 +323,8 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center',
   },
-  radioActive: { borderColor: colors.green },
-  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.green },
+  radioActive: { borderColor: colors.greenDeep },
+  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.greenDeep },
 
   noteInput: {
     backgroundColor: colors.surface, borderRadius: radius.md,

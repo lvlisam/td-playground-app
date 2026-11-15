@@ -82,7 +82,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
       style={[styles.actionCard, action.featured && styles.featuredCard]}
     >
       <View style={[styles.actionIcon, action.featured && styles.featuredIcon]}>
-        <Ionicons name={action.icon} size={18} color={action.featured ? colors.text : colors.green} />
+        <Ionicons name={action.icon} size={18} color={action.featured ? colors.text : colors.greenDeep} />
       </View>
       <Text style={[styles.actionTitle, action.featured && styles.featuredText]} numberOfLines={1}>
         {action.title}
@@ -123,7 +123,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
           style={styles.suggestion}
           onPress={() => onSelectAction('send')}
         >
-          <Ionicons name="compass-outline" size={22} color={colors.green} />
+          <Ionicons name="compass-outline" size={22} color={colors.greenDeep} />
           <View style={styles.suggestionCopy}>
             <Text style={styles.suggestionTitle}>Not sure which to use?</Text>
             <Text numberOfLines={1} style={styles.suggestionText}>{'Share an amount and destination.'}</Text>
@@ -169,7 +169,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
             {visibleBills.map((bill, index) => (
               <View key={bill.id} style={[styles.billRow, index === visibleBills.length - 1 && styles.lastBillRow]}>
                 <View style={styles.billIcon}>
-                  <Ionicons name="receipt-outline" size={20} color={colors.green} />
+                  <Ionicons name="receipt-outline" size={20} color={colors.greenDeep} />
                 </View>
                 <View style={styles.billCopy}>
                   <Text style={styles.billMerchant} numberOfLines={1}>{bill.merchant}</Text>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.green,
+    borderColor: colors.greenDeep,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
   },

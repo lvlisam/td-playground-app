@@ -10,7 +10,7 @@ type Props = {
 export default function GreenPill({ label, positive = true }: Props) {
   return (
     <View style={[styles.pill, { backgroundColor: positive ? colors.greenDim : colors.redDim }]}>
-      <Text style={[styles.label, { color: positive ? colors.green : colors.red }]}>{label}</Text>
+      <Text style={[styles.label, { color: positive ? colors.greenDeep : colors.red }]}>{label}</Text>
     </View>
   );
 }
