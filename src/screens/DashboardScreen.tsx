@@ -156,11 +156,14 @@ export default function DashboardScreen() {
           <View
             accessible
             accessibilityRole="text"
-            accessibilityLabel="Fee waived this month"
+            accessibilityLabel="Fee waived this month. Direct deposit covers your $5 monthly fee."
             style={[styles.feeNotice, compact && styles.feeNoticeCompact]}
           >
             <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={palette.green} />
-            <Text style={[styles.feeNoticeText, compact && styles.feeNoticeTextCompact]}>Fee waived this month</Text>
+            <View style={styles.feeNoticeCopy}>
+              <Text style={styles.feeNoticeText}>Fee waived this month</Text>
+              <Text style={styles.feeNoticeSubtext}>Direct deposit covers your $5 monthly fee</Text>
+            </View>
           </View>
 
           <View style={styles.accountList}>
@@ -266,8 +269,10 @@ const styles = StyleSheet.create({
   balance: { color: colors.white, fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
   content: { paddingHorizontal: 16, marginTop: -5 },
   sectionTitle: { color: palette.ink, fontSize: 18, fontFamily: font.headline.bold, marginBottom: 10 },
-  feeNotice: { minHeight: 48, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
-  feeNoticeText: { color: colors.white, fontSize: 14, fontWeight: '600' },
+  feeNotice: { minHeight: 62, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, paddingVertical: 9, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
+  feeNoticeCopy: { flex: 1, minWidth: 0, gap: 2 },
+  feeNoticeText: { color: colors.white, fontSize: 14, lineHeight: 19, fontWeight: '600' },
+  feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 14, lineHeight: 19 },
   moveMoneyButton: { minHeight: 48, borderRadius: 14, backgroundColor: palette.green, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   moveMoneyText: { flex: 1, color: palette.ink, fontSize: 14, fontWeight: '700', marginLeft: 10 },
   accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
@@ -321,8 +326,7 @@ const styles = StyleSheet.create({
   balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
   contentCompact: { paddingHorizontal: 12 },
   sectionTitleCompact: { fontSize: 17, marginBottom: 6 },
-  feeNoticeCompact: { minHeight: 40, paddingHorizontal: 12, gap: 9, marginBottom: 8, borderRadius: 14 },
-  feeNoticeTextCompact: { fontSize: 12 },
+  feeNoticeCompact: { minHeight: 64, paddingHorizontal: 12, gap: 9, marginBottom: 8, borderRadius: 14 },
   accountRowCompact: { minHeight: 50, paddingHorizontal: 9, gap: 7 },
   accountMarkCompact: { width: 30, height: 30, borderRadius: 7 },
   accountNameCompact: { fontSize: 13, lineHeight: 16 },
