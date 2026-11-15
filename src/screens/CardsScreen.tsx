@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import AccountNicknameEditor from '../components/AccountNicknameEditor';
+import { useAccounts } from '../accounts';
 
 type ToggleRowProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -102,6 +104,8 @@ const navStyles = StyleSheet.create({
 });
 
 export default function CardsScreen() {
+  const { accounts, renameAccount } = useAccounts();
+  const cardAccount = accounts.find((account) => account.id === 'card')!;
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
@@ -140,7 +144,7 @@ export default function CardsScreen() {
             <View style={styles.cardHeader}>
               <View>
                 <Text style={styles.cardBankName}>TD Future</Text>
-                <Text style={styles.cardType}>Everyday Chequing</Text>
+                <AccountNicknameEditor accountId="card" name={cardAccount.name} onSave={renameAccount} dark />
               </View>
               <View style={styles.cardWifi}>
                 {frozen ? (
@@ -320,7 +324,6 @@ const styles = StyleSheet.create({
   cardFrozen: { opacity: 0.8 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   cardBankName: { color: colors.white, fontSize: font.size.md, fontFamily: font.headline.bold, letterSpacing: 1 },
-  cardType: { color: 'rgba(255,255,255,0.6)', fontSize: font.size.xs, marginTop: 2 },
   cardWifi: {},
   chip: {
     width: 36, height: 28, borderRadius: 5,

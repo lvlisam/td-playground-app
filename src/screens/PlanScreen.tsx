@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import FamilyPlanBuilder from '../components/FamilyPlanBuilder';
+import AccountPlanCard from '../components/AccountPlanCard';
+import { useAccounts } from '../accounts';
 
 function SavingsMomentumCard() {
   return (
@@ -16,7 +18,7 @@ function SavingsMomentumCard() {
           <Text style={styles.momentumEyebrow}>SAVINGS MOMENTUM</Text>
           <Text style={styles.momentumTitle}>A little more room to grow</Text>
         </View>
-        <Text style={styles.momentumPeriod}>MAY</Text>
+        <Text style={styles.momentumPeriod}>NOV</Text>
       </View>
       <View style={styles.momentumValues}>
         <View>
@@ -26,7 +28,7 @@ function SavingsMomentumCard() {
         <Ionicons name="arrow-forward" size={17} color={colors.textTertiary} />
         <View>
           <Text style={styles.momentumCompare}>+$180</Text>
-          <Text style={styles.momentumLabel}>saved in April</Text>
+          <Text style={styles.momentumLabel}>saved in October</Text>
         </View>
         <View style={styles.momentumChange}>
           <Text style={styles.momentumChangeText}>+$60</Text>
@@ -38,6 +40,8 @@ function SavingsMomentumCard() {
 }
 
 export default function PlanScreen() {
+  const { accounts } = useAccounts();
+  const plannedAccounts = accounts.filter((account) => account.plan);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
@@ -53,16 +57,23 @@ export default function PlanScreen() {
         <View style={styles.header}>
           <View style={styles.headerEyebrow}>
             <Ionicons name="leaf-outline" size={15} color={colors.greenDeep} />
-            <Text style={styles.headerEyebrowText}>PLAN FOR YOUR FAMILY</Text>
+            <Text style={styles.headerEyebrowText}>LIFE &amp; FAMILY PLANNING</Text>
           </View>
           <Text style={[styles.title, compact && styles.titleCompact]}>Your future, one step at a time.</Text>
-          <Text style={styles.subtitle}>Build a clearer path toward the moments that matter most.</Text>
+          <Text style={styles.subtitle}>Start with a goal, then add context as life changes for more relevant next steps.</Text>
         </View>
 
         <SavingsMomentumCard />
         <View style={styles.sectionHeading}>
-          <Text style={styles.sectionTitle}>Family goals</Text>
-          <Text style={styles.sectionSubtitle}>Turn a big idea into a practical next step.</Text>
+          <Text style={styles.sectionTitle}>Account plans</Text>
+          <Text style={styles.sectionSubtitle}>A simple view of your savings goal and monthly spending.</Text>
+        </View>
+        <View style={styles.accountPlans}>
+          {plannedAccounts.map((account) => <AccountPlanCard key={account.id} account={account} />)}
+        </View>
+        <View style={styles.sectionHeading}>
+          <Text style={styles.sectionTitle}>Plan for what&apos;s next</Text>
+          <Text style={styles.sectionSubtitle}>Your accounts are a starting point. Add optional details for advice that better fits your priorities.</Text>
         </View>
         <FamilyPlanBuilder />
         <View style={styles.disclaimer}>
@@ -98,6 +109,7 @@ const styles = StyleSheet.create({
   momentumChange: { paddingHorizontal: 9, paddingVertical: 5, borderRadius: radius.full, backgroundColor: colors.greenDim },
   momentumChangeText: { color: colors.greenDeep, fontSize: 11, fontWeight: '700' },
   momentumFootnote: { color: colors.textSecondary, fontSize: 10, lineHeight: 15 },
+  accountPlans: { gap: spacing.sm },
   sectionHeading: { gap: 2, marginTop: 2 },
   sectionTitle: { color: colors.text, fontSize: 18, lineHeight: 24, fontFamily: font.headline.bold },
   sectionSubtitle: { color: colors.textSecondary, fontSize: 12, lineHeight: 17 },

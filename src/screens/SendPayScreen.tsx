@@ -19,8 +19,8 @@ const CONTACTS = [
 ];
 
 const METHODS = [
-  { id: 'interac', label: 'Interac e-Transfer', icon: 'swap-horizontal' as const, desc: 'Free · Instant' },
-  { id: 'etransfer', label: 'Wire Transfer', icon: 'git-branch-outline' as const, desc: '$5.00 · 1–2 business days' },
+  { id: 'zelle', label: 'Zelle', icon: 'swap-horizontal' as const, desc: 'Free · Instant' },
+  { id: 'wire', label: 'Wire transfer', icon: 'git-branch-outline' as const, desc: '$5.00 · 1–2 business days' },
 ];
 
 const NUMPAD = ['1','2','3','4','5','6','7','8','9','.','0','⌫'];
@@ -33,7 +33,7 @@ export default function SendPayScreen() {
   const [activeTab, setActiveTab] = useState('Send');
   const [amount, setAmount] = useState('');
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
-  const [selectedMethod, setSelectedMethod] = useState('interac');
+  const [selectedMethod, setSelectedMethod] = useState('zelle');
   const [note, setNote] = useState('');
   const [showForm, setShowForm] = useState(false);
 
@@ -52,7 +52,7 @@ export default function SendPayScreen() {
   const handleOverviewAction = (action: TransferAction) => {
     if (action === 'send' || action === 'wire') {
       setActiveTab('Send');
-      setSelectedMethod(action === 'wire' ? 'etransfer' : 'interac');
+      setSelectedMethod(action === 'wire' ? 'wire' : 'zelle');
       setShowForm(true);
       return;
     }
@@ -84,14 +84,14 @@ export default function SendPayScreen() {
       <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Back to Pay and Transfer"
+          accessibilityLabel="Back to Move money"
           onPress={() => setShowForm(false)}
           style={styles.backLink}
         >
           <Ionicons name="arrow-back" size={18} color={colors.textSecondary} />
-          <Text style={styles.backText}>Pay &amp; Transfer</Text>
+          <Text style={styles.backText}>Move money</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Send & Pay</Text>
+        <Text style={styles.title}>Send money</Text>
       </View>
 
       {/* Tab Bar */}
@@ -113,7 +113,7 @@ export default function SendPayScreen() {
       >
         {/* Amount Display */}
         <View style={[styles.amountSection, compact && styles.amountSectionCompact]}>
-          <Text style={styles.amountLabel}>Amount (CAD)</Text>
+          <Text style={styles.amountLabel}>Amount (USD)</Text>
           <View style={styles.amountRow}>
             <Text style={[styles.dollar, compact && styles.dollarCompact]}>$</Text>
             <Text style={[styles.amountValue, compact && styles.amountValueCompact, amount === '' && styles.amountPlaceholder]}>

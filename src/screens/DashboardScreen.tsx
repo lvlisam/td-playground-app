@@ -15,6 +15,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font } from '../theme';
+import CreditAndBillsSection from '../components/CreditAndBillsSection';
+import { useAccounts } from '../accounts';
+import type { Account } from '../accounts';
 
 const palette = {
   background: colors.bg,
@@ -23,32 +26,6 @@ const palette = {
   green: colors.green,
   greenDeep: colors.greenDeep,
 };
-
-const accounts = [
-  {
-    id: 'checking',
-    name: 'TD Complete Checking',
-    detail: '•••• 4821',
-    amount: '$6,842.17',
-    swatch: palette.green,
-  },
-  {
-    id: 'savings',
-    name: 'TD Simple Savings',
-    detail: '•••• 9310 · 4.60% APY',
-    note: '4 Vaults · $31,770 inside',
-    amount: '$53,220.00',
-    swatch: palette.green,
-  },
-  {
-    id: 'card',
-    name: 'TD Double Up Card',
-    detail: '$10,715.44 available',
-    note: '18,420 TD Points',
-    amount: '−$1,284.56',
-    swatch: palette.ink,
-  },
-];
 
 const recentTransactions = [
   {
@@ -77,11 +54,65 @@ const recentTransactions = [
   },
 ] as const;
 
-function AccountRow({ account, last, compact }: { account: (typeof accounts)[number]; last: boolean; compact: boolean }) {
+type AccountView = 'family' | 'business';
+type DashboardAccount = Omit<Account, 'id'> & { id: string };
+type DashboardTransaction = {
+  id: string;
+  merchant: string;
+  category: string;
+  time: string;
+  amount: string;
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+};
+
+const businessAccounts: DashboardAccount[] = [
+  {
+    id: 'business-checking',
+    name: 'TD Small Business Checking',
+    productLabel: 'Small business checking',
+    detail: '•••• 6032',
+    amount: '$17,384.22',
+    amountLabel: 'Available balance',
+    note: 'Operating account',
+    swatch: colors.green,
+    plan: null,
+  },
+  {
+    id: 'business-savings',
+    name: 'TD Business Savings',
+    productLabel: 'Business savings',
+    detail: '•••• 1186 · 2.50% APY',
+    amount: '$32,100.00',
+    amountLabel: 'Current balance',
+    note: 'Tax reserve',
+    swatch: colors.green,
+    plan: null,
+  },
+  {
+    id: 'business-card',
+    name: 'TD Business Credit Card',
+    productLabel: 'Business credit card',
+    detail: '$8,520.00 available',
+    amount: '−$842.60',
+    amountLabel: 'Current balance',
+    note: '12,480 TD Points',
+    swatch: colors.text,
+    plan: null,
+  },
+];
+
+const businessTransactions: DashboardTransaction[] = [
+  { id: 'payout', merchant: 'Card sales payout', category: 'Sales · Checking', time: 'Today, 8:42 AM', amount: '+$3,842.50', icon: 'arrow-down-outline' },
+  { id: 'supplies', merchant: 'Office supplies', category: 'Supplies · Business card', time: 'Yesterday, 2:10 PM', amount: '−$246.18', icon: 'bag-handle-outline' },
+  { id: 'software', merchant: 'Business software', category: 'Software · Business card', time: 'Nov 18, 10:15 AM', amount: '−$59.99', icon: 'briefcase-outline' },
+];
+
+function AccountRow({ account, last, compact }: { account: DashboardAccount; last: boolean; compact: boolean }) {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
-  const isCard = account.id === 'card';
   const accessibilityLabel = `${account.name}, ${account.amount}. ${account.detail}${account.note ? `. ${account.note}` : ''}`;
   const rowStyle = [styles.accountRow, compact && styles.accountRowCompact, !last && styles.accountDivider];
+  const isBusinessAccount = account.id.startsWith('business-');
+  const isCreditAccount = account.id === 'card';
   const content = (
     <>
       <View style={[styles.accountMark, compact && styles.accountMarkCompact, { backgroundColor: account.swatch }]}>
@@ -93,33 +124,31 @@ function AccountRow({ account, last, compact }: { account: (typeof accounts)[num
         {account.note ? <Text numberOfLines={1} style={[styles.accountNote, compact && styles.accountNoteCompact]}>{account.note}</Text> : null}
       </View>
       <Text numberOfLines={1} style={[styles.accountAmount, compact && styles.accountAmountCompact]}>{account.amount}</Text>
-      {isCard ? <Ionicons name="chevron-forward" size={15} color={colors.textSecondary} /> : null}
+      {!isBusinessAccount ? <Ionicons name="chevron-forward" size={15} color={colors.textSecondary} /> : null}
     </>
   );
 
-  if (isCard) {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityHint="Opens the card manager"
-        onPress={() => navigation.navigate('Card Manager')}
-        style={rowStyle}
-      >
-        {content}
-      </TouchableOpacity>
-    );
+  if (isBusinessAccount) {
+    return <View accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel} style={rowStyle}>{content}</View>;
   }
 
   return (
-    <View accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel} style={rowStyle}>
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Opens account servicing details"
+      onPress={() => isCreditAccount
+        ? navigation.navigate('Card Manager')
+        : navigation.navigate('Account servicing', { accountId: account.id })}
+      style={rowStyle}
+    >
       {content}
-    </View>
+    </TouchableOpacity>
   );
 }
 
 function RecentTransactionRow({ transaction, compact, last }: {
-  transaction: (typeof recentTransactions)[number];
+  transaction: DashboardTransaction;
   compact: boolean;
   last: boolean;
 }) {
@@ -144,89 +173,113 @@ function RecentTransactionRow({ transaction, compact, last }: {
   );
 }
 
-function RecentTransactionsSection({ compact }: { compact: boolean }) {
+function RecentTransactionsSection({ compact, view }: { compact: boolean; view: AccountView }) {
+  const transactions = view === 'business' ? businessTransactions : recentTransactions;
+
   return (
     <View style={[styles.recentTransactionsCard, compact && styles.recentTransactionsCardCompact]}>
       <View style={styles.recentTransactionsHeading}>
-        <Text accessibilityRole="header" style={styles.recentTransactionsTitle}>Recent transactions</Text>
+        <Text accessibilityRole="header" style={styles.recentTransactionsTitle}>
+          {view === 'business' ? 'Recent business activity' : 'Recent transactions'}
+        </Text>
         <Text style={styles.recentTransactionsSubtitle}>Latest activity</Text>
       </View>
-      {recentTransactions.map((transaction, index) => (
+      {transactions.map((transaction, index) => (
         <RecentTransactionRow
           key={transaction.id}
           transaction={transaction}
           compact={compact}
-          last={index === recentTransactions.length - 1}
+          last={index === transactions.length - 1}
         />
       ))}
     </View>
   );
 }
 
-function FinancialHealthCard({ compact }: { compact: boolean }) {
+function FinancialHealthCard({ compact, view }: { compact: boolean; view: AccountView }) {
   const [accountsExpanded, setAccountsExpanded] = useState(false);
+  const { accounts } = useAccounts();
+  const isBusiness = view === 'business';
+  const visibleAccounts: DashboardAccount[] = isBusiness ? businessAccounts : accounts;
+  const creditAccount = visibleAccounts.find((account) => account.id === (isBusiness ? 'business-card' : 'card'));
+  const score = isBusiness ? 76 : 82;
 
   return (
     <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
       <View style={styles.healthHeader}>
-          <View style={styles.healthIdentity}>
-          <View>
-
-            <Text style={[styles.healthTitle, compact && styles.healthTitleCompact]}>Financial health</Text>
-          </View>
+        <View style={styles.healthIdentity}>
+          <Text style={[styles.healthTitle, compact && styles.healthTitleCompact]}>
+            {isBusiness ? 'Business overview' : 'Financial health'}
+          </Text>
         </View>
         <View style={styles.healthScoreGroup}>
-          <Text accessibilityLabel="Score 82 out of 100" style={[styles.healthScore, compact && styles.healthScoreCompact]}>
-            82<Text style={styles.healthScoreScale}> / 100</Text>
+          <Text accessibilityLabel={`${isBusiness ? 'Business' : 'Financial health'} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+            {score}<Text style={styles.healthScoreScale}> / 100</Text>
           </Text>
         </View>
       </View>
       <View style={styles.totalBalanceRow}>
         <View>
-          <Text style={styles.totalBalanceLabel}>TOTAL DEPOSIT BALANCE</Text>
-          <Text style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>$60,062.17</Text>
-          <Text style={styles.totalBalanceDetail}>Checking + savings</Text>
+          <Text style={styles.totalBalanceLabel}>{isBusiness ? 'TOTAL BUSINESS DEPOSITS' : 'TOTAL DEPOSIT BALANCE'}</Text>
+          <Text style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>
+            {isBusiness ? '$49,484.22' : '$60,062.17'}
+          </Text>
+          <Text style={styles.totalBalanceDetail}>{isBusiness ? 'Business checking + savings' : 'Checking + savings'}</Text>
         </View>
         <View style={styles.totalBalanceIcon}>
-          <Ionicons name="wallet-outline" size={20} color={colors.greenDeep} />
+          <Ionicons name={isBusiness ? 'briefcase-outline' : 'wallet-outline'} size={20} color={colors.greenDeep} />
         </View>
       </View>
-      <View accessibilityLabel="Financial health score: 82 percent" style={styles.healthMeterTrack}>
-        <View style={styles.healthMeterFill} />
+      <View accessibilityLabel={`${isBusiness ? 'Business' : 'Financial health'} score: ${score} percent`} style={styles.healthMeterTrack}>
+        <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
       </View>
 
       <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
         <View style={styles.healthMetricTile}>
-          <Text style={styles.healthMetricLabel}>LEFT TO SPEND</Text>
-          <Text numberOfLines={1} style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>$6,842.17</Text>
-          <Text style={styles.healthMetricDetail}>Checking · before upcoming bills</Text>
+          <Text style={styles.healthMetricLabel}>{isBusiness ? 'CASH AVAILABLE' : 'LEFT TO SPEND'}</Text>
+          <Text numberOfLines={1} style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
+            {isBusiness ? '$17,384.22' : '$6,842.17'}
+          </Text>
+          <Text style={styles.healthMetricDetail}>{isBusiness ? 'Business checking' : 'Checking · before upcoming bills'}</Text>
         </View>
         <View style={styles.healthMetricTile}>
-          <Text style={styles.healthMetricLabel}>SAVED IN MAY</Text>
-          <Text style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>+$240</Text>
-          <Text style={styles.healthMetricDetail}>+$60 vs. April (+$180)</Text>
+          <Text style={styles.healthMetricLabel}>SAVED IN NOV</Text>
+          <Text style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{isBusiness ? '+$1,200' : '+$240'}</Text>
+          <Text style={styles.healthMetricDetail}>{isBusiness ? 'Added to business savings' : '+$60 vs. October (+$180)'}</Text>
         </View>
       </View>
+      {creditAccount ? (
+        <View style={styles.creditBalanceRow}>
+          <View style={styles.creditBalanceIcon}>
+            <Ionicons name="card-outline" size={18} color={colors.greenDeep} />
+          </View>
+          <View style={styles.creditBalanceCopy}>
+            <Text style={styles.creditBalanceLabel}>{isBusiness ? 'Business card balance' : 'Credit balance'}</Text>
+            <Text style={styles.creditBalanceDetail}>{creditAccount.detail}</Text>
+          </View>
+          <Text style={styles.creditBalanceValue}>{creditAccount.amount}</Text>
+        </View>
+      ) : null}
 
       <View style={styles.healthDivider} />
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel={`Your accounts, ${accounts.length} linked`}
+        accessibilityLabel={`${isBusiness ? 'Business accounts' : 'Your accounts'}, ${visibleAccounts.length} linked`}
         accessibilityHint={accountsExpanded ? 'Hides your linked accounts' : 'Shows your linked accounts'}
         accessibilityState={{ expanded: accountsExpanded }}
         onPress={() => setAccountsExpanded((expanded) => !expanded)}
         style={styles.accountSectionHeader}
       >
         <View style={styles.accountSectionCopy}>
-          <Text style={styles.accountSectionTitle}>Your accounts</Text>
-          <Text style={styles.linkedAccountCount}>{accounts.length} linked</Text>
+          <Text style={styles.accountSectionTitle}>{isBusiness ? 'Business accounts' : 'Your accounts'}</Text>
+          <Text style={styles.linkedAccountCount}>{visibleAccounts.length} linked</Text>
         </View>
         <Ionicons name={accountsExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
       </TouchableOpacity>
       {accountsExpanded ? (
         <View style={styles.accountList}>
-          {accounts.map((account, index) => (
-            <AccountRow key={account.id} account={account} last={index === accounts.length - 1} compact={compact} />
+          {visibleAccounts.map((account, index) => (
+            <AccountRow key={account.id} account={account} last={index === visibleAccounts.length - 1} compact={compact} />
           ))}
         </View>
       ) : null}
@@ -234,9 +287,49 @@ function FinancialHealthCard({ compact }: { compact: boolean }) {
       <View style={[styles.feeNotice, compact && styles.feeNoticeCompact]}>
         <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={colors.greenDeep} />
         <View style={styles.feeNoticeCopy}>
-          <Text style={styles.feeNoticeText}>Fee waived this month</Text>
-          <Text style={[styles.feeNoticeSubtext, compact && styles.feeNoticeSubtextCompact]}>Direct deposit covers your $5 monthly fee</Text>
+          <Text style={styles.feeNoticeText}>{isBusiness ? 'Business monthly fee waived' : 'Fee waived this month'}</Text>
+          <Text style={[styles.feeNoticeSubtext, compact && styles.feeNoticeSubtextCompact]}>
+            {isBusiness ? 'Your balance meets the monthly waiver requirement' : 'Direct deposit covers your $5 monthly fee'}
+          </Text>
         </View>
+      </View>
+    </View>
+  );
+}
+
+function DashboardAccountSwitcher({ view, onChange, compact }: {
+  view: AccountView;
+  onChange: (view: AccountView) => void;
+  compact: boolean;
+}) {
+  return (
+    <View style={[styles.accountViewSwitcher, compact && styles.accountViewSwitcherCompact]}>
+      <Text style={styles.accountViewSwitcherLabel}>ACCOUNT VIEW</Text>
+      <View accessibilityRole="tablist" style={styles.accountViewSegments}>
+        <TouchableOpacity
+          accessibilityRole="tab"
+          accessibilityLabel="Ava and family accounts"
+          accessibilityState={{ selected: view === 'family' }}
+          onPress={() => onChange('family')}
+          style={[styles.accountViewSegment, view === 'family' && styles.accountViewSegmentActive]}
+        >
+          <Ionicons name="people-outline" size={15} color={view === 'family' ? colors.greenDeep : colors.white} />
+          <Text style={[styles.accountViewSegmentText, view === 'family' && styles.accountViewSegmentTextActive, compact && styles.accountViewSegmentTextCompact]}>
+            Ava + family
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="tab"
+          accessibilityLabel="Ava's small business accounts"
+          accessibilityState={{ selected: view === 'business' }}
+          onPress={() => onChange('business')}
+          style={[styles.accountViewSegment, view === 'business' && styles.accountViewSegmentActive]}
+        >
+          <Ionicons name="briefcase-outline" size={15} color={view === 'business' ? colors.greenDeep : colors.white} />
+          <Text style={[styles.accountViewSegmentText, view === 'business' && styles.accountViewSegmentTextActive, compact && styles.accountViewSegmentTextCompact]}>
+            Small business
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -247,6 +340,7 @@ export default function DashboardScreen() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { width } = useWindowDimensions();
   const compact = width < 360;
+  const [accountView, setAccountView] = useState<AccountView>('family');
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
 
   return (
@@ -273,26 +367,27 @@ export default function DashboardScreen() {
               <View style={[styles.identity, compact && styles.identityCompact]}>
               <View>
                 <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
-                <View accessibilityRole="text" accessibilityLabel="Signed in as Ava" style={styles.customerProfileButton}>
+                <View style={styles.customerProfileButton}>
                   <Image
                     source={require('../../assets/maya-avatar.png')}
                     style={[styles.customerAvatar, compact && styles.customerAvatarCompact]}
                     resizeMode="cover"
                     accessible={false}
                   />
-                  <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Ava</Text>
+                  <Text accessibilityRole="text" accessibilityLabel="Signed in as Ava" style={[styles.customerName, compact && styles.customerNameCompact]}>Ava</Text>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="TD Select relationship tier. View benefits"
+                    accessibilityHint="Opens your TD relationship benefits"
+                    hitSlop={8}
+                    onPress={() => navigation.navigate('Benefits')}
+                    style={[styles.relationshipBadge, compact && styles.relationshipBadgeCompact]}
+                  >
+                    <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.white} />
+                    <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>TD Select</Text>
+                    <Ionicons name="chevron-forward" size={9} color={colors.white} />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel="TD Select relationship tier. View benefits"
-                  accessibilityHint="Opens your TD relationship benefits"
-                  onPress={() => navigation.navigate('Benefits')}
-                  style={[styles.relationshipBadge, compact && styles.relationshipBadgeCompact]}
-                >
-                  <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.white} />
-                  <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>TD Select</Text>
-                  <Ionicons name="chevron-forward" size={9} color={colors.white} />
-                </TouchableOpacity>
               </View>
             </View>
             <View style={[styles.topActions, compact && styles.topActionsCompact]}>
@@ -302,28 +397,30 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-
+          <DashboardAccountSwitcher view={accountView} onChange={setAccountView} compact={compact} />
           </View>
         </View>
 
-        <FinancialHealthCard compact={compact} />
-        <RecentTransactionsSection compact={compact} />
+        <FinancialHealthCard compact={compact} view={accountView} />
+        {accountView === 'family' ? <CreditAndBillsSection compact={compact} /> : null}
+        <RecentTransactionsSection compact={compact} view={accountView} />
 
         <View style={[styles.content, compact && styles.contentCompact]}>
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
-              <Text style={styles.offersTitle}>TD for you</Text>
+              <Text style={styles.offersTitle}>{accountView === 'business' ? 'TD for your business' : 'TD for you'}</Text>
             </View>
             <Text style={styles.offerCount}>3 offers · swipe</Text>
           </View>
           <TouchableOpacity accessibilityRole="button" style={styles.offerCard}>
             <View style={styles.offerIcon}><Ionicons name="leaf-outline" size={22} color={palette.green} /></View>
             <View style={styles.offerCopy}>
-              <Text style={styles.offerEyebrow}>MADE FOR AVA</Text>
-              <Text style={styles.offerTitle}>A little more room to grow</Text>
-              <Text style={styles.offerDescription}>Explore ways to make your savings go further.</Text>
+              <Text style={styles.offerEyebrow}>{accountView === 'business' ? 'BUSINESS BANKING' : 'MADE FOR AVA'}</Text>
+              <Text style={styles.offerTitle}>{accountView === 'business' ? 'More time for your business' : 'A little more room to grow'}</Text>
+              <Text style={styles.offerDescription}>
+                {accountView === 'business' ? 'Explore tools to streamline your everyday banking.' : 'Explore ways to make your savings go further.'}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={17} color="rgba(28,28,28,0.58)" />
           </TouchableOpacity>
@@ -349,12 +446,21 @@ const styles = StyleSheet.create({
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
   customerProfileButton: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  relationshipBadge: { alignSelf: 'flex-start', marginLeft: 52, marginTop: 2, flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.34)' },
-  relationshipBadgeCompact: { marginLeft: 46, paddingHorizontal: 6 },
+  relationshipBadge: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.34)' },
+  relationshipBadgeCompact: { paddingHorizontal: 6 },
   relationshipText: { color: colors.white, fontSize: 10, lineHeight: 13, fontWeight: '700', letterSpacing: 0.2 },
   relationshipTextCompact: { fontSize: 9, lineHeight: 12 },
   customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, overflow: 'hidden' },
   customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
+  accountViewSwitcher: { marginHorizontal: 18, marginTop: 14, padding: 5, borderRadius: 15, backgroundColor: 'rgba(4,57,29,0.28)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.28)', gap: 4 },
+  accountViewSwitcherCompact: { marginHorizontal: 14, marginTop: 10, padding: 4, gap: 3 },
+  accountViewSwitcherLabel: { marginHorizontal: 6, color: 'rgba(255,255,255,0.76)', fontSize: 9, lineHeight: 12, fontWeight: '700', letterSpacing: 0.6 },
+  accountViewSegments: { flexDirection: 'row', gap: 4 },
+  accountViewSegment: { flex: 1, minHeight: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 4, borderRadius: 10 },
+  accountViewSegmentActive: { backgroundColor: colors.white },
+  accountViewSegmentText: { color: colors.white, fontSize: 11, lineHeight: 14, fontFamily: font.headline.semibold },
+  accountViewSegmentTextActive: { color: colors.greenDeep },
+  accountViewSegmentTextCompact: { fontSize: 10 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
@@ -378,6 +484,12 @@ const styles = StyleSheet.create({
   healthMetricLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
   healthMetricValue: { color: palette.ink, fontSize: 19, lineHeight: 24, fontFamily: font.headline.bold },
   healthMetricDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  creditBalanceRow: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
+  creditBalanceIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
+  creditBalanceCopy: { flex: 1, minWidth: 0, gap: 2 },
+  creditBalanceLabel: { color: palette.ink, fontSize: 12, lineHeight: 16, fontFamily: font.headline.semibold },
+  creditBalanceDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  creditBalanceValue: { color: palette.ink, fontSize: 12, lineHeight: 16, fontFamily: font.headline.bold, flexShrink: 0 },
   healthDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderFaint },
   accountSectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 38 },
   accountSectionCopy: { flexDirection: 'row', alignItems: 'center', gap: 8 },

@@ -10,6 +10,8 @@ import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
 import TediScreen from '../screens/TediScreen';
+import AccountServicingScreen from '../screens/AccountServicingScreen';
+import { AccountsProvider } from '../accounts';
 import { colors, font, radius } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -142,6 +144,7 @@ export default function TabNavigator() {
         <View style={[styles.deviceRim, !showDeviceFrame && styles.nativeRim]}>
           <View style={[styles.deviceBezel, !showDeviceFrame && styles.nativeBezel]}>
             <View style={[styles.deviceScreen, !showDeviceFrame && styles.nativeScreen]}>
+              <AccountsProvider>
               <Tab.Navigator
                   screenListeners={({ route }) => ({
                     focus: () => setActiveTab(route.name),
@@ -221,11 +224,17 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
+                    name="Account servicing"
+                    component={AccountServicingScreen}
+                    options={{ tabBarButton: () => null }}
+                  />
+                  <Tab.Screen
                     name="Card Manager"
                     component={CardsScreen}
                     options={{ tabBarButton: () => null }}
                   />
               </Tab.Navigator>
+              </AccountsProvider>
               {Platform.OS === 'web' && <PhoneStatusBar light={activeTab === 'Home'} />}
             </View>
           </View>

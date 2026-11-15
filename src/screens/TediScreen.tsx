@@ -31,10 +31,10 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
     };
   }
 
-  if (/send|transfer|pay|bill|money|etransfer|e-transfer/.test(input)) {
+  if (/send|transfer|pay|bill|money|zelle/.test(input)) {
     return {
-      text: 'You can send money, pay bills, or transfer between accounts in Pay & Transfer.',
-      action: { label: 'Open Pay & Transfer', destination: 'Pay & Transfer' },
+      text: 'You can send money with Zelle, pay bills, or transfer between your accounts in Move money.',
+      action: { label: 'Open Move money', destination: 'Pay & Transfer' },
     };
   }
 
@@ -47,7 +47,7 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
 
   if (/card|freeze|pin/.test(input)) {
     return {
-      text: 'You can manage your TD Double Up Card from its account on Home.',
+      text: 'You can manage your credit card from its account on Home.',
       action: { label: 'Go to Home', destination: 'Home' },
     };
   }
