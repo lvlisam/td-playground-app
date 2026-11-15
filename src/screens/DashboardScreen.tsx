@@ -14,14 +14,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { font } from '../theme';
+import { colors, font } from '../theme';
 
 const palette = {
-  background: '#F4F5F3',
-  surface: '#FFFFFF',
-  ink: '#161917',
-  green: '#46B649',
-  navy: '#102A3E',
+  background: colors.bg,
+  surface: colors.surface,
+  ink: colors.text,
+  green: colors.green,
+  greenDeep: colors.greenDeep,
 };
 
 const accounts = [
@@ -93,7 +93,7 @@ export default function DashboardScreen() {
             accessible={false}
           />
           <LinearGradient
-            colors={['rgba(16,42,62,0.68)', 'rgba(16,42,62,0.34)', 'rgba(16,42,62,0.1)', 'rgba(244,245,243,0.94)']}
+            colors={['rgba(0,87,63,0.78)', 'rgba(0,87,63,0.42)', 'rgba(0,87,63,0.12)', 'rgba(246,247,246,0.94)']}
             locations={[0, 0.44, 0.72, 1]}
             style={[StyleSheet.absoluteFill, styles.heroGradient]}
           />
@@ -103,7 +103,7 @@ export default function DashboardScreen() {
               <View style={[styles.tdLogo, compact && styles.tdLogoCompact]}><Text style={[styles.tdLogoText, compact && styles.tdLogoTextCompact]}>TD</Text></View>
               <View>
                 <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
-                <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya <Ionicons name="chevron-forward" size={compact ? 13 : 15} color="#FFFFFF" /></Text>
+                <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya <Ionicons name="chevron-forward" size={compact ? 13 : 15} color={colors.white} /></Text>
               </View>
             </View>
             <View style={[styles.topActions, compact && styles.topActionsCompact]}>
@@ -112,7 +112,7 @@ export default function DashboardScreen() {
                 <Text style={[styles.tediText, compact && styles.tediTextCompact]}>Tedi</Text>
               </TouchableOpacity>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel="Notifications, 3 unread" style={[styles.notificationButton, compact && styles.notificationButtonCompact]}>
-                <Ionicons name="notifications-outline" size={compact ? 18 : 22} color="#FFFFFF" />
+                <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.white} />
                 <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
               </TouchableOpacity>
             </View>
@@ -199,26 +199,26 @@ const styles = StyleSheet.create({
   },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   tdLogo: { width: 42, height: 42, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
-  tdLogoText: { color: '#FFFFFF', fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
+  tdLogoText: { color: colors.white, fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
-  customerName: { color: '#FFFFFF', fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
+  customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tediButton: { height: 44, paddingHorizontal: 9, borderRadius: 24, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 7 },
   tediMark: { width: 30, height: 30, borderRadius: 16, backgroundColor: palette.ink, alignItems: 'center', justifyContent: 'center' },
   tediText: { color: palette.ink, fontSize: 14, fontWeight: '700', paddingRight: 5 },
   notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
-  notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: '#D74631', borderWidth: 1.5, borderColor: palette.navy, alignItems: 'center', justifyContent: 'center' },
-  notificationCountText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
+  notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
+  notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   locationPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 22, marginLeft: 18, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 20, backgroundColor: 'rgba(10,18,24,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
-  locationText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
+  locationText: { color: colors.white, fontSize: 12, fontWeight: '600' },
   balanceBlock: { marginTop: 22, paddingHorizontal: 18 },
   balanceLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 11 },
   balanceLabel: { color: 'rgba(255,255,255,0.84)', fontSize: 15, marginRight: 2 },
-  balance: { color: '#FFFFFF', fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
+  balance: { color: colors.white, fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
   content: { paddingHorizontal: 16, marginTop: -5 },
   sectionTitle: { color: palette.ink, fontSize: 18, fontFamily: font.headline.bold, marginBottom: 10 },
   feeNotice: { minHeight: 48, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
-  feeNoticeText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+  feeNoticeText: { color: colors.white, fontSize: 14, fontWeight: '600' },
   moveMoneyButton: { minHeight: 48, borderRadius: 14, backgroundColor: palette.green, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   moveMoneyText: { flex: 1, color: palette.ink, fontSize: 14, fontWeight: '700', marginLeft: 10 },
   accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
@@ -229,18 +229,18 @@ const styles = StyleSheet.create({
   accountCopy: { flex: 1, minWidth: 0 },
   accountName: { color: palette.ink, fontSize: 14, fontWeight: '600', lineHeight: 18 },
   accountDetail: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15 },
-  accountNote: { color: '#36873A', fontSize: 10, fontWeight: '600', lineHeight: 14 },
+  accountNote: { color: colors.greenDeep, fontSize: 10, fontWeight: '600', lineHeight: 14 },
   accountAmount: { color: palette.ink, fontSize: 14, fontWeight: '700', maxWidth: 102, textAlign: 'right' },
   offersHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 9 },
   offersTitleGroup: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   smallTdLogo: { width: 26, height: 26, borderRadius: 7, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
-  smallTdLogoText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800', letterSpacing: -1 },
+  smallTdLogoText: { color: colors.white, fontSize: 13, fontWeight: '800', letterSpacing: -1 },
   offersTitle: { color: palette.ink, fontSize: 17, fontFamily: font.headline.bold },
   offerCount: { color: 'rgba(22,25,23,0.58)', fontSize: 11 },
   offerCard: { minHeight: 86, borderRadius: 17, backgroundColor: palette.surface, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 6 },
-  offerIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: 'rgba(70,182,73,0.12)', alignItems: 'center', justifyContent: 'center' },
+  offerIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   offerCopy: { flex: 1 },
-  offerEyebrow: { color: '#36873A', fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
+  offerEyebrow: { color: colors.greenDeep, fontSize: 9, fontWeight: '700', letterSpacing: 0.7 },
   offerTitle: { color: palette.ink, fontSize: 13, fontFamily: font.headline.bold, marginTop: 2 },
   offerDescription: { color: 'rgba(22,25,23,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
   heroCompact: { minHeight: 200 },

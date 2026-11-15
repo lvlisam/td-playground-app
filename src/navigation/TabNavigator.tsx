@@ -8,17 +8,17 @@ import TransactionsScreen from '../screens/TransactionsScreen';
 import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
-import { font, radius } from '../theme';
+import { colors, font, radius } from '../theme';
 
 const Tab = createBottomTabNavigator();
 
 const frameColors = {
-  stage: '#EEF0ED',
-  screen: '#F4F5F3',
-  bezel: '#161917',
-  white: '#FFFFFF',
-  green: '#46B649',
-  muted: 'rgba(22,25,23,0.52)',
+  stage: colors.surfaceMid,
+  screen: colors.bg,
+  bezel: colors.text,
+  white: colors.surface,
+  green: colors.green,
+  muted: colors.textSecondary,
 };
 
 type TabIconProps = {
@@ -83,7 +83,7 @@ export default function TabNavigator() {
                       paddingBottom: showDeviceFrame ? 14 : insets.bottom || 4,
                       backgroundColor: frameColors.white,
                       borderTopWidth: 1,
-                      borderTopColor: 'rgba(22,25,23,0.11)',
+                      borderTopColor: colors.border,
                       elevation: 0,
                     },
                     tabBarActiveTintColor: frameColors.green,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     borderRadius: 4,
   },
-  tabButtonActive: { borderColor: 'rgba(70,182,73,0.58)' },
+  tabButtonActive: { borderColor: colors.greenGlow },
   tabIcon: {
     width: 34,
     height: 28,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabIconActive: { backgroundColor: 'rgba(70,182,73,0.12)' },
+  tabIconActive: { backgroundColor: colors.greenDim },
   sendTab: {
     width: 42,
     height: 42,
