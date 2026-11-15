@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import {
   Image,
   Platform,
@@ -24,41 +25,27 @@ const palette = {
 
 const accounts = [
   {
-    id: 'everyday',
-    name: 'TD Everyday Chequing',
+    id: 'checking',
+    name: 'TD Complete Checking',
     detail: '•••• 4821',
     amount: '$6,842.17',
     swatch: palette.green,
   },
   {
     id: 'savings',
-    name: 'TD Growth Savings',
+    name: 'TD Simple Savings',
     detail: '•••• 9310 · 4.60% APY',
     note: '4 Vaults · $31,770 inside',
     amount: '$53,220.00',
     swatch: palette.green,
   },
   {
-    id: 'cd',
-    name: 'TD 12-Month CD',
-    detail: '•••• 5520 · 4.25% APY',
-    amount: '$10,000.00',
-    swatch: palette.green,
-  },
-  {
     id: 'card',
-    name: 'TD Clear Card',
+    name: 'TD Double Up Card',
     detail: '$10,715.44 available',
     note: '18,420 TD Points',
     amount: '−$1,284.56',
     swatch: palette.ink,
-  },
-  {
-    id: 'family',
-    name: 'TD Family',
-    detail: 'Leo',
-    amount: '$46.50',
-    swatch: '#B7EB55',
   },
 ];
 
@@ -70,11 +57,7 @@ function AccountRow({ account, last, compact }: { account: (typeof accounts)[num
       style={[styles.accountRow, compact && styles.accountRowCompact, !last && styles.accountDivider]}
     >
       <View style={[styles.accountMark, compact && styles.accountMarkCompact, { backgroundColor: account.swatch }]}>
-        {account.id === 'family' ? (
-          <Ionicons name="people-outline" size={compact ? 17 : 19} color={palette.ink} />
-        ) : (
-          <View style={styles.accountMarkLine} />
-        )}
+        <View style={styles.accountMarkLine} />
       </View>
       <View style={styles.accountCopy}>
         <Text numberOfLines={1} style={[styles.accountName, compact && styles.accountNameCompact]}>{account.name}</Text>
@@ -89,6 +72,7 @@ function AccountRow({ account, last, compact }: { account: (typeof accounts)[num
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { width } = useWindowDimensions();
   const compact = width < 360;
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
@@ -134,11 +118,8 @@ export default function DashboardScreen() {
           </View>
 
           <View style={[styles.locationPill, compact && styles.locationPillCompact]}>
-            <View style={styles.liveDot} />
             <Ionicons name="location-outline" size={15} color={palette.green} />
             <Text style={[styles.locationText, compact && styles.locationTextCompact]}>New York, NY</Text>
-            <Text style={styles.locationDivider}>·</Text>
-            <Text style={[styles.locationMode, compact && styles.locationModeCompact]}>Local view</Text>
           </View>
 
           <View style={[styles.balanceBlock, compact && styles.balanceBlockCompact]}>
@@ -147,27 +128,39 @@ export default function DashboardScreen() {
               <Ionicons name="eye-outline" size={19} color="rgba(255,255,255,0.84)" />
               <Ionicons name="volume-medium-outline" size={19} color="rgba(255,255,255,0.84)" />
             </View>
-            <Text style={[styles.balance, compact && styles.balanceCompact]}>$70,062.17</Text>
+            <Text style={[styles.balance, compact && styles.balanceCompact]}>$60,062.17</Text>
           </View>
           </View>
         </View>
 
         <View style={[styles.content, compact && styles.contentCompact]}>
           <Text style={[styles.sectionTitle, compact && styles.sectionTitleCompact]}>Your accounts</Text>
-          <TouchableOpacity accessibilityRole="button" style={[styles.relationshipBanner, compact && styles.relationshipBannerCompact]}>
-            <View style={[styles.selectPill, compact && styles.selectPillCompact]}>
-              <Ionicons name="ribbon-outline" size={compact ? 14 : 16} color={palette.ink} />
-              <Text style={[styles.selectText, compact && styles.selectTextCompact]}>SELECT</Text>
-            </View>
-            <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>Your relationship tier</Text>
-            <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View
+            accessible
+            accessibilityRole="text"
+            accessibilityLabel="Fee waived this month"
+            style={[styles.feeNotice, compact && styles.feeNoticeCompact]}
+          >
+            <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={palette.green} />
+            <Text style={[styles.feeNoticeText, compact && styles.feeNoticeTextCompact]}>Fee waived this month</Text>
+          </View>
 
           <View style={styles.accountList}>
             {accounts.map((account, index) => (
               <AccountRow key={account.id} account={account} last={index === accounts.length - 1} compact={compact} />
             ))}
           </View>
+
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Move money"
+            onPress={() => navigation.navigate('Pay & Transfer')}
+            style={[styles.moveMoneyButton, compact && styles.moveMoneyButtonCompact]}
+          >
+            <Ionicons name="swap-horizontal" size={compact ? 19 : 20} color={palette.ink} />
+            <Text style={[styles.moveMoneyText, compact && styles.moveMoneyTextCompact]}>Move money</Text>
+            <Ionicons name="arrow-forward" size={compact ? 16 : 18} color={palette.ink} />
+          </TouchableOpacity>
 
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
@@ -216,20 +209,17 @@ const styles = StyleSheet.create({
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: '#D74631', borderWidth: 1.5, borderColor: palette.navy, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
   locationPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 22, marginLeft: 18, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 20, backgroundColor: 'rgba(10,18,24,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
-  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: palette.green },
   locationText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
-  locationDivider: { color: 'rgba(255,255,255,0.6)', fontSize: 13 },
-  locationMode: { color: 'rgba(255,255,255,0.76)', fontSize: 12 },
   balanceBlock: { marginTop: 22, paddingHorizontal: 18 },
   balanceLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 11 },
   balanceLabel: { color: 'rgba(255,255,255,0.84)', fontSize: 15, marginRight: 2 },
   balance: { color: '#FFFFFF', fontSize: 38, lineHeight: 46, fontWeight: '800', letterSpacing: -1.6, marginTop: 5 },
   content: { paddingHorizontal: 16, marginTop: -5 },
   sectionTitle: { color: palette.ink, fontSize: 18, fontWeight: '700', marginBottom: 10 },
-  relationshipBanner: { minHeight: 48, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
-  selectPill: { height: 30, paddingHorizontal: 10, borderRadius: 18, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 5 },
-  selectText: { color: palette.ink, fontSize: 12, fontWeight: '800', letterSpacing: 0.25 },
-  relationshipText: { flex: 1, color: 'rgba(255,255,255,0.76)', fontSize: 13 },
+  feeNotice: { minHeight: 48, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
+  feeNoticeText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+  moveMoneyButton: { minHeight: 48, borderRadius: 14, backgroundColor: palette.green, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
+  moveMoneyText: { flex: 1, color: palette.ink, fontSize: 14, fontWeight: '700', marginLeft: 10 },
   accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
   accountRow: { minHeight: 65, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 10 },
   accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(22,25,23,0.16)' },
@@ -267,21 +257,20 @@ const styles = StyleSheet.create({
   notificationButtonCompact: { width: 34, height: 34 },
   locationPillCompact: { gap: 5, marginTop: 14, marginLeft: 14, paddingHorizontal: 8, paddingVertical: 6 },
   locationTextCompact: { fontSize: 11 },
-  locationModeCompact: { fontSize: 11 },
   balanceBlockCompact: { marginTop: 14, paddingHorizontal: 14 },
   balanceLabelRowCompact: { gap: 8 },
   balanceLabelCompact: { fontSize: 13 },
   balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
   contentCompact: { paddingHorizontal: 12 },
   sectionTitleCompact: { fontSize: 17, marginBottom: 6 },
-  relationshipBannerCompact: { minHeight: 40, paddingHorizontal: 8, gap: 8, marginBottom: 8, borderRadius: 14 },
-  selectPillCompact: { height: 28, paddingHorizontal: 8, gap: 4 },
-  selectTextCompact: { fontSize: 10 },
-  relationshipTextCompact: { fontSize: 12 },
+  feeNoticeCompact: { minHeight: 40, paddingHorizontal: 12, gap: 9, marginBottom: 8, borderRadius: 14 },
+  feeNoticeTextCompact: { fontSize: 12 },
   accountRowCompact: { minHeight: 50, paddingHorizontal: 9, gap: 7 },
   accountMarkCompact: { width: 30, height: 30, borderRadius: 7 },
   accountNameCompact: { fontSize: 13, lineHeight: 16 },
   accountDetailCompact: { fontSize: 10, lineHeight: 13 },
   accountNoteCompact: { fontSize: 10, lineHeight: 12 },
   accountAmountCompact: { fontSize: 12, maxWidth: 78, flexShrink: 0 },
+  moveMoneyButtonCompact: { minHeight: 44, paddingHorizontal: 12, marginTop: 8 },
+  moveMoneyTextCompact: { fontSize: 13, marginLeft: 8 },
 });
