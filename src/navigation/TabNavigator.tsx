@@ -202,9 +202,9 @@ export default function TabNavigator() {
                       width: '100%',
                       flexShrink: 1,
                       fontFamily: font.body.medium,
-                      fontSize: width < 360 ? 9 : 10.5,
+                      fontSize: deviceWidth < 360 ? 9 : 10.5,
                       fontWeight: font.weight.medium,
-                      lineHeight: width < 360 ? 11 : 13,
+                      lineHeight: deviceWidth < 360 ? 11 : 13,
                       textAlign: 'center',
                       marginBottom: 2,
                     },
@@ -239,7 +239,11 @@ export default function TabNavigator() {
                     name="Pay & Transfer"
                     component={SendPayScreen}
                     options={{
-                      tabBarLabel: 'Move money',
+                      tabBarLabel: ({ color }) => (
+                        <Text numberOfLines={2} style={[styles.transferTabLabel, { color }]}>
+                          Move{"\n"}money
+                        </Text>
+                      ),
                       tabBarAccessibilityLabel: 'Move money',
                       tabBarIcon: ({ focused }) => <TransferTabIcon focused={focused} />,
                     }}
@@ -404,6 +408,16 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   tabButtonActive: { borderColor: colors.greenGlow },
+  transferTabLabel: {
+    width: '100%',
+    flexShrink: 1,
+    fontFamily: font.body.medium,
+    fontSize: 10.5,
+    fontWeight: font.weight.medium,
+    lineHeight: 11,
+    textAlign: 'center',
+    marginBottom: 2,
+  },
   tabIcon: {
     width: 34,
     height: 28,
