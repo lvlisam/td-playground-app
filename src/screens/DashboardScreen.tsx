@@ -98,6 +98,37 @@ function AccountRow({ account, last, compact }: { account: (typeof accounts)[num
   );
 }
 
+function FinancialHealthCard({ compact }: { compact: boolean }) {
+  return (
+    <View
+      accessibilityRole="text"
+      accessibilityLabel="Financial health score 82 out of 100. Strong. Fee waived this month because direct deposit covers the 5 dollar monthly fee."
+      style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}
+    >
+      <View style={styles.healthHeader}>
+        <View>
+          <Text style={[styles.healthTitle, compact && styles.healthTitleCompact]}>Financial health</Text>
+          <Text style={styles.healthStatus}>Strong</Text>
+        </View>
+        <Text style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+          82<Text style={styles.healthScoreScale}> / 100</Text>
+        </Text>
+      </View>
+      <View accessibilityLabel="82 percent" style={styles.healthMeterTrack}>
+        <View style={styles.healthMeterFill} />
+      </View>
+      <View style={styles.healthDivider} />
+      <View style={[styles.feeNotice, compact && styles.feeNoticeCompact]}>
+        <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={colors.green} />
+        <View style={styles.feeNoticeCopy}>
+          <Text style={styles.feeNoticeText}>Fee waived this month</Text>
+          <Text style={[styles.feeNoticeSubtext, compact && styles.feeNoticeSubtextCompact]}>Direct deposit covers your $5 monthly fee</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
@@ -114,7 +145,7 @@ export default function DashboardScreen() {
       >
         <View style={[styles.hero, compact && styles.heroCompact]}>
           <Image
-            source={require('../../assets/nyc-skyline.png')}
+            source={require('../../assets/td-human-banking-hero.png')}
             resizeMode="cover"
             style={[StyleSheet.absoluteFill, styles.heroImage]}
             accessible={false}
@@ -137,17 +168,18 @@ export default function DashboardScreen() {
                   onPress={() => navigation.navigate('Settings')}
                   style={styles.customerProfileButton}
                 >
+  <Image
+    source={require('../../assets/maya-avatar.png')}
+    style={[styles.customerAvatar, compact && styles.customerAvatarCompact]}
+    resizeMode="cover"
+    accessible={false}
+  />
                   <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Maya</Text>
-                  <Ionicons name="person-circle-outline" size={compact ? 16 : 18} color={colors.white} />
                   <Ionicons name="chevron-forward" size={compact ? 13 : 15} color={colors.white} />
                 </TouchableOpacity>
               </View>
             </View>
             <View style={[styles.topActions, compact && styles.topActionsCompact]}>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" onPress={() => navigation.navigate('Tedi')} style={[styles.tediButton, compact && styles.tediButtonCompact]}>
-                <View style={[styles.tediMark, compact && styles.tediMarkCompact]}><Ionicons name="sparkles-outline" size={compact ? 14 : 18} color={palette.green} /></View>
-                <Text style={[styles.tediText, compact && styles.tediTextCompact]}>Tedi</Text>
-              </TouchableOpacity>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel="Notifications, 3 unread" style={[styles.notificationButton, compact && styles.notificationButtonCompact]}>
                 <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.white} />
                 <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
@@ -161,21 +193,10 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        <FinancialHealthCard compact={compact} />
+
         <View style={[styles.content, compact && styles.contentCompact]}>
           <Text style={[styles.sectionTitle, compact && styles.sectionTitleCompact]}>Your accounts</Text>
-          <View
-            accessible
-            accessibilityRole="text"
-            accessibilityLabel="Fee waived this month. Direct deposit covers your $5 monthly fee."
-            style={[styles.feeNotice, compact && styles.feeNoticeCompact]}
-          >
-            <Ionicons name="checkmark-circle" size={compact ? 18 : 20} color={palette.green} />
-            <View style={styles.feeNoticeCopy}>
-              <Text style={styles.feeNoticeText}>Fee waived this month</Text>
-              <Text style={[styles.feeNoticeSubtext, compact && styles.feeNoticeSubtextCompact]}>Direct deposit covers your $5 monthly fee</Text>
-            </View>
-          </View>
-
           <View style={styles.accountList}>
             {accounts.map((account, index) => (
               <AccountRow key={account.id} account={account} last={index === accounts.length - 1} compact={compact} />
@@ -256,24 +277,30 @@ const styles = StyleSheet.create({
   tdLogo: { width: 42, height: 42, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
   tdLogoText: { color: colors.white, fontSize: 21, fontWeight: '800', letterSpacing: -1.5 },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
-  customerProfileButton: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  customerProfileButton: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, overflow: 'hidden' },
   customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  tediButton: { height: 44, paddingHorizontal: 9, borderRadius: 24, backgroundColor: palette.green, flexDirection: 'row', alignItems: 'center', gap: 7 },
-  tediMark: { width: 30, height: 30, borderRadius: 16, backgroundColor: palette.ink, alignItems: 'center', justifyContent: 'center' },
-  tediText: { color: palette.ink, fontSize: 14, fontWeight: '700', paddingRight: 5 },
   notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   balanceBlock: { marginTop: 38, paddingHorizontal: 18 },
   balance: { color: colors.white, fontSize: 38, lineHeight: 46, fontFamily: font.headline.heavy, letterSpacing: -1.6, marginTop: 5 },
+  financialHealthCard: { marginHorizontal: 16, marginTop: -8, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: palette.ink, gap: 10 },
+  healthHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  healthTitle: { color: colors.white, fontSize: 15, lineHeight: 20, fontWeight: '700' },
+  healthStatus: { color: colors.greenBright, fontSize: 12, lineHeight: 17, fontWeight: '600', marginTop: 2 },
+  healthScore: { color: colors.white, fontSize: 24, lineHeight: 28, fontFamily: font.headline.bold },
+  healthScoreScale: { color: 'rgba(255,255,255,0.66)', fontSize: 12, fontFamily: font.body.regular },
+  healthMeterTrack: { height: 7, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
+  healthMeterFill: { width: '82%', height: '100%', borderRadius: 4, backgroundColor: colors.greenBright },
+  healthDivider: { height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,0.2)' },
   content: { paddingHorizontal: 16, marginTop: -5 },
   sectionTitle: { color: palette.ink, fontSize: 18, fontFamily: font.headline.bold, marginBottom: 10 },
-  feeNotice: { minHeight: 62, borderRadius: 16, backgroundColor: palette.ink, paddingHorizontal: 14, paddingVertical: 9, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
+  feeNotice: { minHeight: 42, flexDirection: 'row', alignItems: 'center', gap: 10 },
   feeNoticeCopy: { flex: 1, minWidth: 0, gap: 2 },
   feeNoticeText: { color: colors.white, fontSize: 14, lineHeight: 19, fontWeight: '600' },
-  feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 11, lineHeight: 15 },
-  feeNoticeSubtextCompact: { fontSize: 10, lineHeight: 13 },
+  feeNoticeSubtext: { color: 'rgba(255,255,255,0.72)', fontSize: 11, lineHeight: 15, fontFamily: font.body.regular },
   accountList: { backgroundColor: palette.surface, borderRadius: 19, overflow: 'hidden' },
   accountRow: { minHeight: 65, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 10 },
   accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(22,25,23,0.16)' },
@@ -315,17 +342,19 @@ const styles = StyleSheet.create({
   tdLogoCompact: { width: 32, height: 32, borderRadius: 8 },
   tdLogoTextCompact: { fontSize: 17 },
   greetingCompact: { fontSize: 11, lineHeight: 15 },
+  customerAvatarCompact: { width: 40, height: 40, borderRadius: 20 },
   customerNameCompact: { fontSize: 15, lineHeight: 19 },
   topActionsCompact: { gap: 4 },
-  tediButtonCompact: { height: 36, paddingHorizontal: 6, gap: 5 },
-  tediMarkCompact: { width: 24, height: 24 },
-  tediTextCompact: { fontSize: 12, paddingRight: 2 },
   notificationButtonCompact: { width: 34, height: 34 },
   balanceBlockCompact: { marginTop: 30, paddingHorizontal: 14 },
   balanceCompact: { fontSize: 32, lineHeight: 39, letterSpacing: -1.2, marginTop: 4 },
+  financialHealthCardCompact: { marginHorizontal: 12, marginTop: -6, marginBottom: 12, padding: 12, gap: 8 },
+  healthTitleCompact: { fontSize: 14, lineHeight: 18 },
+  healthScoreCompact: { fontSize: 22, lineHeight: 26 },
   contentCompact: { paddingHorizontal: 12 },
   sectionTitleCompact: { fontSize: 17, marginBottom: 6 },
-  feeNoticeCompact: { minHeight: 64, paddingHorizontal: 12, gap: 9, marginBottom: 8, borderRadius: 14 },
+  feeNoticeCompact: { minHeight: 38, gap: 9 },
+  feeNoticeSubtextCompact: { fontSize: 10, lineHeight: 13 },
   accountRowCompact: { minHeight: 50, paddingHorizontal: 9, gap: 7 },
   accountMarkCompact: { width: 30, height: 30, borderRadius: 7 },
   accountNameCompact: { fontSize: 13, lineHeight: 16 },

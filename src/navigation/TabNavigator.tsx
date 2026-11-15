@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Image, Platform, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -50,7 +50,12 @@ function TransferTabIcon() {
         end={{ x: 0.9, y: 1 }}
         style={styles.sendTab}
       >
-        <Ionicons name="airplane" size={22} color={colors.white} style={styles.airplaneIcon} />
+        <Image
+          source={require('../../assets/transfer-tab-icon.png')}
+          style={styles.airplaneImage}
+          resizeMode="cover"
+          accessible={false}
+        />
       </LinearGradient>
     </View>
   );
@@ -277,5 +282,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  airplaneIcon: { transform: [{ rotate: '45deg' }] },
+  airplaneImage: { width: 34, height: 34, borderRadius: 17 },
 });
