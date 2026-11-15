@@ -173,11 +173,9 @@ function FinancialHealthCard({ compact }: { compact: boolean }) {
           <View>
 
             <Text style={[styles.healthTitle, compact && styles.healthTitleCompact]}>Financial health</Text>
-            <Text style={styles.healthStatus}>Strong this month</Text>
           </View>
         </View>
         <View style={styles.healthScoreGroup}>
-          <Text style={styles.healthScoreLabel}>HEALTH SCORE</Text>
           <Text accessibilityLabel="Score 82 out of 100" style={[styles.healthScore, compact && styles.healthScoreCompact]}>
             82<Text style={styles.healthScoreScale}> / 100</Text>
           </Text>
@@ -365,9 +363,7 @@ const styles = StyleSheet.create({
   healthHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   healthIdentity: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   healthTitle: { color: palette.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' },
-  healthStatus: { color: colors.greenDeep, fontSize: 12, lineHeight: 17, fontWeight: '600', marginTop: 2 },
-  healthScoreGroup: { alignItems: 'flex-end', gap: 1 },
-  healthScoreLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 12, fontWeight: '700', letterSpacing: 0.5 },
+  healthScoreGroup: { alignItems: 'flex-end' },
   healthScore: { color: colors.greenDeep, fontSize: 24, lineHeight: 28, fontFamily: font.headline.bold },
   healthScoreScale: { color: colors.textSecondary, fontSize: 12, fontFamily: font.body.regular },
   totalBalanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
