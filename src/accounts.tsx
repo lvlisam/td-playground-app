@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { colors } from './theme';
+import { useDashboardProfile } from './personas';
+import type { DashboardProfileId } from './personas';
 
 export type AccountId = 'checking' | 'savings' | 'card';
 

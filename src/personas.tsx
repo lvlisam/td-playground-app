@@ -2,6 +2,14 @@ import React, { createContext, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 export type DashboardProfileId = 'jane' | 'james' | 'olivia' | 'noah' | 'family' | 'business';
+export type DashboardTediProfileType = 'individual' | 'household' | 'youth' | 'business';
+
+export function getDashboardTediProfileType(profileId: DashboardProfileId): DashboardTediProfileType {
+  if (profileId === 'business') return 'business';
+  if (profileId === 'family') return 'household';
+  if (profileId === 'olivia' || profileId === 'noah') return 'youth';
+  return 'individual';
+}
 
 type ProfileIcon = 'person-outline' | 'people-outline' | 'briefcase-outline';
 

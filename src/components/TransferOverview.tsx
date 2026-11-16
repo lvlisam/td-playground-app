@@ -83,7 +83,6 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
       >
         <View style={styles.header}>
           <View style={styles.headingCopy}>
-            <Text style={styles.eyebrow}>Move money your way</Text>
             <Text style={styles.title}>Move money</Text>
           </View>
         </View>
@@ -158,7 +157,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   headingCopy: { flex: 1 },
-  eyebrow: { color: colors.textSecondary, fontSize: font.size.sm, lineHeight: 19 },
   title: { color: colors.text, fontSize: 26, lineHeight: 32, letterSpacing: -0.8, fontFamily: font.headline.bold },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   secondaryRow: { marginTop: spacing.xs },

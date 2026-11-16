@@ -29,7 +29,6 @@ export default function BenefitsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 132 }]}>
         <View style={styles.header}>
           <View style={styles.headingCopy}>
-            <Text style={styles.eyebrow}>Everything you hold with TD</Text>
             <Text style={[styles.title, compact && styles.titleCompact]}>Relationship benefits</Text>
           </View>
         </View>
@@ -164,7 +163,6 @@ const styles = StyleSheet.create({
   contentCompact: { paddingHorizontal: 12 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: spacing.md },
   headingCopy: { flex: 1, minWidth: 0 },
-  eyebrow: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
   title: { color: colors.text, fontSize: 24, lineHeight: 29, fontFamily: font.headline.bold, marginTop: 2 },
   titleCompact: { fontSize: 21, lineHeight: 26 },
   segmentedControl: { flexDirection: 'row', gap: 4, padding: 4, borderRadius: 18, backgroundColor: colors.surfaceHigh, marginBottom: spacing.md },

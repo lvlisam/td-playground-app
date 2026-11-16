@@ -55,10 +55,6 @@ export default function PlanScreen() {
         contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: previewTopInset + spacing.md, paddingBottom: insets.bottom + 140 }]}
       >
         <View style={styles.header}>
-          <View style={styles.headerEyebrow}>
-            <Ionicons name="leaf-outline" size={15} color={colors.greenDeep} />
-            <Text style={styles.headerEyebrowText}>LIFE &amp; FAMILY PLANNING</Text>
-          </View>
           <Text style={[styles.title, compact && styles.titleCompact]}>Plan</Text>
           <Text style={styles.subtitle}>Start with a goal, then add context as life changes for more relevant next steps.</Text>
         </View>
@@ -90,8 +86,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: spacing.md, gap: spacing.md },
   contentCompact: { paddingHorizontal: 14, gap: 12 },
   header: { gap: spacing.sm },
-  headerEyebrow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  headerEyebrowText: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontWeight: '700', letterSpacing: 0.8 },
   title: { color: colors.text, fontSize: 27, lineHeight: 33, fontFamily: font.headline.bold, letterSpacing: -0.6 },
   titleCompact: { fontSize: 24, lineHeight: 30 },
   subtitle: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },

@@ -16,7 +16,7 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import SupportBookingScreen from '../screens/SupportBookingScreen';
 import { AccountsProvider } from '../accounts';
 import { colors, font, radius } from '../theme';
-import { householdPersonas, useDashboardProfile } from '../personas';
+import { dashboardProfileOptions, useDashboardProfile } from '../personas';
 
 const Tab = createBottomTabNavigator();
 
@@ -91,10 +91,6 @@ const desktopNavigationItems = [
 function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
   return (
     <View style={styles.desktopMenu}>
-      <View style={styles.desktopMenuHeading}>
-        <Text accessibilityRole="header" style={styles.desktopMenuTitle}>Navigation</Text>
-      </View>
-      <View style={styles.desktopMenuDivider} />
       {desktopNavigationItems.map((item) => (
         <TouchableOpacity
           key={item.route}
@@ -123,9 +119,9 @@ function DesktopCustomerInsights() {
         <Text style={styles.insightsEyebrow}>HOUSEHOLD PROFILES</Text>
       </View>
       <Text accessibilityRole="header" style={styles.insightsTitle}>Choose a profile</Text>
-      <Text style={styles.insightsIntro}>Select a family member to update the phone dashboard with their accounts and activity.</Text>
+      <Text style={styles.insightsIntro}>Select a profile to update the phone dashboard with its accounts and activity.</Text>
       <View style={styles.personaList}>
-        {householdPersonas.map((persona) => {
+        {dashboardProfileOptions.map((persona) => {
           const selected = activeProfileId === persona.id;
           return (
             <TouchableOpacity
@@ -321,9 +317,6 @@ const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
   previewStage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingHorizontal: 16, backgroundColor: frameColors.stage },
   desktopMenu: { width: 184, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
-  desktopMenuHeading: { paddingHorizontal: 6, paddingBottom: 5 },
-  desktopMenuTitle: { color: colors.text, fontSize: 14, lineHeight: 18, fontFamily: font.headline.semibold },
-  desktopMenuDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderFaint, marginBottom: 3 },
   desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },

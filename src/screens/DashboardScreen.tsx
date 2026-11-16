@@ -16,10 +16,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font } from '../theme';
 import CreditAndBillsSection from '../components/CreditAndBillsSection';
+import ConnectedDataSection from '../components/ConnectedDataSection';
+import TediInsightsCard, { type TediCategoryTotal } from '../components/TediInsightsCard';
 import { useAccounts } from '../accounts';
 import type { Account } from '../accounts';
 import { upcomingBillPayments } from '../financeData';
-import { dashboardProfileOptions, useDashboardProfile } from '../personas';
+import { dashboardProfileOptions, getDashboardTediProfileType, useDashboardProfile } from '../personas';
 import type { DashboardProfileId } from '../personas';
 
 const palette = {
@@ -167,6 +169,43 @@ const noahTransactions: DashboardTransaction[] = [
   { id: 'noah-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$5.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
 ];
 
+function getTransactionsForProfile(view: DashboardProfileId): readonly DashboardTransaction[] {
+  return view === 'business'
+    ? businessTransactions
+    : view === 'family'
+      ? familyTransactions
+      : view === 'james'
+        ? jamesTransactions
+        : view === 'olivia'
+          ? oliviaTransactions
+          : view === 'noah'
+            ? noahTransactions
+            : recentTransactions;
+}
+
+function getTediProfileType(view: DashboardProfileId) {
+  if (view === 'business') return 'business' as const;
+  if (view === 'family') return 'household' as const;
+  if (view === 'olivia' || view === 'noah') return 'youth' as const;
+  return 'individual' as const;
+}
+
+function getTediCategoryTotals(view: DashboardProfileId): TediCategoryTotal[] {
+  const totals = new Map<string, number>();
+  getTransactionsForProfile(view).forEach((transaction) => {
+    if (transaction.amount.startsWith('+')) return;
+    const category = transaction.category.split(' · ')[0];
+    if (category === 'Savings') return;
+    const safeCategory = category === 'Credit' ? 'Credit payment' : category;
+    const amount = parseDashboardAmount(transaction.amount);
+    if (amount > 0) totals.set(safeCategory, (totals.get(safeCategory) ?? 0) + amount);
+  });
+  return Array.from(totals, ([category, amount]) => ({
+    category,
+    amount: Math.round(amount * 100) / 100,
+  }));
+}
+
 function AccountRow({ account, last, compact }: { account: DashboardAccount; last: boolean; compact: boolean }) {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const accessibilityLabel = `${account.name}, ${account.amount}. ${account.detail}${account.note ? `. ${account.note}` : ''}`;
@@ -238,17 +277,7 @@ function RecentTransactionRow({ transaction, compact, last }: {
 
 function RecentTransactionsSection({ compact, view }: { compact: boolean; view: DashboardProfileId }) {
   const profile = dashboardProfileOptions.find((option) => option.id === view) ?? dashboardProfileOptions[0];
-  const transactions = view === 'business'
-    ? businessTransactions
-    : view === 'family'
-      ? familyTransactions
-      : view === 'james'
-        ? jamesTransactions
-        : view === 'olivia'
-          ? oliviaTransactions
-          : view === 'noah'
-            ? noahTransactions
-            : recentTransactions;
+  const transactions = getTransactionsForProfile(view);
   const heading = view === 'business'
     ? 'Recent business activity'
     : view === 'family'
@@ -436,14 +465,14 @@ export default function DashboardScreen() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const heroGradientColors = activeProfileId === 'business'
-    ? ['rgba(7,20,33,0.78)', 'rgba(7,20,33,0.5)', 'rgba(7,20,33,0.2)', 'rgba(246,247,244,0.82)']
+    ? ['rgba(14,46,28,0.88)', 'rgba(22,104,48,0.78)', 'rgba(35,139,20,0.62)', 'rgba(234,246,230,0.92)']
     : activeProfileId === 'jane' || activeProfileId === 'james'
-      ? ['rgba(10,54,30,0.68)', 'rgba(10,54,30,0.42)', 'rgba(10,54,30,0.2)', 'rgba(246,247,244,0.82)']
+      ? ['rgba(10,54,30,0.88)', 'rgba(18,96,43,0.78)', 'rgba(35,139,20,0.62)', 'rgba(234,246,230,0.92)']
       : activeProfileId === 'olivia'
-        ? ['rgba(8,42,34,0.78)', 'rgba(14,86,57,0.52)', 'rgba(22,108,64,0.28)', 'rgba(246,247,244,0.82)']
+        ? ['rgba(8,42,34,0.9)', 'rgba(14,86,57,0.82)', 'rgba(22,108,64,0.68)', 'rgba(234,246,230,0.94)']
         : activeProfileId === 'noah'
-          ? ['rgba(10,45,65,0.76)', 'rgba(18,83,80,0.54)', 'rgba(32,123,89,0.3)', 'rgba(246,247,244,0.82)']
-          : ['rgba(35,139,20,0.72)', 'rgba(35,139,20,0.46)', 'rgba(35,139,20,0.28)', 'rgba(246,247,244,0.82)'];
+          ? ['rgba(10,45,35,0.9)', 'rgba(18,83,50,0.82)', 'rgba(32,123,45,0.68)', 'rgba(234,246,230,0.94)']
+          : ['rgba(35,139,20,0.88)', 'rgba(35,139,20,0.78)', 'rgba(53,198,0,0.62)', 'rgba(234,246,230,0.94)'];
   const heroImage = activeProfileId === 'business'
     ? require('../../assets/nyc-skyline.png')
     : activeProfileId === 'olivia'
@@ -491,7 +520,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 128 }}
       >
-        <View style={[styles.hero, compact && styles.heroCompact]}>
+        <View style={[styles.hero, compact && styles.heroCompact, profileMenuOpen && styles.heroMenuOpen]}>
           <Image
             source={heroImage}
             resizeMode="cover"
@@ -580,7 +609,11 @@ export default function DashboardScreen() {
         <FinancialHealthCard compact={compact} view={activeProfileId} />
         {activeProfileId === 'family' ? <CreditAndBillsSection compact={compact} /> : null}
         <RecentTransactionsSection compact={compact} view={activeProfileId} />
-
+        <TediInsightsCard
+          key={activeProfileId}
+          profileType={getTediProfileType(activeProfileId)}
+          categoryTotals={getTediCategoryTotals(activeProfileId)}
+        />
         <View style={[styles.content, compact && styles.contentCompact]}>
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
@@ -607,7 +640,8 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
-  hero: { minHeight: 172, position: 'relative', overflow: 'visible', zIndex: 10 },
+  hero: { minHeight: 172, position: 'relative', overflow: 'visible', zIndex: 0 },
+  heroMenuOpen: { zIndex: 20, elevation: 20 },
   heroImage: { width: '100%', height: '100%', zIndex: 0 },
   heroGradient: { zIndex: 1 },
   heroForeground: { zIndex: 2, paddingBottom: 30 },
@@ -643,7 +677,7 @@ const styles = StyleSheet.create({
   notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
-  financialHealthCard: { marginHorizontal: 16, marginTop: -26, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 10, shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
+  financialHealthCard: { zIndex: 2, marginHorizontal: 16, marginTop: -26, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 10, shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
   healthSummary: { gap: 5 },
   healthHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   healthTitle: { flex: 1, minWidth: 0, color: palette.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' },

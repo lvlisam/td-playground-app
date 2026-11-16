@@ -4,6 +4,7 @@ import { useNavigation, type NavigationProp, type ParamListBase } from '@react-n
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import ConnectedDataSection from '../components/ConnectedDataSection';
 import { useDashboardProfile } from '../personas';
 
 const createSettingsOverview = (name: string) => [
@@ -49,6 +50,8 @@ export default function AccountSettingsScreen() {
             <Text style={styles.profileDescription}>Manage {activeProfile.name}’s profile and banking preferences.</Text>
           </View>
         </View>
+
+        <ConnectedDataSection profileName={activeProfile.name} />
 
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Settings overview</Text>
