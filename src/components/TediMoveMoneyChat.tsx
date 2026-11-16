@@ -186,7 +186,6 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
             : <Ionicons name="arrow-up" size={19} color={colors.white} />}
         </TouchableOpacity>
       </View>
-      <Text style={styles.disclaimer}>Tedi uses illustrative demo activity. Review each step; nothing moves in this demo.</Text>
     </View>
   );
 }
@@ -221,5 +220,4 @@ const styles = StyleSheet.create({
   input: { flex: 1, minHeight: 44, maxHeight: 76, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: 11, paddingVertical: 9, color: colors.text, fontSize: 12, lineHeight: 17 },
   sendButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.greenDeep },
   sendButtonDisabled: { opacity: 0.48 },
-  disclaimer: { color: colors.text, fontSize: 9, lineHeight: 13 },
 });
