@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { colors, font } from './src/theme';
 import TabNavigator from './src/navigation/TabNavigator';
+import { DashboardProfileProvider } from './src/personas';
 
 const TextWithDefaults = Text as typeof Text & { defaultProps?: TextProps };
 TextWithDefaults.defaultProps = {
@@ -52,7 +53,9 @@ export default function App() {
         }}
       >
         <StatusBar style="dark" />
-        <TabNavigator />
+        <DashboardProfileProvider>
+          <TabNavigator />
+        </DashboardProfileProvider>
       </NavigationContainer>
     </SafeAreaProvider>
   );

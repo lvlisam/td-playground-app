@@ -26,16 +26,11 @@ export default function BenefitsScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 92 }]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 132 }]}>
         <View style={styles.header}>
           <View style={styles.headingCopy}>
-            <Text style={styles.eyebrow}>Everything you hold with TD</Text>
             <Text style={[styles.title, compact && styles.titleCompact]}>Relationship benefits</Text>
           </View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Talk to Tedi" style={styles.tediButton}>
-            <View style={styles.tediIcon}><Ionicons name="sparkles-outline" size={17} color={colors.green} /></View>
-            <Text style={styles.tediText}>Tedi</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.segmentedControl}>
@@ -93,7 +88,7 @@ export default function BenefitsScreen() {
                     style={[styles.opportunityRow, index < opportunities.length - 1 && styles.opportunityDivider]}
                   >
                     <View style={styles.opportunityIcon}>
-                      <Ionicons name={opportunity.icon} size={19} color={colors.green} />
+                      <Ionicons name={opportunity.icon} size={19} color={colors.greenDeep} />
                     </View>
                     <View style={styles.opportunityCopy}>
                       <Text style={styles.opportunityTitle}>{opportunity.title}</Text>
@@ -136,14 +131,14 @@ export default function BenefitsScreen() {
                 <Text style={styles.rewardsTitle}>Make more of every day.</Text>
               </View>
               <View style={styles.pointsBadge}>
-                <Ionicons name="sparkles-outline" size={15} color={colors.green} />
+                <Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} />
                 <Text style={styles.pointsText}>18,420 pts</Text>
               </View>
             </View>
             <View style={styles.list}>
               {benefits.map((benefit, index) => (
                 <TouchableOpacity key={benefit.title} accessibilityRole="button" style={[styles.row, index < benefits.length - 1 && styles.divider]}>
-                  <View style={styles.rowIcon}><Ionicons name={benefit.icon} size={20} color={colors.green} /></View>
+                  <View style={styles.rowIcon}><Ionicons name={benefit.icon} size={20} color={colors.greenDeep} /></View>
                   <View style={styles.rowCopy}>
                     <Text numberOfLines={2} style={styles.rowTitle}>{benefit.title}</Text>
                     <Text numberOfLines={2} style={styles.rowDetail}>{benefit.detail}</Text>
@@ -168,12 +163,8 @@ const styles = StyleSheet.create({
   contentCompact: { paddingHorizontal: 12 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: spacing.md },
   headingCopy: { flex: 1, minWidth: 0 },
-  eyebrow: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
   title: { color: colors.text, fontSize: 24, lineHeight: 29, fontFamily: font.headline.bold, marginTop: 2 },
   titleCompact: { fontSize: 21, lineHeight: 26 },
-  tediButton: { height: 42, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 8, borderRadius: radius.full, backgroundColor: colors.text },
-  tediIcon: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: 'rgba(67,176,42,0.18)' },
-  tediText: { color: colors.green, fontSize: 14, fontWeight: font.weight.bold, paddingRight: 4 },
   segmentedControl: { flexDirection: 'row', gap: 4, padding: 4, borderRadius: 18, backgroundColor: colors.surfaceHigh, marginBottom: spacing.md },
   segment: { flex: 1, minHeight: 46, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6, borderRadius: 14 },
   segmentActive: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint },

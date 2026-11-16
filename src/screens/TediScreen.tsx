@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 
-type TediDestination = 'Plan' | 'Pay & Transfer' | 'Benefits' | 'Settings';
+type TediDestination = 'Home' | 'Plan' | 'Pay & Transfer' | 'Benefits' | 'Card Manager' | 'Support & booking';
 
 type TediAction = {
   label: string;
@@ -17,12 +17,39 @@ type TediChatMessage = {
   role: 'assistant' | 'user';
   text: string;
   action?: TediAction;
+  confirmationPrompt?: string;
+  confirmationKind?: 'transfer' | 'freeze';
 };
 
-const quickPrompts = ['Show my spending', 'Move money', 'Explore benefits', 'Manage my card'];
+const quickPrompts = ['Show my spending', 'Move money', 'Talk to a person', 'Book a branch visit', 'Explore benefits', 'Manage my card'];
 
 function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
   const input = message.toLowerCase();
+
+  if (/human|person|specialist|support|banker|branch|appointment|meeting/.test(input)) {
+    return {
+      text: 'I can help you connect with a specialist, review sample branch wait times, and prepare for your conversation.',
+      action: { label: 'Open support & booking', destination: 'Support & booking' },
+    };
+  }
+
+  if (/freeze|lock card/.test(input)) {
+    return {
+      text: 'I can stage a card-freeze preview. It will not affect a real card.',
+      action: { label: 'Open card controls', destination: 'Card Manager' },
+      confirmationPrompt: 'Confirm demo card-freeze preview?',
+      confirmationKind: 'freeze',
+    };
+  }
+
+  if (/send money|transfer|move money|send to/.test(input)) {
+    return {
+      text: 'I can stage a transfer preview. No funds will move in this demo.',
+      action: { label: 'Open Move money', destination: 'Pay & Transfer' },
+      confirmationPrompt: 'Confirm demo transfer preview?',
+      confirmationKind: 'transfer',
+    };
+  }
 
   if (/spend|transaction|budget|saving|account/.test(input)) {
     return {
@@ -31,10 +58,10 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
     };
   }
 
-  if (/send|transfer|pay|bill|money|etransfer|e-transfer/.test(input)) {
+  if (/send|transfer|pay|bill|money|zelle/.test(input)) {
     return {
-      text: 'You can send money, pay bills, or transfer between accounts in Pay & Transfer.',
-      action: { label: 'Open Pay & Transfer', destination: 'Pay & Transfer' },
+      text: 'You can send money with Zelle, pay bills, or transfer between your accounts in Move money.',
+      action: { label: 'Open Move money', destination: 'Pay & Transfer' },
     };
   }
 
@@ -45,15 +72,24 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
     };
   }
 
-  if (/card|freeze|pin/.test(input)) {
+  if (/suggest|recommend|save more/.test(input)) {
     return {
-      text: 'You can find your card controls and settings in your profile.',
-      action: { label: 'Open card settings', destination: 'Settings' },
+      text: 'A small weekly transfer could help build your getaway fund. I can prepare a demo action for you to review first.',
+      confirmationPrompt: 'Preview a $25 weekly savings transfer? No funds will move.',
+      confirmationKind: 'transfer',
+      action: { label: 'Open your savings plan', destination: 'Plan' },
+    };
+  }
+
+  if (/card|pin/.test(input)) {
+    return {
+      text: 'Review card controls, limits, and the single-use card demo.',
+      action: { label: 'Open card controls', destination: 'Card Manager' },
     };
   }
 
   return {
-    text: 'I can help you find spending insights, transfers, benefits, or card settings. Which would you like to explore?',
+    text: 'I can help you find spending insights, transfers, benefits, or card controls. Which would you like to explore?',
   };
 }
 
@@ -70,7 +106,7 @@ export default function TediScreen() {
     {
       id: 0,
       role: 'assistant',
-      text: 'Good afternoon, Maya. I can help you find spending insights, send money, explore benefits, or manage your card.',
+      text: 'Good afternoon, Ava. I can help you find spending insights, send money, explore benefits, or manage your card.',
     },
   ]);
 
@@ -86,6 +122,25 @@ export default function TediScreen() {
     setDraft('');
   };
 
+  const resolveConfirmation = (message: TediChatMessage, confirmed: boolean) => {
+    const confirmationMessage: TediChatMessage = {
+      id: nextMessageId.current++,
+      role: 'assistant',
+      text: confirmed
+        ? (message.confirmationKind === 'freeze'
+          ? 'Demo freeze confirmed. No real card was changed.'
+          : 'Demo transfer confirmed. No money was moved.')
+        : 'Demo action canceled. Nothing was changed.',
+      action: confirmed && message.confirmationKind === 'freeze'
+        ? { label: 'Review card controls', destination: 'Card Manager' }
+        : undefined,
+    };
+    setMessages((current) => [
+      ...current.map((item) => item.id === message.id ? { ...item, confirmationPrompt: undefined } : item),
+      confirmationMessage,
+    ]);
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -97,7 +152,7 @@ export default function TediScreen() {
         style={[
           styles.chatLayout,
           compact && styles.chatLayoutCompact,
-          { paddingTop: topInset + spacing.lg, paddingBottom: insets.bottom + 78 },
+          { paddingTop: topInset + spacing.lg, paddingBottom: insets.bottom + 112 },
         ]}
       >
         <View style={styles.header}>
@@ -140,6 +195,19 @@ export default function TediScreen() {
                 <Text style={message.role === 'user' ? styles.userMessageText : styles.assistantMessageText}>
                   {message.text}
                 </Text>
+                {message.confirmationPrompt && (
+                  <View style={styles.confirmationPanel}>
+                    <Text style={styles.confirmationPrompt}>{message.confirmationPrompt}</Text>
+                    <View style={styles.confirmationActions}>
+                      <TouchableOpacity accessibilityRole="button" onPress={() => resolveConfirmation(message, false)} style={styles.confirmationCancel}>
+                        <Text style={styles.confirmationCancelText}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity accessibilityRole="button" onPress={() => resolveConfirmation(message, true)} style={styles.confirmationConfirm}>
+                        <Text style={styles.confirmationConfirmText}>Confirm preview</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
                 {message.action && (
                   <TouchableOpacity
                     accessibilityRole="button"
@@ -219,6 +287,13 @@ const styles = StyleSheet.create({
   userMessageText: { color: colors.white, fontSize: 14, lineHeight: 21 },
   actionLink: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 },
   actionLinkText: { color: colors.greenDeep, fontSize: 14, fontWeight: font.weight.bold },
+  confirmationPanel: { marginTop: 10, padding: 10, borderRadius: radius.md, backgroundColor: colors.surfaceHigh, gap: 8 },
+  confirmationPrompt: { color: colors.text, fontSize: 12, lineHeight: 17, fontWeight: font.weight.semibold },
+  confirmationActions: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 8 },
+  confirmationCancel: { minHeight: 34, justifyContent: 'center', paddingHorizontal: 10 },
+  confirmationCancelText: { color: colors.textSecondary, fontSize: 11, fontWeight: font.weight.semibold },
+  confirmationConfirm: { minHeight: 34, justifyContent: 'center', paddingHorizontal: 10, borderRadius: radius.sm, backgroundColor: colors.greenDeep },
+  confirmationConfirmText: { color: colors.white, fontSize: 11, fontWeight: font.weight.bold },
   suggestionList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginLeft: 36 },
   suggestionChip: { borderRadius: radius.full, backgroundColor: colors.greenDim, paddingHorizontal: 12, paddingVertical: 9 },
   suggestionText: { color: colors.greenDeep, fontSize: 13, lineHeight: 18, fontWeight: font.weight.semibold },

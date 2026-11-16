@@ -30,7 +30,7 @@ export default function TransactionRow({ item }: Props) {
         <Text numberOfLines={compact ? 1 : undefined} style={[styles.category, compact && styles.categoryCompact]}>{item.category}</Text>
       </View>
       <View style={[styles.right, compact && styles.rightCompact]}>
-        <Text style={[styles.amount, compact && styles.amountCompact, { color: isCredit ? colors.green : colors.text }]}>
+        <Text style={[styles.amount, compact && styles.amountCompact, { color: isCredit ? colors.greenDeep : colors.text }]}>
           {isCredit ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
         </Text>
         <Text style={[styles.date, compact && styles.dateCompact]}>{item.date}</Text>

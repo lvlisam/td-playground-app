@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import { paidBillPayments, upcomingBillPayments } from '../financeData';
 
 export type TransferAction = 'send' | 'wire' | 'deposit' | 'move' | 'bills' | 'exchange';
 type ActivityMode = 'upcoming' | 'paid';
@@ -24,34 +25,14 @@ type ActionItem = {
   featured?: boolean;
 };
 
-type BillItem = {
-  id: string;
-  merchant: string;
-  timing: string;
-  amount: string;
-};
-
 const ACTIONS: ActionItem[] = [
-  { id: 'send', title: 'Send & request', subtitle: 'Interac e-Transfer', icon: 'paper-plane-outline', featured: true },
+  { id: 'send', title: 'Send & request', subtitle: 'Send with Zelle', icon: 'paper-plane-outline', featured: true },
   { id: 'wire', title: 'Wire transfer', subtitle: 'Domestic & international', icon: 'business-outline' },
   { id: 'deposit', title: 'Deposit a check', subtitle: 'Snap a photo', icon: 'camera-outline' },
   { id: 'move', title: 'Move money', subtitle: 'Between your accounts', icon: 'swap-horizontal-outline' },
   { id: 'bills', title: 'Pay bills', subtitle: 'Payees & autopay', icon: 'receipt-outline' },
   { id: 'exchange', title: 'Exchange', subtitle: 'Currencies & wallets', icon: 'globe-outline' },
 ];
-
-const BILLS: Record<ActivityMode, BillItem[]> = {
-  upcoming: [
-    { id: 'con-edison-upcoming', merchant: 'Con Edison', timing: 'Due in 3 days', amount: '$118.42' },
-    { id: 'verizon-upcoming', merchant: 'Verizon Wireless', timing: 'Due in 6 days', amount: '$85.00' },
-    { id: 'parkside-upcoming', merchant: 'Parkside Apartments', timing: 'Due in 9 days', amount: '$2,150.00' },
-  ],
-  paid: [
-    { id: 'con-edison-paid', merchant: 'Con Edison', timing: 'Paid Nov 12', amount: '$118.42' },
-    { id: 'verizon-paid', merchant: 'Verizon Wireless', timing: 'Paid Nov 9', amount: '$85.00' },
-    { id: 'parkside-paid', merchant: 'Parkside Apartments', timing: 'Paid Nov 1', amount: '$2,150.00' },
-  ],
-};
 
 const ACTION_LABELS: Record<TransferAction, string> = {
   send: 'Send & request',
@@ -71,7 +52,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
   const { width } = useWindowDimensions();
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [activityMode, setActivityMode] = useState<ActivityMode>('upcoming');
-  const visibleBills = BILLS[activityMode];
+  const visibleBills = activityMode === 'upcoming' ? upcomingBillPayments : paidBillPayments;
 
   const renderAction = (action: ActionItem) => (
     <TouchableOpacity
@@ -82,7 +63,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
       style={[styles.actionCard, action.featured && styles.featuredCard]}
     >
       <View style={[styles.actionIcon, action.featured && styles.featuredIcon]}>
-        <Ionicons name={action.icon} size={18} color={action.featured ? colors.text : colors.green} />
+        <Ionicons name={action.icon} size={18} color={action.featured ? colors.text : colors.greenDeep} />
       </View>
       <Text style={[styles.actionTitle, action.featured && styles.featuredText]} numberOfLines={1}>
         {action.title}
@@ -102,33 +83,13 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
       >
         <View style={styles.header}>
           <View style={styles.headingCopy}>
-            <Text style={styles.eyebrow}>Move money your way</Text>
-            <Text style={styles.title}>Pay &amp; Transfer</Text>
+            <Text style={styles.title}>Move money</Text>
           </View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tedi assistant" style={styles.tediButton}>
-            <View style={styles.tediIcon}>
-              <Ionicons name="sparkles-outline" size={18} color={colors.text} />
-            </View>
-            <Text style={styles.tediText}>Tedi</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.actionRow}>
           {ACTIONS.slice(0, 2).map(renderAction)}
         </View>
-
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Not sure which payment method to use? Ask Tedi for help."
-          style={styles.suggestion}
-          onPress={() => onSelectAction('send')}
-        >
-          <Ionicons name="compass-outline" size={22} color={colors.green} />
-          <View style={styles.suggestionCopy}>
-            <Text style={styles.suggestionTitle}>Not sure which to use?</Text>
-            <Text numberOfLines={1} style={styles.suggestionText}>{'Share an amount and destination.'}</Text>
-          </View>
-        </TouchableOpacity>
 
         <View style={[styles.actionRow, styles.secondaryRow]}>
           {ACTIONS.slice(2, 4).map(renderAction)}
@@ -169,7 +130,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
             {visibleBills.map((bill, index) => (
               <View key={bill.id} style={[styles.billRow, index === visibleBills.length - 1 && styles.lastBillRow]}>
                 <View style={styles.billIcon}>
-                  <Ionicons name="receipt-outline" size={20} color={colors.green} />
+                  <Ionicons name="receipt-outline" size={20} color={colors.greenDeep} />
                 </View>
                 <View style={styles.billCopy}>
                   <Text style={styles.billMerchant} numberOfLines={1}>{bill.merchant}</Text>
@@ -196,27 +157,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   headingCopy: { flex: 1 },
-  eyebrow: { color: colors.textSecondary, fontSize: font.size.sm, lineHeight: 19 },
   title: { color: colors.text, fontSize: 26, lineHeight: 32, letterSpacing: -0.8, fontFamily: font.headline.bold },
-  tediButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: colors.text,
-    borderRadius: radius.full,
-    paddingVertical: 6,
-    paddingLeft: 6,
-    paddingRight: 14,
-  },
-  tediIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.green,
-  },
-  tediText: { color: colors.green, fontSize: font.size.md, fontFamily: font.headline.semibold },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   secondaryRow: { marginTop: spacing.xs },
   lastActionRow: { marginTop: spacing.xs },
@@ -242,23 +183,6 @@ const styles = StyleSheet.create({
   actionSubtitle: { color: colors.textSecondary, fontSize: font.size.sm, lineHeight: 17 },
   featuredText: { color: colors.surface },
   featuredSubtitle: { color: colors.surfaceHigh },
-  suggestion: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    minHeight: 56,
-    marginTop: spacing.xs,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.green,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-  },
-  suggestionCopy: { flex: 1 },
-  suggestionTitle: { color: colors.text, fontSize: font.size.sm, lineHeight: 19, fontFamily: font.headline.semibold },
-  suggestionText: { color: colors.textSecondary, fontSize: font.size.sm, lineHeight: 19 },
   activitySection: { marginTop: spacing.md },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
   sectionTitle: { color: colors.text, fontSize: font.size.lg, lineHeight: 24, fontFamily: font.headline.semibold },
