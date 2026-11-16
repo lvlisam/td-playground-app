@@ -409,7 +409,6 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           <Text style={styles.accountSectionTitle}>{accountLabel}</Text>
           <Text style={styles.linkedAccountCount}>{visibleAccounts.length} linked</Text>
         </View>
-        <Ionicons name={accountsExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
       </TouchableOpacity>
       {accountsExpanded ? (
         <View style={styles.accountList}>
