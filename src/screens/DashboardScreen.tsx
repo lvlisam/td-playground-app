@@ -18,6 +18,7 @@ import { colors, font } from '../theme';
 import CreditAndBillsSection from '../components/CreditAndBillsSection';
 import ConnectedDataSection from '../components/ConnectedDataSection';
 import TediInsightsCard, { type TediCategoryTotal } from '../components/TediInsightsCard';
+import FamilyMoneyHub from '../components/FamilyMoneyHub';
 import { useAccounts } from '../accounts';
 import type { Account } from '../accounts';
 import { upcomingBillPayments } from '../financeData';
@@ -426,9 +427,11 @@ function DashboardProfileMenu({ view, onChange, compact }: {
   onChange: (view: DashboardProfileId) => void;
   compact: boolean;
 }) {
+  const menuOptions = dashboardProfileOptions.filter((option) => ['jane', 'family', 'business'].includes(option.id));
+
   return (
     <View accessibilityRole="menu" accessibilityLabel="Choose a banking profile" style={[styles.profileMenu, compact && styles.profileMenuCompact]}>
-      {dashboardProfileOptions.map((option) => {
+      {menuOptions.map((option) => {
         const selected = view === option.id;
         return (
           <TouchableOpacity
@@ -608,6 +611,7 @@ export default function DashboardScreen() {
         </View>
 
         <FinancialHealthCard compact={compact} view={activeProfileId} />
+        <FamilyMoneyHub profileId={activeProfileId} />
         {activeProfileId === 'family' ? <CreditAndBillsSection compact={compact} /> : null}
         <RecentTransactionsSection compact={compact} view={activeProfileId} />
         <TediInsightsCard
