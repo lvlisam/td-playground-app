@@ -1,6 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { G, Path } from 'react-native-svg';
+import { G, Path, Svg } from 'react-native-svg';
 import { colors } from '../theme';
 
 type TransactionBrandIconProps = {
