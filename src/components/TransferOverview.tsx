@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import { paidBillPayments, upcomingBillPayments } from '../financeData';
+import TediMoveMoneyChat from './TediMoveMoneyChat';
 
 export type TransferAction = 'send' | 'wire' | 'deposit' | 'move' | 'bills' | 'exchange';
 type ActivityMode = 'upcoming' | 'paid';
@@ -108,19 +109,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
           <Text accessibilityRole="header" style={styles.title}>Move money</Text>
         </View>
 
-        <View style={styles.tediCard}>
-          <View style={styles.tediIdentity}>
-            <View style={styles.tediIcon} accessible={false}>
-              <Ionicons name="sparkles-outline" size={19} color={colors.greenDeep} />
-            </View>
-            <View>
-              <Text style={styles.tediEyebrow}>YOUR TD ASSISTANT</Text>
-              <Text style={styles.tediName}>Tedi</Text>
-            </View>
-          </View>
-          <Text style={styles.tediQuestion}>What do you need to take care of today?</Text>
-          <Text style={styles.tediIntro}>I can help you send money, move funds, or stay ahead of bills.</Text>
-        </View>
+        <TediMoveMoneyChat onSelectAction={onSelectAction} />
 
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Recommended for you</Text>
@@ -210,13 +199,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: spacing.md },
   header: { marginBottom: spacing.md },
   title: { color: colors.text, fontSize: 26, lineHeight: 32, letterSpacing: -0.8, fontFamily: font.headline.bold },
-  tediCard: { padding: spacing.md, borderRadius: radius.xl, backgroundColor: colors.green, gap: spacing.sm },
-  tediIdentity: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  tediIcon: { width: 38, height: 38, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  tediEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, letterSpacing: 0.7, fontFamily: font.body.bold },
-  tediName: { color: colors.text, fontSize: 16, lineHeight: 20, fontFamily: font.headline.bold },
-  tediQuestion: { color: colors.text, fontSize: 20, lineHeight: 25, fontFamily: font.headline.bold },
-  tediIntro: { color: colors.text, fontSize: 12, lineHeight: 18 },
   section: { marginTop: spacing.lg },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, marginBottom: spacing.sm },
   sectionTitle: { color: colors.text, fontSize: font.size.md, lineHeight: 21, fontFamily: font.headline.semibold },

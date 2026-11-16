@@ -5,6 +5,9 @@
   "functions": {
     "api/plan-insights.ts": {
       "maxDuration": 30
+    },
+    "api/tedi-money-chat.ts": {
+      "maxDuration": 30
     }
   }
 }
