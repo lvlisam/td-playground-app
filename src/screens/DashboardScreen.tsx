@@ -15,7 +15,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font } from '../theme';
-import CreditAndBillsSection from '../components/CreditAndBillsSection';
 import ConnectedDataSection from '../components/ConnectedDataSection';
 import TediInsightsCard, { type TediCategoryTotal } from '../components/TediInsightsCard';
 import FamilyMoneyHub from '../components/FamilyMoneyHub';
@@ -337,7 +336,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
         : view === 'noah'
           ? 35
           : 0;
-  const upcomingBillsTotal = isBusiness || isChildProfile
+  const upcomingBillsTotal = isBusiness || isFamily || isChildProfile
     ? 0
     : upcomingBillPayments.reduce((total, bill) => total + parseDashboardAmount(bill.amount), 0);
   const netBalance = depositBalance - creditBalance;
@@ -365,14 +364,16 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
             <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
           </View>
         )}
-        <View style={styles.healthMeterRow}>
-          <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
-            <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+        {!isFamily ? (
+          <View style={styles.healthMeterRow}>
+            <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
+              <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+            </View>
+            <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+              {score}<Text style={styles.healthScoreScale}> / 100</Text>
+            </Text>
           </View>
-          <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
-            {score}<Text style={styles.healthScoreScale}> / 100</Text>
-          </Text>
-        </View>
+        ) : null}
       </View>
       <View style={styles.totalBalanceRow}>
         <View style={styles.totalBalanceCopy}>
@@ -387,7 +388,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
       </View>
       <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
         <View style={styles.healthMetricTile}>
-          <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : isChildProfile ? 'SPENDING ACCOUNT' : 'LEFT BEFORE PAYDAY'}</Text>
+            <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : isChildProfile ? 'SPENDING ACCOUNT' : isFamily ? 'AFTER GOAL PLAN' : 'LEFT BEFORE PAYDAY'}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
             {formatDashboardCurrency(availableAmount)}
           </Text>
@@ -610,9 +611,9 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {activeProfileId === 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <FinancialHealthCard compact={compact} view={activeProfileId} />
-        <FamilyMoneyHub profileId={activeProfileId} />
-        {activeProfileId === 'family' ? <CreditAndBillsSection compact={compact} /> : null}
+        {activeProfileId !== 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <RecentTransactionsSection compact={compact} view={activeProfileId} />
         <TediInsightsCard
           key={activeProfileId}

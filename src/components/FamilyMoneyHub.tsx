@@ -58,6 +58,89 @@ function currency(amount: number) {
   return `$${amount}`;
 }
 
+const sharedFamilyGoals = [
+  {
+    id: 'home',
+    title: 'Family home',
+    description: 'A place to put down roots',
+    saved: 28000,
+    target: 50000,
+    monthlyContribution: 300,
+    icon: 'home-outline',
+  },
+  {
+    id: 'travel',
+    title: 'Family getaway',
+    description: 'Make room for a shared adventure',
+    saved: 13500,
+    target: 20000,
+    monthlyContribution: 150,
+    icon: 'airplane-outline',
+  },
+] as const;
+
+function formatGoalCurrency(amount: number) {
+  return `$${amount.toLocaleString('en-US')}`;
+}
+
+function FamilyGoalsCard() {
+  const totalSaved = sharedFamilyGoals.reduce((total, goal) => total + goal.saved, 0);
+  const monthlyPlan = sharedFamilyGoals.reduce((total, goal) => total + goal.monthlyContribution, 0);
+
+  return (
+    <View style={styles.goalsCard}>
+      <View style={styles.goalsHeader}>
+        <View style={styles.goalsIcon}><Ionicons name="flag-outline" size={18} color={colors.greenDeep} /></View>
+        <View style={styles.goalsHeaderCopy}>
+          <Text style={styles.goalsEyebrow}>SHARED FAMILY GOALS</Text>
+          <Text style={styles.goalsTitle}>Building toward what&apos;s next</Text>
+          <Text style={styles.goalsSubtitle}>A simple monthly plan for the goals you share.</Text>
+        </View>
+      </View>
+
+      <View style={styles.goalsSummary}>
+        <View style={styles.goalsSummaryMetric}>
+          <Text style={styles.goalsSummaryLabel}>TOTAL SAVED</Text>
+          <Text style={styles.goalsSummaryValue}>{formatGoalCurrency(totalSaved)}</Text>
+        </View>
+        <View style={styles.goalsSummaryDivider} />
+        <View style={styles.goalsSummaryMetric}>
+          <Text style={styles.goalsSummaryLabel}>MONTHLY PLAN</Text>
+          <Text style={styles.goalsSummaryValue}>{formatGoalCurrency(monthlyPlan)}<Text style={styles.goalsSummarySuffix}> / month</Text></Text>
+        </View>
+      </View>
+
+      <View style={styles.sharedGoalsList}>
+        {sharedFamilyGoals.map((goal) => {
+          const progress = Math.round((goal.saved / goal.target) * 100);
+          return (
+            <View key={goal.id} style={styles.sharedGoal}>
+              <View style={styles.sharedGoalTop}>
+                <View style={styles.sharedGoalIdentity}>
+                  <Ionicons name={goal.icon} size={16} color={colors.greenDeep} />
+                  <View style={styles.sharedGoalCopy}>
+                    <Text style={styles.sharedGoalTitle}>{goal.title}</Text>
+                    <Text style={styles.sharedGoalDescription}>{goal.description}</Text>
+                  </View>
+                </View>
+                <Text style={styles.sharedGoalProgress}>{progress}%</Text>
+              </View>
+              <View accessibilityLabel={`${goal.title}: ${progress}% saved`} style={styles.progressTrack}>
+                <View style={[styles.progressFill, { width: `${progress}%` }]} />
+              </View>
+              <View style={styles.sharedGoalDetails}>
+                <Text style={styles.sharedGoalDetail}>{formatGoalCurrency(goal.saved)} of {formatGoalCurrency(goal.target)}</Text>
+                <Text style={styles.sharedGoalDetail}>{formatGoalCurrency(goal.monthlyContribution)} / month</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+      <Text style={styles.goalsFootnote}>Example planning figures. Adjust targets to fit your family&apos;s priorities.</Text>
+    </View>
+  );
+}
+
 function ChoreChecklist({
   child,
   completed,
@@ -270,9 +353,9 @@ export default function FamilyMoneyHub({ profileId }: { profileId: DashboardProf
           <View style={styles.hubHeading}>
             <View style={styles.hubIcon}><Ionicons name="people-outline" size={19} color={colors.greenDeep} /></View>
             <View style={styles.hubHeadingCopy}>
-              <Text style={styles.eyebrow}>FAMILY HUB</Text>
-              <Text style={styles.hubTitle}>Money that grows with your family</Text>
-              <Text style={styles.hubSubtitle}>A parent view for guidance, and a kids view for building good habits.</Text>
+            <Text style={styles.eyebrow}>FAMILY GOALS &amp; PLANNING</Text>
+            <Text style={styles.hubTitle}>Make room for what matters</Text>
+            <Text style={styles.hubSubtitle}>Shared savings goals and everyday habits, all in one place.</Text>
             </View>
           </View>
           <View style={styles.viewTabs} accessibilityRole="tablist" accessibilityLabel="Family dashboard view">
@@ -297,6 +380,7 @@ export default function FamilyMoneyHub({ profileId }: { profileId: DashboardProf
           </View>
           {familyView === 'parent' ? (
             <>
+              <FamilyGoalsCard />
               <View style={styles.parentSummary}>
                 <View style={styles.parentSummaryMetric}>
                   <Text style={styles.parentSummaryLabel}>WEEKLY ALLOWANCE</Text>
@@ -310,7 +394,7 @@ export default function FamilyMoneyHub({ profileId }: { profileId: DashboardProf
                   <Text style={styles.parentSummaryDetail}>One for each child</Text>
                 </View>
               </View>
-              <Text style={styles.sectionLabel}>KIDS & RESPONSIBILITIES</Text>
+              <Text style={styles.sectionLabel}>EVERYDAY MONEY HABITS</Text>
               {children.map((child) => (
                 <ParentChildCard
                   key={child.id}
@@ -363,6 +447,30 @@ const styles = StyleSheet.create({
   viewTabSelected: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint },
   viewTabText: { color: colors.textSecondary, fontSize: 12, fontFamily: font.body.medium },
   viewTabTextSelected: { color: colors.greenDeep, fontFamily: font.body.bold },
+  goalsCard: { padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.greenDim, gap: spacing.md },
+  goalsHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  goalsIcon: { width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  goalsHeaderCopy: { flex: 1, minWidth: 0, gap: 2 },
+  goalsEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold, letterSpacing: 0.6 },
+  goalsTitle: { color: colors.text, fontSize: 15, lineHeight: 20, fontFamily: font.headline.bold },
+  goalsSubtitle: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  goalsSummary: { flexDirection: 'row', alignItems: 'center', padding: 11, borderRadius: radius.md, backgroundColor: colors.surface },
+  goalsSummaryMetric: { flex: 1, gap: 2 },
+  goalsSummaryLabel: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
+  goalsSummaryValue: { color: colors.text, fontSize: 17, lineHeight: 22, fontFamily: font.headline.bold },
+  goalsSummarySuffix: { color: colors.textSecondary, fontSize: 9, fontFamily: font.body.regular },
+  goalsSummaryDivider: { width: 1, height: 36, marginHorizontal: spacing.md, backgroundColor: colors.borderFaint },
+  sharedGoalsList: { gap: spacing.sm },
+  sharedGoal: { padding: 11, borderRadius: radius.md, backgroundColor: colors.surface, gap: 7 },
+  sharedGoalTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  sharedGoalIdentity: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  sharedGoalCopy: { flex: 1, minWidth: 0, gap: 1 },
+  sharedGoalTitle: { color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.headline.semibold },
+  sharedGoalDescription: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  sharedGoalProgress: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
+  sharedGoalDetails: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm },
+  sharedGoalDetail: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+  goalsFootnote: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
   parentSummary: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.greenDim },
   parentSummaryMetric: { flex: 1, gap: 2 },
   parentSummaryLabel: { color: colors.greenDeep, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold, letterSpacing: 0.4 },
