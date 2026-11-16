@@ -282,7 +282,7 @@ function RecentTransactionsSection({ compact, view }: { compact: boolean; view: 
     ? 'Recent business activity'
     : view === 'family'
       ? 'Recent family activity'
-      : `Recent activity for ${profile.name}`;
+      : 'My recent activity';
 
   return (
     <View style={[styles.recentTransactionsCard, compact && styles.recentTransactionsCardCompact]}>
@@ -341,10 +341,10 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
     : upcomingBillPayments.reduce((total, bill) => total + parseDashboardAmount(bill.amount), 0);
   const netBalance = depositBalance - creditBalance;
   const availableAmount = Math.max(0, parseDashboardAmount(checkingAccount?.amount ?? '0') - creditBalance - plannedGoalContribution - upcomingBillsTotal);
-  const scores: Record<DashboardProfileId, number> = { jane: 82, james: 80, olivia: 91, noah: 88, family: 79, business: 76 };
+  const scores: Record<DashboardProfileId, number> = { jane: 82, james: 80, ava: 84, olivia: 91, noah: 88, family: 79, business: 76 };
   const score = scores[view];
-  const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : `${profile.name}’s financial snapshot`;
-  const accountLabel = isBusiness ? 'Business accounts' : isFamily ? 'Family accounts' : `${profile.name}’s accounts`;
+  const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : profile.name;
+  const accountLabel = isBusiness ? 'Business accounts' : isFamily ? 'Family accounts' : 'My accounts';
   const cardTitle = isBusiness
     ? 'Business overview'
     : isFamily
@@ -359,9 +359,11 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
   return (
     <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
       <View style={styles.healthSummary}>
-        <View style={styles.healthHeader}>
-          <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
-        </View>
+        {cardTitle !== 'Jane’s Financial Snapshot' && (
+          <View style={styles.healthHeader}>
+            <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
+          </View>
+        )}
         <View style={styles.healthMeterRow}>
           <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
             <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
@@ -373,7 +375,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
       </View>
       <View style={styles.totalBalanceRow}>
         <View style={styles.totalBalanceCopy}>
-          <Text style={styles.totalBalanceLabel}>{isChildProfile ? 'TOTAL SAVINGS + SPENDING' : 'NET AFTER CREDIT'}</Text>
+          <Text style={styles.totalBalanceLabel}>{isChildProfile ? 'TOTAL SAVINGS + SPENDING' : 'TOTAL AVAILABLE BALANCE'}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>
             {formatDashboardCurrency(netBalance)}
           </Text>
@@ -407,7 +409,6 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           <Text style={styles.accountSectionTitle}>{accountLabel}</Text>
           <Text style={styles.linkedAccountCount}>{visibleAccounts.length} linked</Text>
         </View>
-        <Ionicons name={accountsExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
       </TouchableOpacity>
       {accountsExpanded ? (
         <View style={styles.accountList}>
@@ -618,9 +619,9 @@ export default function DashboardScreen() {
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
-              <Text style={styles.offersTitle}>{activeProfileId === 'business' ? 'TD for your business' : activeProfileId === 'family' ? 'TD for your family' : activeProfileId === 'olivia' || activeProfileId === 'noah' ? 'TD for young people' : `TD for ${activeProfile.name}`}</Text>
+              <Text style={styles.offersTitle}>{activeProfileId === 'business' ? 'TD for your business' : activeProfileId === 'family' ? 'TD for your family' : activeProfileId === 'olivia' || activeProfileId === 'noah' ? 'TD for young people' : activeProfileId === 'jane' ? 'TD for Me' : `TD for ${activeProfile.name}`}</Text>
             </View>
-            <Text style={styles.offerCount}>3 offers · swipe</Text>
+            <Text style={styles.offerCount}>3 offers</Text>
           </View>
           <TouchableOpacity accessibilityRole="button" style={styles.offerCard}>
             <View style={styles.offerIcon}><Ionicons name={activeProfileId === 'olivia' ? 'compass-outline' : activeProfileId === 'noah' ? 'football-outline' : 'leaf-outline'} size={22} color={palette.green} /></View>
