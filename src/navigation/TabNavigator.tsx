@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, ScrollView, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -120,14 +120,18 @@ function DesktopCustomerInsights() {
       </View>
       <Text accessibilityRole="header" style={styles.insightsTitle}>Choose a profile</Text>
       <Text style={styles.insightsIntro}>Select a profile to update the phone dashboard with its accounts and activity.</Text>
-      <View style={styles.personaList}>
+      <ScrollView
+        style={styles.personaScroll}
+        contentContainerStyle={styles.personaList}
+        showsVerticalScrollIndicator
+      >
         {dashboardProfileOptions.map((persona) => {
           const selected = activeProfileId === persona.id;
           return (
             <TouchableOpacity
               key={persona.id}
               accessibilityRole="button"
-              accessibilityLabel={`Show ${persona.name}, ${persona.relationship} dashboard`}
+              accessibilityLabel={`Show ${persona.name}, ${persona.relationship} dashboard. ${persona.ageLabel}. TD relationship: ${persona.tdRelationshipLength}.`}
               accessibilityState={{ selected }}
               onPress={() => selectProfile(persona.id)}
               style={[styles.personaRow, selected && styles.personaRowSelected]}
@@ -139,16 +143,28 @@ function DesktopCustomerInsights() {
                 <Text style={styles.personaName}>{persona.name} <Text style={styles.personaRelationship}>· {persona.relationship}</Text></Text>
                 <Text style={styles.personaDetail}>{persona.detail}</Text>
                 <Text style={styles.personaNeed}>{persona.need}</Text>
+                <Text style={styles.personaMeta}>{persona.ageLabel} · {persona.tdRelationshipLength} with TD</Text>
               </View>
               {selected ? <Ionicons name="checkmark-circle" size={17} color={colors.greenDeep} /> : <Ionicons name="chevron-forward" size={15} color={colors.textTertiary} />}
             </TouchableOpacity>
           );
         })}
-      </View>
-      <View style={styles.customerQuoteCard}>
-        <Ionicons name="phone-portrait-outline" size={17} color={colors.greenDeep} />
-        <Text style={styles.customerQuote}>The phone preview is showing {activeProfile.name}&apos;s dashboard.</Text>
-        <Text style={styles.customerQuoteAttribution}>{activeProfile.detail}</Text>
+      </ScrollView>
+      <View style={styles.profileDetailsCard} accessibilityLabel={`${activeProfile.name} profile details`}>
+        <Text style={styles.profileDetailsTitle}>PROFILE DETAILS</Text>
+        <View style={styles.profileContactRow}>
+          <Ionicons name="person-outline" size={13} color={colors.greenDeep} />
+          <Text style={styles.profileDetailsText}>{activeProfile.contactName}</Text>
+        </View>
+        <View style={styles.profileContactRow}>
+          <Ionicons name="mail-outline" size={13} color={colors.greenDeep} />
+          <Text style={styles.profileDetailsText}>{activeProfile.contactEmail}</Text>
+        </View>
+        <View style={styles.profileContactRow}>
+          <Ionicons name="call-outline" size={13} color={colors.greenDeep} />
+          <Text style={styles.profileDetailsText}>{activeProfile.contactPhone}</Text>
+        </View>
+        <Text style={styles.profileDisclaimer}>Illustrative demo contact information.</Text>
       </View>
     </View>
   );
@@ -325,8 +341,9 @@ const styles = StyleSheet.create({
   insightsEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold, letterSpacing: 0.7 },
   insightsTitle: { color: colors.text, fontSize: 21, lineHeight: 26, fontFamily: font.headline.bold },
   insightsIntro: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
-  personaList: { gap: 10 },
-  personaRow: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: 9, padding: 8, borderRadius: 13, borderWidth: 1, borderColor: 'transparent' },
+  personaScroll: { maxHeight: 360, flexShrink: 1 },
+  personaList: { gap: 5, paddingVertical: 2 },
+  personaRow: { minHeight: 78, flexDirection: 'row', alignItems: 'center', gap: 8, padding: 7, borderRadius: 13, borderWidth: 1, borderColor: 'transparent' },
   personaRowSelected: { backgroundColor: colors.greenDim, borderColor: colors.green },
   personaAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.surfaceMid, alignItems: 'center', justifyContent: 'center' },
   personaAvatarSelected: { backgroundColor: colors.surface },
@@ -334,12 +351,14 @@ const styles = StyleSheet.create({
   personaCopy: { flex: 1, gap: 1 },
   personaName: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.semibold },
   personaRelationship: { color: colors.textSecondary, fontFamily: font.body.regular },
-  personaDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
-  personaNeed: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontFamily: font.body.medium },
-  customerQuoteCard: { padding: 12, borderRadius: 14, backgroundColor: colors.greenDim, gap: 6 },
-  customerQuote: { color: colors.text, fontSize: 13, lineHeight: 19, fontFamily: font.headline.semibold },
-  customerQuoteAttribution: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontFamily: font.body.bold },
-  quoteDisclaimer: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+  personaDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 13 },
+  personaNeed: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.medium },
+  personaMeta: { color: colors.textSecondary, fontSize: 9, lineHeight: 12, fontFamily: font.body.medium },
+  profileDetailsCard: { padding: 11, borderRadius: 14, backgroundColor: colors.greenDim, gap: 5 },
+  profileDetailsTitle: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold, letterSpacing: 0.7 },
+  profileContactRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  profileDetailsText: { flex: 1, color: colors.text, fontSize: 9, lineHeight: 13 },
+  profileDisclaimer: { color: colors.textSecondary, fontSize: 8, lineHeight: 11 },
   device: { position: 'relative', flex: 1, width: '100%' },
   nativeDevice: { backgroundColor: frameColors.screen },
   deviceRim: {

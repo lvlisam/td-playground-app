@@ -18,6 +18,13 @@ export default function AccountSettingsScreen() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { activeProfile } = useDashboardProfile();
   const settingsOverview = createSettingsOverview(activeProfile.name);
+  const profileDetails = [
+    { icon: 'person-outline' as const, title: 'Contact', detail: activeProfile.contactName },
+    { icon: 'calendar-outline' as const, title: 'Age', detail: activeProfile.ageLabel },
+    { icon: 'mail-outline' as const, title: 'Email', detail: activeProfile.contactEmail },
+    { icon: 'call-outline' as const, title: 'Phone', detail: activeProfile.contactPhone },
+    { icon: 'time-outline' as const, title: 'TD relationship', detail: `${activeProfile.tdRelationshipLength} with TD` },
+  ];
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
@@ -51,6 +58,26 @@ export default function AccountSettingsScreen() {
           </View>
         </View>
 
+        <View style={styles.section}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>Profile details</Text>
+          <View style={styles.settingsCard}>
+            {profileDetails.map((item, index) => (
+              <View key={item.title}>
+                {index > 0 ? <View style={styles.divider} /> : null}
+                <View accessible accessibilityRole="text" accessibilityLabel={`${item.title}: ${item.detail}`} style={styles.settingRow}>
+                  <View style={styles.settingIcon}>
+                    <Ionicons name={item.icon} size={18} color={colors.greenDeep} />
+                  </View>
+                  <View style={styles.settingCopy}>
+                    <Text style={styles.settingTitle}>{item.title}</Text>
+                    <Text style={styles.settingDetail}>{item.detail}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+
         <ConnectedDataSection profileName={activeProfile.name} />
 
         <View style={styles.section}>
@@ -75,7 +102,7 @@ export default function AccountSettingsScreen() {
 
         <View style={styles.notice}>
           <Ionicons name="information-circle-outline" size={19} color={colors.greenDeep} />
-          <Text style={styles.noticeText}>This account settings screen is a preview and isn’t connected to a live bank account.</Text>
+          <Text style={styles.noticeText}>This screen is a preview; profile and contact details are illustrative and aren’t connected to a live bank account.</Text>
         </View>
       </ScrollView>
     </View>
