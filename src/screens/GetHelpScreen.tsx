@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import TediScreen from './TediScreen';
+import TediScreen, { type TediScreenHandle } from './TediScreen';
 import { colors, font, radius, spacing } from '../theme';
 
 type VisitMode = 'In store' | 'Video' | 'Phone';
@@ -64,7 +64,16 @@ export default function GetHelpScreen() {
   const topInset = Platform.OS === 'web' ? 24 : insets.top;
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const [selectedNeedId, setSelectedNeedId] = useState(adviceNeeds[1].id);
+  const [tediDraft, setTediDraft] = useState('');
+  const tediRef = useRef<TediScreenHandle>(null);
   const selectedNeed = adviceNeeds.find((need) => need.id === selectedNeedId) ?? adviceNeeds[0];
+
+  const sendTediMessage = () => {
+    const message = tediDraft.trim();
+    if (!message || !tediRef.current) return;
+    tediRef.current.sendMessage(message);
+    setTediDraft('');
+  };
 
   const openChannel = (visitMode?: VisitMode) => {
     if (!visitMode) {
@@ -89,7 +98,7 @@ export default function GetHelpScreen() {
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Get help</Text>
         </View>
 
-        <TediScreen embedded />
+        <TediScreen ref={tediRef} embedded hideComposer />
 
         <View style={styles.adviceSection}>
           <Text style={styles.sectionEyebrow}>PERSONALIZED SUPPORT</Text>
@@ -150,12 +159,74 @@ export default function GetHelpScreen() {
           <Text style={styles.disclaimer}>Scheduling and store details are illustrative previews. No appointment or support request is sent from this demo.</Text>
         </View>
       </ScrollView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+        style={styles.stickyComposer}
+      >
+        <TextInput
+          accessibilityLabel="Ask Tedi a question"
+          maxLength={320}
+          multiline
+          onChangeText={setTediDraft}
+          placeholder="Ask Tedi a question"
+          placeholderTextColor={colors.textTertiary}
+          style={styles.stickyInput}
+          value={tediDraft}
+        />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Send question to Tedi"
+          disabled={!tediDraft.trim()}
+          onPress={sendTediMessage}
+          style={[styles.stickySendButton, !tediDraft.trim() && styles.stickySendButtonDisabled]}
+        >
+          <Ionicons name="arrow-up" size={20} color={colors.white} />
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
+  stickyComposer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    backgroundColor: colors.bg,
+  },
+  stickyInput: {
+    flex: 1,
+    minHeight: 46,
+    maxHeight: 82,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.text,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  stickySendButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+    backgroundColor: colors.greenDeep,
+  },
+  stickySendButtonDisabled: { opacity: 0.45 },
   content: { paddingHorizontal: spacing.md, gap: spacing.md },
   contentCompact: { paddingHorizontal: 14, gap: 12 },
   header: { gap: 5 },

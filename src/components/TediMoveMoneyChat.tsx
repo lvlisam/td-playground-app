@@ -47,13 +47,7 @@ function getDemoFallbackReply(message: string): Pick<ChatMessage, 'text' | 'acti
 }
 
 export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: (action: TransferAction) => void }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 0,
-      role: 'assistant',
-      text: 'Hi, I’m Tedi. I can help you look at upcoming bills or find the right way to move money. What are you hoping to do?',
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [nextId, setNextId] = useState(1);
@@ -117,7 +111,8 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
       </View>
       <Text style={styles.question}>What do you need to do today?</Text>
 
-      <ScrollView
+      {(messages.length > 0 || isSending) && (
+        <ScrollView
         ref={scrollRef}
         accessibilityLabel="Tedi conversation"
         nestedScrollEnabled
@@ -150,9 +145,10 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
             <Text style={styles.loadingText}>Tedi is thinking…</Text>
           </View>
         ) : null}
-      </ScrollView>
+        </ScrollView>
+      )}
 
-      {messages.length === 1 ? (
+      {messages.length === 0 ? (
         <View style={styles.quickPrompts}>
           {quickPrompts.map((prompt) => (
             <TouchableOpacity key={prompt} accessibilityRole="button" disabled={isSending} onPress={() => sendMessage(prompt)} style={styles.promptChip}>

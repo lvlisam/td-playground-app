@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import { paidBillPayments, upcomingBillPayments } from '../financeData';
 import TediMoveMoneyChat from './TediMoveMoneyChat';
+import TransactionBrandIcon from './TransactionBrandIcon';
 
 export type TransferAction = 'send' | 'wire' | 'deposit' | 'move' | 'bills' | 'exchange';
 type ActivityMode = 'upcoming' | 'paid';
@@ -49,12 +50,6 @@ type TransferOverviewProps = {
 };
 
 const RECOMMENDED_ACTION_IDS: TransferAction[] = ['send', 'move', 'bills'];
-
-const RECENT_MOVEMENTS = [
-  { id: 'savings-transfer', title: 'Transfer to savings', subtitle: 'From Checking · Today, 9:14 AM', amount: '+$250.00', icon: 'swap-horizontal-outline' as const },
-  { id: 'sarah-payment', title: 'Sent to Sarah M.', subtitle: 'Zelle · Yesterday, 4:22 PM', amount: '−$45.50', icon: 'paper-plane-outline' as const },
-  { id: 'electric-payment', title: 'Con Edison', subtitle: 'Bill payment · Nov 12', amount: '−$118.42', icon: 'receipt-outline' as const },
-];
 
 const LEARNED_PAYMENTS = upcomingBillPayments.flatMap((upcomingPayment) => {
   const previousPayment = paidBillPayments.find((payment) => payment.merchant === upcomingPayment.merchant);
@@ -124,33 +119,6 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
 
         <TediMoveMoneyChat onSelectAction={onSelectAction} />
 
-        <View style={styles.section}>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>Recommended for you</Text>
-          <View style={styles.recommendationRow}>
-            {recommendedActions.map(renderRecommendation)}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text accessibilityRole="header" style={styles.sectionTitle}>Recent money movement</Text>
-            <Text style={styles.sectionMeta}>Latest activity</Text>
-          </View>
-          <View style={styles.movementList}>
-            {RECENT_MOVEMENTS.map((movement, index) => (
-              <View key={movement.id} style={[styles.movementRow, index === RECENT_MOVEMENTS.length - 1 && styles.lastMovementRow]}>
-                <View style={styles.movementIcon} accessible={false}>
-                  <Ionicons name={movement.icon} size={18} color={colors.greenDeep} />
-                </View>
-                <View style={styles.movementCopy}>
-                  <Text style={styles.movementTitle} numberOfLines={1}>{movement.title}</Text>
-                  <Text style={styles.movementSubtitle} numberOfLines={1}>{movement.subtitle}</Text>
-                </View>
-                <Text style={[styles.movementAmount, movement.amount.startsWith('+') && styles.movementAmountPositive]}>{movement.amount}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -167,7 +135,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
             {LEARNED_PAYMENTS.map((payment, index) => (
               <View key={payment.id} style={[styles.learnedRow, index === LEARNED_PAYMENTS.length - 1 && styles.lastLearnedRow]}>
                 <View style={styles.learnedIcon} accessible={false}>
-                  <Ionicons name="receipt-outline" size={17} color={colors.greenDeep} />
+                  <TransactionBrandIcon merchant={payment.merchant} fallbackIcon="receipt-outline" />
                 </View>
                 <View style={styles.learnedCopy}>
                   <Text style={styles.learnedMerchant} numberOfLines={1}>{payment.merchant}</Text>
@@ -216,7 +184,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
             {visibleBills.map((bill, index) => (
               <View key={bill.id} style={[styles.billRow, index === visibleBills.length - 1 && styles.lastBillRow]}>
                 <View style={styles.billIcon} accessible={false}>
-                  <Ionicons name="receipt-outline" size={18} color={colors.greenDeep} />
+                  <TransactionBrandIcon merchant={bill.merchant} fallbackIcon="receipt-outline" />
                 </View>
                 <View style={styles.billCopy}>
                   <Text style={styles.billMerchant} numberOfLines={1}>{bill.merchant}</Text>
@@ -257,15 +225,6 @@ const styles = StyleSheet.create({
   recommendationIconFeatured: { backgroundColor: colors.green },
   recommendationTitle: { color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.headline.semibold },
   recommendationSubtitle: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
-  movementList: { overflow: 'hidden', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  movementRow: { flexDirection: 'row', alignItems: 'center', minHeight: 66, gap: spacing.sm, paddingHorizontal: spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
-  lastMovementRow: { borderBottomWidth: 0 },
-  movementIcon: { width: 34, height: 34, borderRadius: radius.md, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
-  movementCopy: { flex: 1, minWidth: 0 },
-  movementTitle: { color: colors.text, fontSize: 12, lineHeight: 17, fontFamily: font.headline.semibold },
-  movementSubtitle: { color: colors.textSecondary, fontSize: 10, lineHeight: 15 },
-  movementAmount: { color: colors.text, fontSize: 11, fontFamily: font.headline.semibold },
-  movementAmountPositive: { color: colors.greenDeep },
   learnedHeading: { flex: 1, gap: 2 },
   learnedHeadingIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.greenDim },
   learnedCard: { overflow: 'hidden', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },

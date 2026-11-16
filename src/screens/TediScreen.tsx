@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useImperativeHandle, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -93,7 +93,13 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
   };
 }
 
-export default function TediScreen({ embedded = false }: { embedded?: boolean }) {
+export type TediScreenHandle = { sendMessage: (message: string) => void };
+type TediScreenProps = { embedded?: boolean; hideComposer?: boolean };
+
+const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function TediScreen(
+  { embedded = false, hideComposer = false },
+  ref,
+) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { width } = useWindowDimensions();
@@ -123,6 +129,8 @@ export default function TediScreen({ embedded = false }: { embedded?: boolean })
     setMessages((current) => [...current, userMessage, assistantMessage]);
     setDraft('');
   };
+
+  useImperativeHandle(ref, () => ({ sendMessage }));
 
   const resolveConfirmation = (message: TediChatMessage, confirmed: boolean) => {
     const confirmationMessage: TediChatMessage = {
@@ -246,31 +254,35 @@ export default function TediScreen({ embedded = false }: { embedded?: boolean })
           )}
         </ScrollView>
 
-        <View style={styles.composer}>
-          <TextInput
-            accessibilityLabel="Message Tedi"
-            multiline
-            maxLength={320}
-            onChangeText={setDraft}
-            placeholder="Ask Tedi a question"
-            placeholderTextColor={colors.textTertiary}
-            style={styles.messageInput}
-            value={draft}
-          />
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Send message"
-            disabled={!draft.trim()}
-            onPress={() => sendMessage()}
-            style={[styles.sendButton, !draft.trim() && styles.sendButtonDisabled]}
-          >
-            <Ionicons name="arrow-up" size={21} color={colors.white} />
-          </TouchableOpacity>
-        </View>
+        {!hideComposer && (
+          <View style={styles.composer}>
+            <TextInput
+              accessibilityLabel="Message Tedi"
+              multiline
+              maxLength={320}
+              onChangeText={setDraft}
+              placeholder="Ask Tedi a question"
+              placeholderTextColor={colors.textTertiary}
+              style={styles.messageInput}
+              value={draft}
+            />
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Send message"
+              disabled={!draft.trim()}
+              onPress={() => sendMessage()}
+              style={[styles.sendButton, !draft.trim() && styles.sendButtonDisabled]}
+            >
+              <Ionicons name="arrow-up" size={21} color={colors.white} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
-}
+});
+
+export default TediScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
