@@ -62,6 +62,10 @@ export default function SendPayScreen() {
   };
 
   const handleOverviewAction = (action: TransferAction) => {
+    if (action === 'help') {
+      Alert.alert('Ask Tedi', 'Use the Ask Tedi field at the top to get help choosing the right money movement option.');
+      return;
+    }
     if (action === 'send' || action === 'wire') {
       setActiveTab('Send');
       setSelectedMethod(action === 'wire' ? 'wire' : 'zelle');
@@ -83,6 +87,7 @@ export default function SendPayScreen() {
       move: 'Move money',
       bills: 'Pay bills',
       exchange: 'Exchange',
+      help: 'Not sure where to start',
     };
     Alert.alert(`${labels[action]} coming soon`, 'Your upcoming and recently paid bills are available here.');
   };

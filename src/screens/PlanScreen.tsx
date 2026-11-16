@@ -40,7 +40,7 @@ function SavingsMomentumCard() {
 }
 
 export default function PlanScreen() {
-  const { accounts } = useAccounts();
+  const { accounts, updatePlan } = useAccounts();
   const plannedAccounts = accounts.filter((account) => account.plan);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -65,7 +65,9 @@ export default function PlanScreen() {
           <Text style={styles.sectionSubtitle}>A simple view of your savings goal and monthly spending.</Text>
         </View>
         <View style={styles.accountPlans}>
-          {plannedAccounts.map((account) => <AccountPlanCard key={account.id} account={account} />)}
+          {plannedAccounts.map((account) => (
+            <AccountPlanCard key={account.id} account={account} onUpdatePlan={(plan) => updatePlan(account.id, plan)} />
+          ))}
         </View>
         <View style={styles.sectionHeading}>
           <Text style={styles.sectionTitle}>Plan for what&apos;s next</Text>

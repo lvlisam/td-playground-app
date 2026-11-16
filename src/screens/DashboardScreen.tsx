@@ -78,6 +78,36 @@ function formatDashboardCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value);
 }
 
+function getPaydayCountdown(today = new Date()) {
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const dayOfMonth = today.getDate();
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const monthEndDay = monthEnd.getDate();
+  let nextPayday: Date;
+  let previousPayday: Date;
+
+  if (dayOfMonth < 15) {
+    nextPayday = new Date(today.getFullYear(), today.getMonth(), 15);
+    previousPayday = new Date(today.getFullYear(), today.getMonth(), 0);
+  } else if (dayOfMonth === 15) {
+    nextPayday = todayStart;
+    previousPayday = new Date(today.getFullYear(), today.getMonth(), 0);
+  } else if (dayOfMonth < monthEndDay) {
+    nextPayday = monthEnd;
+    previousPayday = new Date(today.getFullYear(), today.getMonth(), 15);
+  } else {
+    nextPayday = todayStart;
+    previousPayday = new Date(today.getFullYear(), today.getMonth(), 15);
+  }
+
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+  const daysUntilPayday = Math.max(0, Math.ceil((nextPayday.getTime() - todayStart.getTime()) / millisecondsPerDay));
+  const cycleDays = Math.max(1, Math.round((nextPayday.getTime() - previousPayday.getTime()) / millisecondsPerDay));
+  const progress = Math.min(100, Math.max(0, ((cycleDays - daysUntilPayday) / cycleDays) * 100));
+
+  return { daysUntilPayday, progress };
+}
+
 const businessAccounts: DashboardAccount[] = [
   {
     id: 'business-checking',
@@ -358,23 +388,6 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
 
   return (
     <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
-      <View style={styles.healthSummary}>
-        {cardTitle !== 'Jane’s Financial Snapshot' && (
-          <View style={styles.healthHeader}>
-            <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
-          </View>
-        )}
-        {!isFamily ? (
-          <View style={styles.healthMeterRow}>
-            <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
-              <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
-            </View>
-            <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
-              {score}<Text style={styles.healthScoreScale}> / 100</Text>
-            </Text>
-          </View>
-        ) : null}
-      </View>
       <View style={styles.totalBalanceRow}>
         <View style={styles.totalBalanceCopy}>
           <Text style={styles.totalBalanceLabel}>{isChildProfile ? 'TOTAL SAVINGS + SPENDING' : 'TOTAL AVAILABLE BALANCE'}</Text>
@@ -419,6 +432,60 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           ))}
         </View>
       ) : null}
+
+      <View style={styles.healthDivider} />
+      <View style={styles.healthSummary}>
+        {cardTitle !== 'Jane’s Financial Snapshot' && (
+          <View style={styles.healthHeader}>
+            <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
+          </View>
+        )}
+        {!isFamily ? (
+          <View style={styles.healthMeterRow}>
+            <View
+              accessible
+              accessibilityRole="progressbar"
+              accessibilityLabel={`${viewLabel} financial health`}
+              accessibilityValue={{ min: 0, max: 100, now: score }}
+              style={styles.healthMeterTrack}
+            >
+              <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+            </View>
+            <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+              {score}<Text style={styles.healthScoreScale}> / 100</Text>
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      {!isBusiness && !isFamily && !isChildProfile ? (
+        <PaydayCountdownMeter compact={compact} />
+      ) : null}
+    </View>
+  );
+}
+
+function PaydayCountdownMeter({ compact }: { compact: boolean }) {
+  const { daysUntilPayday, progress } = getPaydayCountdown();
+  const countdownLabel = daysUntilPayday === 0 ? 'Payday today' : `${daysUntilPayday} ${daysUntilPayday === 1 ? 'day' : 'days'}`;
+
+  return (
+    <View style={[styles.paydayCard, compact && styles.paydayCardCompact]}>
+      <View style={styles.paydayHeader}>
+        <View style={styles.paydayCopy}>
+          <Text style={styles.paydayLabel}>NEXT PAYDAY</Text>
+          <Text style={styles.paydayDetail}>Estimated on the 15th and month-end</Text>
+        </View>
+        <Text accessibilityLabel={`${countdownLabel} until payday`} style={styles.paydayCounter}>{countdownLabel}</Text>
+      </View>
+      <View
+        accessible
+        accessibilityRole="progressbar"
+        accessibilityLabel="Pay cycle progress"
+        accessibilityValue={{ min: 0, max: 100, now: Math.round(progress) }}
+        style={styles.paydayTrack}
+      >
+        <View style={[styles.paydayFill, { width: `${progress}%` }]} />
+      </View>
     </View>
   );
 }
@@ -689,6 +756,15 @@ const styles = StyleSheet.create({
   healthTitle: { flex: 1, minWidth: 0, color: palette.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' },
   healthMeterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
+  paydayCard: { gap: 8, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
+  paydayCardCompact: { padding: 9, gap: 7 },
+  paydayHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  paydayCopy: { flex: 1, minWidth: 0, gap: 2 },
+  paydayLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
+  paydayDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  paydayCounter: { flexShrink: 0, color: colors.greenDeep, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
+  paydayTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
+  paydayFill: { height: '100%', borderRadius: 4, backgroundColor: colors.greenDeep },
   healthScoreScale: { color: colors.textSecondary, fontSize: 9, fontFamily: font.body.regular },
   totalBalanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
   totalBalanceCopy: { flex: 1, minWidth: 0 },

@@ -103,13 +103,8 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
         <View style={styles.assistantIcon} accessible={false}>
           <Ionicons name="sparkles-outline" size={19} color={colors.greenDeep} />
         </View>
-        <View style={styles.identityCopy}>
-          <Text style={styles.eyebrow}>YOUR TD ASSISTANT</Text>
-          <Text style={styles.name}>Tedi</Text>
-        </View>
-        <View style={styles.demoTag}><Text style={styles.demoTagText}>DEMO</Text></View>
+        <Text accessibilityRole="header" style={styles.question}>Ask Tedi, your TD assistant</Text>
       </View>
-      <Text style={styles.question}>What do you need to do today?</Text>
 
       {(messages.length > 0 || isSending) && (
         <ScrollView
@@ -148,16 +143,6 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
         </ScrollView>
       )}
 
-      {messages.length === 0 ? (
-        <View style={styles.quickPrompts}>
-          {quickPrompts.map((prompt) => (
-            <TouchableOpacity key={prompt} accessibilityRole="button" disabled={isSending} onPress={() => sendMessage(prompt)} style={styles.promptChip}>
-              <Text style={styles.promptText}>{prompt}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      ) : null}
-
       <View style={styles.composer}>
         <TextInput
           accessibilityLabel="Message Tedi about money movement"
@@ -182,6 +167,16 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
             : <Ionicons name="arrow-up" size={19} color={colors.white} />}
         </TouchableOpacity>
       </View>
+
+      {messages.length === 0 ? (
+        <View style={styles.quickPrompts}>
+          {quickPrompts.map((prompt) => (
+            <TouchableOpacity key={prompt} accessibilityRole="button" disabled={isSending} onPress={() => sendMessage(prompt)} style={styles.promptChip}>
+              <Text style={styles.promptText}>{prompt}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -190,12 +185,7 @@ const styles = StyleSheet.create({
   card: { padding: spacing.sm, borderRadius: radius.xl, backgroundColor: colors.green, gap: spacing.xs },
   identityRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   assistantIcon: { width: 38, height: 38, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  identityCopy: { flex: 1, gap: 1 },
-  eyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, letterSpacing: 0.7, fontFamily: font.body.bold },
-  name: { color: colors.text, fontSize: 16, lineHeight: 20, fontFamily: font.headline.bold },
-  demoTag: { paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.62)' },
-  demoTagText: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, letterSpacing: 0.5, fontFamily: font.body.bold },
-  question: { color: colors.text, fontSize: 20, lineHeight: 25, fontFamily: font.headline.bold },
+  question: { flex: 1, color: colors.text, fontSize: 17, lineHeight: 22, fontFamily: font.headline.bold },
   conversation: { maxHeight: 176, minHeight: 76, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, padding: spacing.sm },
   messages: { flexGrow: 1, gap: spacing.sm },
   messageRow: { alignSelf: 'flex-start', maxWidth: '92%' },

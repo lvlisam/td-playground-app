@@ -16,7 +16,7 @@ import { paidBillPayments, upcomingBillPayments } from '../financeData';
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import TransactionBrandIcon from './TransactionBrandIcon';
 
-export type TransferAction = 'send' | 'wire' | 'deposit' | 'move' | 'bills' | 'exchange';
+export type TransferAction = 'send' | 'wire' | 'deposit' | 'move' | 'bills' | 'exchange' | 'help';
 type ActivityMode = 'upcoming' | 'paid';
 
 type ActionItem = {
@@ -24,32 +24,21 @@ type ActionItem = {
   title: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
-  featured?: boolean;
 };
 
 const ACTIONS: ActionItem[] = [
-  { id: 'send', title: 'Send & request', subtitle: 'Send with Zelle', icon: 'paper-plane-outline', featured: true },
-  { id: 'wire', title: 'Wire transfer', subtitle: 'Domestic & international', icon: 'business-outline' },
-  { id: 'deposit', title: 'Deposit a check', subtitle: 'Snap a photo', icon: 'camera-outline' },
-  { id: 'move', title: 'Move money', subtitle: 'Between your accounts', icon: 'swap-horizontal-outline' },
-  { id: 'bills', title: 'Pay bills', subtitle: 'Payees & autopay', icon: 'receipt-outline' },
-  { id: 'exchange', title: 'Exchange', subtitle: 'Currencies & wallets', icon: 'globe-outline' },
+  { id: 'move', title: 'Move between TD accounts', subtitle: 'Transfer money between your accounts', icon: 'swap-horizontal-outline' },
+  { id: 'wire', title: 'Move to or from another bank', subtitle: 'Transfer money to an external account', icon: 'business-outline' },
+  { id: 'send', title: 'Pay or request money from a person', subtitle: 'Send or request money with Zelle', icon: 'person-outline' },
+  { id: 'bills', title: 'Pay a company or bill', subtitle: 'Pay a company, service, or bill', icon: 'receipt-outline' },
+  { id: 'bills', title: 'Pay a loan or credit card', subtitle: 'Make a payment toward a loan or card', icon: 'card-outline' },
+  { id: 'deposit', title: 'Deposit a check', subtitle: 'Deposit a check with your camera', icon: 'camera-outline' },
+  { id: 'help', title: 'Not sure where to start', subtitle: 'Get help choosing the right option', icon: 'help-circle-outline' },
 ];
-
-const ACTION_LABELS: Record<TransferAction, string> = {
-  send: 'Send & request',
-  wire: 'Wire transfer',
-  deposit: 'Deposit a check',
-  move: 'Move money',
-  bills: 'Pay bills',
-  exchange: 'Exchange',
-};
 
 type TransferOverviewProps = {
   onSelectAction: (action: TransferAction) => void;
 };
-
-const RECOMMENDED_ACTION_IDS: TransferAction[] = ['send', 'move', 'bills'];
 
 const LEARNED_PAYMENTS = upcomingBillPayments.flatMap((upcomingPayment) => {
   const previousPayment = paidBillPayments.find((payment) => payment.merchant === upcomingPayment.merchant);
@@ -67,42 +56,37 @@ const LEARNED_PAYMENTS = upcomingBillPayments.flatMap((upcomingPayment) => {
 export default function TransferOverview({ onSelectAction }: TransferOverviewProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const compact = width < 360;
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [activityMode, setActivityMode] = useState<ActivityMode>('upcoming');
   const visibleBills = activityMode === 'upcoming' ? upcomingBillPayments : paidBillPayments;
-  const recommendedActions = ACTIONS.filter((action) => RECOMMENDED_ACTION_IDS.includes(action.id));
-  const otherActions = ACTIONS.filter((action) => !RECOMMENDED_ACTION_IDS.includes(action.id));
 
-  const renderRecommendation = (action: ActionItem) => (
+  const renderOtherAction = (action: ActionItem, index: number) => (
     <TouchableOpacity
-      key={action.id}
+      key={action.title}
       accessibilityRole="button"
       accessibilityLabel={`${action.title}. ${action.subtitle}`}
       onPress={() => onSelectAction(action.id)}
-      style={[styles.recommendationCard, compact && styles.recommendationCardCompact]}
+      style={[styles.actionCard, index === ACTIONS.length - 1 && styles.lastActionCard]}
     >
-      <View style={[styles.recommendationIcon, action.id === 'send' && styles.recommendationIconFeatured]}>
-        <Ionicons name={action.icon} size={17} color={colors.greenDeep} />
+      {action.id === 'move' ? (
+        <View style={[styles.actionIcon, styles.tdActionIcon]} accessible={false}>
+          <Text style={styles.tdActionMark}>TD</Text>
+        </View>
+      ) : action.id === 'wire' ? (
+        <View style={[styles.actionIcon, styles.externalActionIcon]} accessible={false}>
+          <Ionicons name="business-outline" size={15} color={colors.teal} />
+          <Text style={styles.externalActionMark}>EXT</Text>
+        </View>
+      ) : (
+        <View style={styles.actionIcon} accessible={false}>
+          <Ionicons name={action.icon} size={17} color={colors.greenDeep} />
+        </View>
+      )}
+      <View style={styles.actionCopy}>
+        <Text style={styles.actionTitle} numberOfLines={2}>{action.title}</Text>
+        <Text style={styles.actionSubtitle} numberOfLines={2}>{action.subtitle}</Text>
       </View>
-      <Text style={styles.recommendationTitle} numberOfLines={2}>{action.title}</Text>
-      <Text style={styles.recommendationSubtitle} numberOfLines={2}>{action.subtitle}</Text>
-    </TouchableOpacity>
-  );
-
-  const renderOtherAction = (action: ActionItem) => (
-    <TouchableOpacity
-      key={action.id}
-      accessibilityRole="button"
-      accessibilityLabel={`${action.title}. ${action.subtitle}`}
-      onPress={() => onSelectAction(action.id)}
-      style={[styles.actionCard, compact && styles.actionCardCompact]}
-    >
-      <View style={styles.actionIcon}>
-        <Ionicons name={action.icon} size={17} color={colors.greenDeep} />
-      </View>
-      <Text style={styles.actionTitle} numberOfLines={2}>{action.title}</Text>
-      <Text style={styles.actionSubtitle} numberOfLines={2}>{action.subtitle}</Text>
+      <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
@@ -202,7 +186,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
 
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>More ways to move money</Text>
-          <View style={styles.otherActionsRow}>{otherActions.map(renderOtherAction)}</View>
+          <View style={styles.otherActionsList}>{ACTIONS.map(renderOtherAction)}</View>
         </View>
       </ScrollView>
     </View>
@@ -218,13 +202,7 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, marginBottom: spacing.sm },
   sectionTitle: { color: colors.text, fontSize: font.size.md, lineHeight: 21, fontFamily: font.headline.semibold },
   sectionMeta: { color: colors.textSecondary, fontSize: 10 },
-  recommendationRow: { flexDirection: 'row', gap: spacing.xs },
-  recommendationCard: { flex: 1, minWidth: 0, minHeight: 110, padding: spacing.sm, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 4 },
-  recommendationCardCompact: { padding: 8, minHeight: 106 },
-  recommendationIcon: { width: 30, height: 30, borderRadius: radius.sm, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
-  recommendationIconFeatured: { backgroundColor: colors.green },
-  recommendationTitle: { color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.headline.semibold },
-  recommendationSubtitle: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+
   learnedHeading: { flex: 1, gap: 2 },
   learnedHeadingIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.greenDim },
   learnedCard: { overflow: 'hidden', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
@@ -257,10 +235,15 @@ const styles = StyleSheet.create({
   billAmount: { color: colors.text, fontSize: 11, fontFamily: font.headline.semibold },
   billsAction: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   billsActionText: { color: colors.greenDeep, fontSize: 12, fontFamily: font.headline.semibold },
-  otherActionsRow: { flexDirection: 'row', gap: spacing.xs },
-  actionCard: { flex: 1, minWidth: 0, minHeight: 94, padding: spacing.sm, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  actionCardCompact: { padding: 8, minHeight: 90 },
-  actionIcon: { width: 30, height: 30, borderRadius: radius.sm, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
-  actionTitle: { color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.headline.semibold, marginTop: 5 },
-  actionSubtitle: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+  otherActionsList: { overflow: 'hidden', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  actionCard: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  lastActionCard: { borderBottomWidth: 0 },
+  actionIcon: { width: 34, height: 34, borderRadius: radius.md, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
+  tdActionIcon: { backgroundColor: colors.greenDeep },
+  tdActionMark: { color: colors.white, fontSize: 15, lineHeight: 18, fontFamily: font.headline.bold, letterSpacing: -0.5 },
+  externalActionIcon: { backgroundColor: colors.blueDim, gap: 0 },
+  externalActionMark: { color: colors.teal, fontSize: 6, lineHeight: 8, fontFamily: font.body.bold, letterSpacing: 0.3 },
+  actionCopy: { flex: 1, minWidth: 0, gap: 2 },
+  actionTitle: { color: colors.text, fontSize: 12, lineHeight: 17, fontFamily: font.headline.semibold },
+  actionSubtitle: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
 });

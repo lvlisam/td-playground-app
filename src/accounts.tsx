@@ -56,6 +56,7 @@ const accountCatalog: Omit<Account, 'name'>[] = [
 type AccountContextValue = {
   accounts: Account[];
   renameAccount: (accountId: AccountId, name: string) => void;
+  updatePlan: (accountId: AccountId, plan: AccountPlan) => void;
 };
 
 const AccountContext = createContext<AccountContextValue | null>(null);
@@ -66,13 +67,21 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     savings: 'Family getaway',
     card: 'Travel & rewards',
   });
+  const [plans, setPlans] = useState<Record<AccountId, AccountPlan | null>>(() => ({
+    checking: accountCatalog[0].plan,
+    savings: accountCatalog[1].plan,
+    card: accountCatalog[2].plan,
+  }));
 
   const value = useMemo<AccountContextValue>(() => ({
-    accounts: accountCatalog.map((account) => ({ ...account, name: nicknames[account.id] })),
+    accounts: accountCatalog.map((account) => ({ ...account, name: nicknames[account.id], plan: plans[account.id] })),
     renameAccount: (accountId, name) => {
       setNicknames((current) => ({ ...current, [accountId]: name }));
     },
-  }), [nicknames]);
+    updatePlan: (accountId, plan) => {
+      setPlans((current) => ({ ...current, [accountId]: plan }));
+    },
+  }), [nicknames, plans]);
 
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;
 }

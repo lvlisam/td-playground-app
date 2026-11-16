@@ -88,6 +88,7 @@ export default function FamilyPlanBuilder() {
   const [recommendation, setRecommendation] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [builderExpanded, setBuilderExpanded] = useState(false);
 
   const target = parseAmount(targetAmount);
   const saved = parseAmount(currentSavings);
@@ -191,7 +192,33 @@ export default function FamilyPlanBuilder() {
           <Text style={styles.cardTitle}>Make a plan for what matters</Text>
         </View>
       </View>
-      <Text style={styles.intro}>Choose a life goal, then add context for next steps that reflect your accounts and priorities.</Text>
+      {!builderExpanded ? (
+        <View style={styles.collapsedBuilder}>
+          <Text style={styles.collapsedCopy}>Start a new plan or goal when you&apos;re ready for tailored guidance from Tedi.</Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Start a new plan or goal"
+            onPress={() => setBuilderExpanded(true)}
+            style={styles.generateButton}
+          >
+            <Ionicons name="add-circle-outline" size={17} color={colors.white} />
+            <Text style={styles.generateButtonText}>Start a new plan or goal</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Collapse AI plan builder"
+            accessibilityState={{ expanded: true }}
+            onPress={() => setBuilderExpanded(false)}
+            style={styles.collapseButton}
+          >
+            <Text style={styles.collapseButtonText}>Collapse builder</Text>
+            <Ionicons name="chevron-up" size={16} color={colors.greenDeep} />
+          </TouchableOpacity>
+          <View style={styles.builderFields}>
+            <Text style={styles.intro}>Choose a life goal, then add context for next steps that reflect your accounts and priorities.</Text>
 
       <Text style={styles.fieldLabel}>Choose a goal</Text>
       <View style={styles.goalGrid} accessibilityRole="radiogroup" accessibilityLabel="Life planning goals">
@@ -395,21 +422,24 @@ export default function FamilyPlanBuilder() {
         </View>
       ) : null}
 
-      {recommendation ? (
-        <View style={styles.recommendationCard} accessibilityLiveRegion="polite">
-          <View style={styles.recommendationHeader}>
-            <View style={styles.recommendationIcon}>
-              <Ionicons name="sparkles" size={17} color={colors.greenDeep} />
-            </View>
-            <View style={styles.recommendationCopy}>
-              <Text style={styles.recommendationEyebrow}>YOUR NEXT STEPS</Text>
-              <Text style={styles.recommendationTitle}>{selectedGoal.title}</Text>
-            </View>
+            {recommendation ? (
+              <View style={styles.recommendationCard} accessibilityLiveRegion="polite">
+                <View style={styles.recommendationHeader}>
+                  <View style={styles.recommendationIcon}>
+                    <Ionicons name="sparkles" size={17} color={colors.greenDeep} />
+                  </View>
+                  <View style={styles.recommendationCopy}>
+                    <Text style={styles.recommendationEyebrow}>YOUR NEXT STEPS</Text>
+                    <Text style={styles.recommendationTitle}>{selectedGoal.title}</Text>
+                  </View>
+                </View>
+                <Text style={styles.recommendationText}>{recommendation}</Text>
+                <Text style={styles.recommendationDisclaimer}>Educational guidance only — not investment, tax, or legal advice.</Text>
+              </View>
+            ) : null}
           </View>
-          <Text style={styles.recommendationText}>{recommendation}</Text>
-          <Text style={styles.recommendationDisclaimer}>Educational guidance only — not investment, tax, or legal advice.</Text>
-        </View>
-      ) : null}
+        </>
+      )}
     </View>
   );
 }
@@ -424,6 +454,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   cardHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  collapsedBuilder: { gap: spacing.sm },
+  collapsedCopy: { color: colors.textSecondary, fontSize: 13, lineHeight: 19 },
+  collapseButton: { minHeight: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 6, paddingHorizontal: 10, borderRadius: radius.md, backgroundColor: colors.greenDim },
+  collapseButtonText: { color: colors.greenDeep, fontSize: 11, fontWeight: '700' },
+  builderFields: { gap: spacing.md },
   headingIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   headingCopy: { flex: 1, minWidth: 0, gap: 2 },
   eyebrow: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontWeight: '700', letterSpacing: 0.8 },

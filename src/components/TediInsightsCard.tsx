@@ -85,7 +85,6 @@ export default function TediInsightsCard({
         <Text style={styles.buttonText}>{isLoading ? 'Tedi is thinking…' : recommendation ? 'Refresh recommendation' : 'Get recommendation'}</Text>
       </TouchableOpacity>
 
-      <Text style={styles.privacyNote}>Only grouped category totals and profile type are sent when you ask. Merchant names, account numbers, and credentials are not included.</Text>
     </View>
   );
 }
@@ -104,5 +103,4 @@ const styles = StyleSheet.create({
   button: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.md, backgroundColor: colors.greenDeep },
   buttonDisabled: { opacity: 0.72 },
   buttonText: { color: colors.white, fontSize: 13, lineHeight: 18, fontFamily: font.body.bold },
-  privacyNote: { color: colors.textSecondary, fontSize: 10, lineHeight: 15 },
 });
