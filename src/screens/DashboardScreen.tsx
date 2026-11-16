@@ -121,6 +121,9 @@ const familyAccounts: DashboardAccount[] = [
   { id: 'family-checking', name: 'Shared household', productLabel: 'Family checking', detail: '•••• 2846', amount: '$12,480.30', amountLabel: 'Available balance', note: 'Shared household spending', swatch: colors.green, plan: null },
   { id: 'family-savings', name: 'Family goals', productLabel: 'Family savings', detail: '•••• 7451 · 4.25% APY', amount: '$41,500.00', amountLabel: 'Current balance', note: 'Home and travel goals', swatch: colors.green, plan: null },
   { id: 'family-card', name: 'Household rewards', productLabel: 'Family credit card', detail: '$9,850.00 available', amount: '−$628.45', amountLabel: 'Current balance', note: 'Shared purchases', swatch: colors.text, plan: null },
+  { id: 'family-husband-checking', name: 'Husband’s checking', productLabel: 'Personal checking', detail: '•••• 6318', amount: '$5,240.15', amountLabel: 'Available balance', note: 'Personal spending', swatch: colors.green, plan: null },
+  { id: 'family-child-one-savings', name: 'Child 1’s savings', productLabel: 'Youth savings', detail: '•••• 3920 · 4.25% APY', amount: '$1,250.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
+  { id: 'family-child-two-savings', name: 'Child 2’s savings', productLabel: 'Youth savings', detail: '•••• 7143 · 4.25% APY', amount: '$980.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
 ];
 
 const familyTransactions: DashboardTransaction[] = [
@@ -248,7 +251,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Accoun
   const netBalance = depositBalance - creditBalance;
   const availableAmount = Math.max(0, parseDashboardAmount(checkingAccount?.amount ?? '0') - creditBalance - plannedGoalContribution - upcomingBillsTotal);
   const score = isBusiness ? 76 : isFamily ? 79 : 82;
-  const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : 'Financial health';
+  const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : 'Your Financial Snapshot';
   const accountLabel = isBusiness ? 'Business accounts' : isFamily ? 'Family accounts' : 'Personal accounts';
 
   return (
@@ -256,14 +259,16 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Accoun
       <View style={styles.healthSummary}>
         <View style={styles.healthHeader}>
           <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>
-            {isBusiness ? 'Business overview' : isFamily ? 'Family finances' : 'Financial health'}
+            {isBusiness ? 'Business overview' : isFamily ? 'Family finances' : 'Your Financial Snapshot'}
           </Text>
+        </View>
+        <View style={styles.healthMeterRow}>
+          <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
+            <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+          </View>
           <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
             {score}<Text style={styles.healthScoreScale}> / 100</Text>
           </Text>
-        </View>
-        <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
-          <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
         </View>
       </View>
       <View style={styles.totalBalanceRow}>
@@ -383,7 +388,7 @@ export default function DashboardScreen() {
             accessible={false}
           />
           <LinearGradient
-            colors={['rgba(35,139,20,0.78)', 'rgba(35,139,20,0.42)', 'rgba(35,139,20,0.12)', 'rgba(246,247,244,0.94)']}
+            colors={['rgba(35,139,20,0.72)', 'rgba(35,139,20,0.46)', 'rgba(35,139,20,0.28)', 'rgba(246,247,244,0.82)']}
             locations={[0, 0.44, 0.72, 1]}
             style={[StyleSheet.absoluteFill, styles.heroGradient]}
           />
@@ -434,7 +439,13 @@ export default function DashboardScreen() {
                 </View>
               </View>
             <View style={[styles.topActions, compact && styles.topActionsCompact]}>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Notifications, 3 unread" style={[styles.notificationButton, compact && styles.notificationButtonCompact]}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Notifications, 3 unread"
+                accessibilityHint="Opens recent alerts and account activity"
+                onPress={() => navigation.navigate('Notifications')}
+                style={[styles.notificationButton, compact && styles.notificationButtonCompact]}
+              >
                 <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.white} />
                 <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
               </TouchableOpacity>
@@ -523,16 +534,16 @@ const styles = StyleSheet.create({
   healthSummary: { gap: 5 },
   healthHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   healthTitle: { flex: 1, minWidth: 0, color: palette.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' },
-  healthScoreGroup: { alignItems: 'flex-end' },
-  healthScore: { color: colors.greenDeep, fontSize: 24, lineHeight: 28, fontFamily: font.headline.bold },
-  healthScoreScale: { color: colors.textSecondary, fontSize: 12, fontFamily: font.body.regular },
+  healthMeterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
+  healthScoreScale: { color: colors.textSecondary, fontSize: 9, fontFamily: font.body.regular },
   totalBalanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
   totalBalanceCopy: { flex: 1, minWidth: 0 },
   totalBalanceLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
   totalBalanceValue: { flexShrink: 1, color: palette.ink, fontSize: 21, lineHeight: 26, fontFamily: font.headline.bold },
   totalBalanceDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
   totalBalanceIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
-  healthMeterTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
+  healthMeterTrack: { flex: 1, height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
   healthMeterFill: { width: '82%', height: '100%', borderRadius: 4, backgroundColor: colors.green },
   healthMetrics: { flexDirection: 'row', gap: 8 },
   healthMetricTile: { flex: 1, minWidth: 0, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid, gap: 3 },
@@ -605,7 +616,7 @@ const styles = StyleSheet.create({
   notificationButtonCompact: { width: 34, height: 34 },
   financialHealthCardCompact: { marginHorizontal: 12, marginTop: -22, marginBottom: 12, padding: 12, gap: 8 },
   healthTitleCompact: { fontSize: 14, lineHeight: 18 },
-  healthScoreCompact: { fontSize: 22, lineHeight: 26 },
+  healthScoreCompact: { fontSize: 12, lineHeight: 15 },
   totalBalanceValueCompact: { fontSize: 20, lineHeight: 24 },
   healthMetricsCompact: { gap: 6 },
   healthMetricLabelCompact: { fontSize: 8, lineHeight: 11, letterSpacing: 0.25 },

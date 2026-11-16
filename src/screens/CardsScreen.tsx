@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Switch, StatusBar, Platform, useWindowDimensions,
+  StyleSheet, Switch, StatusBar, Platform, useWindowDimensions, Modal, TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -66,13 +66,14 @@ type NavRowProps = {
   iconBg: string;
   label: string;
   value?: string;
+  onPress?: () => void;
 };
 
-function NavRow({ icon, iconColor, iconBg, label, value }: NavRowProps) {
+function NavRow({ icon, iconColor, iconBg, label, value, onPress }: NavRowProps) {
   const { width } = useWindowDimensions();
   const compact = width < 360;
   return (
-    <TouchableOpacity style={[navStyles.row, compact && navStyles.rowCompact]}>
+    <TouchableOpacity accessibilityRole="button" onPress={onPress} style={[navStyles.row, compact && navStyles.rowCompact]}>
       <View style={[navStyles.iconWrap, compact && navStyles.iconWrapCompact, { backgroundColor: iconBg }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
@@ -115,6 +116,32 @@ export default function CardsScreen() {
   const [onlinePayments, setOnlinePayments] = useState(true);
   const [notifications, setNotifications] = useState(true);
   const [biometric, setBiometric] = useState(true);
+  const [streetSafe, setStreetSafe] = useState(false);
+  const [singleUseCardCreated, setSingleUseCardCreated] = useState(false);
+  const [dailyLimit, setDailyLimit] = useState('5000');
+  const [atmLimit, setAtmLimit] = useState('1000');
+  const [editingLimit, setEditingLimit] = useState<'daily' | 'atm' | null>(null);
+  const [limitDraft, setLimitDraft] = useState('');
+  const [limitError, setLimitError] = useState('');
+  const [demoMessage, setDemoMessage] = useState('');
+
+  const openLimitEditor = (limit: 'daily' | 'atm') => {
+    setEditingLimit(limit);
+    setLimitDraft(limit === 'daily' ? dailyLimit : atmLimit);
+    setLimitError('');
+  };
+
+  const saveLimit = () => {
+    const value = Number(limitDraft);
+    if (!Number.isFinite(value) || value <= 0 || value > 100000) {
+      setLimitError('Enter a limit between $1 and $100,000.');
+      return;
+    }
+    if (editingLimit === 'daily') setDailyLimit(String(value));
+    if (editingLimit === 'atm') setAtmLimit(String(value));
+    setDemoMessage('Demo card setting updated. No real card was changed.');
+    setEditingLimit(null);
+  };
 
   return (
     <View style={styles.container}>
@@ -205,6 +232,34 @@ export default function CardsScreen() {
           </View>
         </View>
 
+        <View style={[styles.section, compact && styles.sectionCompact]}>
+          <Text style={styles.sectionTitle}>Single-use card</Text>
+          <View style={styles.card2}>
+            <View style={styles.singleUseRow}>
+              <View style={styles.singleUseIcon}>
+                <Ionicons name="flash-outline" size={19} color={colors.greenDeep} />
+              </View>
+              <View style={styles.singleUseCopy}>
+                <Text style={styles.singleUseTitle}>{singleUseCardCreated ? 'Demo card ready' : 'Safer one-time online purchases'}</Text>
+                <Text style={styles.singleUseDescription}>{singleUseCardCreated ? '•••• 9142 · expires after one purchase' : 'Create a virtual card number for one purchase.'}</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={singleUseCardCreated ? 'Create another single-use demo card' : 'Create single-use demo card'}
+              onPress={() => {
+                setSingleUseCardCreated(true);
+                setDemoMessage('Demo single-use card created. It cannot be used for real purchases.');
+              }}
+              style={styles.singleUseButton}
+            >
+              <Text style={styles.singleUseButtonText}>{singleUseCardCreated ? 'Create another' : 'Create demo card'}</Text>
+              <Ionicons name="arrow-forward" size={16} color={colors.white} />
+            </TouchableOpacity>
+            {demoMessage ? <Text accessibilityRole="text" style={styles.demoNotice}>{demoMessage}</Text> : null}
+          </View>
+        </View>
+
         {/* Card Controls */}
         <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Card Controls</Text>
@@ -217,6 +272,16 @@ export default function CardsScreen() {
               description={frozen ? 'Card is frozen — no transactions allowed' : 'Temporarily lock your card'}
               value={frozen}
               onToggle={() => setFrozen(v => !v)}
+            />
+            <View style={styles.divider} />
+            <ToggleRow
+              icon="walk-outline"
+              iconColor={streetSafe ? colors.greenDeep : colors.textSecondary}
+              iconBg={streetSafe ? colors.greenDim : colors.surfaceHigh}
+              label="Street Safe"
+              description={streetSafe ? 'On-the-go spending is capped in this demo' : 'Apply a lower-risk card profile while out'}
+              value={streetSafe}
+              onToggle={() => setStreetSafe((value) => !value)}
             />
             <View style={styles.divider} />
             <ToggleRow
@@ -245,9 +310,9 @@ export default function CardsScreen() {
         <View style={[styles.section, compact && styles.sectionCompact]}>
           <Text style={styles.sectionTitle}>Limits</Text>
           <View style={[styles.card2, compact && styles.card2Compact]}>
-            <NavRow icon="bar-chart-outline" iconColor={colors.purple} iconBg={colors.purpleDim} label="Daily Spend Limit" value="$5,000" />
+            <NavRow icon="bar-chart-outline" iconColor={colors.purple} iconBg={colors.purpleDim} label="Daily Spend Limit" value={`$${Number(dailyLimit).toLocaleString()}`} onPress={() => openLimitEditor('daily')} />
             <View style={styles.divider} />
-            <NavRow icon="cash-outline" iconColor={colors.orange} iconBg={colors.orangeDim} label="ATM Withdrawal Limit" value="$1,000" />
+            <NavRow icon="cash-outline" iconColor={colors.orange} iconBg={colors.orangeDim} label="ATM Withdrawal Limit" value={`$${Number(atmLimit).toLocaleString()}`} onPress={() => openLimitEditor('atm')} />
             <View style={styles.divider} />
             <NavRow icon="globe-outline" iconColor={colors.blue} iconBg={colors.blueDim} label="International Payments" value="On" />
           </View>
@@ -297,6 +362,34 @@ export default function CardsScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <Modal transparent animationType="fade" visible={editingLimit !== null} onRequestClose={() => setEditingLimit(null)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.limitDialog}>
+            <Text accessibilityRole="header" style={styles.limitDialogTitle}>{editingLimit === 'daily' ? 'Daily spend limit' : 'ATM withdrawal limit'}</Text>
+            <Text style={styles.limitDialogDescription}>Set a demo limit. This does not update a real card.</Text>
+            <TextInput
+              accessibilityLabel="Card limit amount"
+              keyboardType="decimal-pad"
+              value={limitDraft}
+              onChangeText={(value) => {
+                setLimitDraft(value.replace(/[^0-9.]/g, ''));
+                setLimitError('');
+              }}
+              style={styles.limitInput}
+              autoFocus
+            />
+            {limitError ? <Text accessibilityRole="alert" style={styles.limitError}>{limitError}</Text> : null}
+            <View style={styles.limitDialogActions}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setEditingLimit(null)} style={styles.limitCancelButton}>
+                <Text style={styles.limitCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" onPress={saveLimit} style={styles.limitSaveButton}>
+                <Text style={styles.limitSaveText}>Save limit</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -375,6 +468,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface, borderRadius: radius.lg,
     paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colors.border,
   },
+  singleUseRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
+  singleUseIcon: { width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  singleUseCopy: { flex: 1, minWidth: 0, gap: 3 },
+  singleUseTitle: { color: colors.text, fontSize: font.size.sm, fontFamily: font.headline.semibold },
+  singleUseDescription: { color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 16 },
+  singleUseButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 42, borderRadius: radius.md, backgroundColor: colors.greenDeep, marginBottom: 12 },
+  singleUseButtonText: { color: colors.white, fontSize: font.size.sm, fontWeight: font.weight.bold },
+  demoNotice: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, paddingBottom: 10 },
+  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: 'rgba(0,0,0,0.42)' },
+  limitDialog: { width: '100%', maxWidth: 360, padding: 20, borderRadius: radius.xl, backgroundColor: colors.surface, gap: 12 },
+  limitDialogTitle: { color: colors.text, fontSize: 18, fontFamily: font.headline.bold },
+  limitDialogDescription: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
+  limitInput: { minHeight: 48, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: 12, color: colors.text, fontSize: 16 },
+  limitError: { color: colors.red, fontSize: 12 },
+  limitDialogActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
+  limitCancelButton: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 14 },
+  limitCancelText: { color: colors.textSecondary, fontSize: 14, fontWeight: font.weight.semibold },
+  limitSaveButton: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 16, borderRadius: radius.md, backgroundColor: colors.greenDeep },
+  limitSaveText: { color: colors.white, fontSize: 14, fontWeight: font.weight.bold },
   divider: { height: 1, backgroundColor: colors.borderFaint },
 
   reportBtn: {

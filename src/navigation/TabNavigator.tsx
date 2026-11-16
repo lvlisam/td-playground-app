@@ -12,6 +12,8 @@ import CardsScreen from '../screens/CardsScreen';
 import TediScreen from '../screens/TediScreen';
 import AccountServicingScreen from '../screens/AccountServicingScreen';
 import AccountSettingsScreen from '../screens/AccountSettingsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import SupportBookingScreen from '../screens/SupportBookingScreen';
 import { AccountsProvider } from '../accounts';
 import { colors, font, radius } from '../theme';
 
@@ -85,9 +87,9 @@ function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<Para
     <View style={styles.desktopMenu}>
       <View style={styles.desktopMenuHeading}>
         <View style={styles.desktopMenuBrandMark}><Text style={styles.desktopMenuBrandText}>TD</Text></View>
-        <View>
+        <View style={styles.desktopMenuBrandCopy}>
           <Text style={styles.desktopMenuBrandTitle}>TD Banking</Text>
-          <Text style={styles.desktopMenuBrandCaption}>Quick access</Text>
+          <Text numberOfLines={3} style={styles.desktopMenuBrandCaption}>{'Quick access to\nHuman-Centered TD\nof the Future'}</Text>
         </View>
       </View>
       <View style={styles.desktopMenuDivider} />
@@ -122,7 +124,7 @@ function DesktopCustomerInsights() {
         <Ionicons name="people-outline" size={14} color={colors.greenDeep} />
         <Text style={styles.insightsEyebrow}>ILLUSTRATIVE DESIGN LENS</Text>
       </View>
-      <Text accessibilityRole="header" style={styles.insightsTitle}>What TD customers may want</Text>
+      <Text accessibilityRole="header" style={styles.insightsTitle}>WHAT TD CUSTOMERS NEED</Text>
       <Text style={styles.insightsIntro}>Clear everyday money, meaningful next steps, and guidance that adapts when life changes.</Text>
       <View style={styles.personaList}>
         {personas.map((persona) => (
@@ -273,8 +275,18 @@ export default function TabNavigator() {
                     options={{ tabBarButton: () => null }}
                   />
                   <Tab.Screen
+                    name="Notifications"
+                    component={NotificationsScreen}
+                    options={{ tabBarButton: () => null }}
+                  />
+                  <Tab.Screen
                     name="Card Manager"
                     component={CardsScreen}
+                    options={{ tabBarButton: () => null }}
+                  />
+                  <Tab.Screen
+                    name="Support & booking"
+                    component={SupportBookingScreen}
                     options={{ tabBarButton: () => null }}
                   />
               </Tab.Navigator>
@@ -305,6 +317,7 @@ const styles = StyleSheet.create({
   desktopMenu: { width: 152, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
   desktopMenuHeading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 5 },
   desktopMenuBrandMark: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.greenDeep, alignItems: 'center', justifyContent: 'center' },
+  desktopMenuBrandCopy: { flex: 1, minWidth: 0 },
   desktopMenuBrandText: { color: frameColors.white, fontSize: 12, fontWeight: '800', letterSpacing: -0.5 },
   desktopMenuBrandTitle: { color: colors.text, fontSize: 12, lineHeight: 15, fontFamily: font.headline.semibold },
   desktopMenuBrandCaption: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
