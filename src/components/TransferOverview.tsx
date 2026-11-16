@@ -56,6 +56,19 @@ const RECENT_MOVEMENTS = [
   { id: 'electric-payment', title: 'Con Edison', subtitle: 'Bill payment · Nov 12', amount: '−$118.42', icon: 'receipt-outline' as const },
 ];
 
+const LEARNED_PAYMENTS = upcomingBillPayments.flatMap((upcomingPayment) => {
+  const previousPayment = paidBillPayments.find((payment) => payment.merchant === upcomingPayment.merchant);
+  if (!previousPayment) return [];
+
+  return [{
+    id: upcomingPayment.id,
+    merchant: upcomingPayment.merchant,
+    previousTiming: previousPayment.timing,
+    previousAmount: previousPayment.amount,
+    nextTiming: upcomingPayment.timing,
+  }];
+});
+
 export default function TransferOverview({ onSelectAction }: TransferOverviewProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -141,6 +154,40 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            <View style={styles.learnedHeading}>
+              <Text accessibilityRole="header" style={styles.sectionTitle}>Learned from your payments</Text>
+              <Text style={styles.sectionMeta}>Based on your recent bill history</Text>
+            </View>
+            <View style={styles.learnedHeadingIcon} accessible={false}>
+              <Ionicons name="sparkles-outline" size={17} color={colors.greenDeep} />
+            </View>
+          </View>
+          <View style={styles.learnedCard}>
+            <Text style={styles.learnedIntro}>These recent payments have another due date on the horizon.</Text>
+            {LEARNED_PAYMENTS.map((payment, index) => (
+              <View key={payment.id} style={[styles.learnedRow, index === LEARNED_PAYMENTS.length - 1 && styles.lastLearnedRow]}>
+                <View style={styles.learnedIcon} accessible={false}>
+                  <Ionicons name="receipt-outline" size={17} color={colors.greenDeep} />
+                </View>
+                <View style={styles.learnedCopy}>
+                  <Text style={styles.learnedMerchant} numberOfLines={1}>{payment.merchant}</Text>
+                  <Text style={styles.learnedDetail} numberOfLines={1}>Last paid {payment.previousTiming.replace('Paid ', '')} · {payment.previousAmount}</Text>
+                </View>
+                <View style={styles.nextDue}>
+                  <Text style={styles.nextDueLabel}>NEXT DUE</Text>
+                  <Text style={styles.nextDueText}>{payment.nextTiming.replace('Due in ', '')}</Text>
+                </View>
+              </View>
+            ))}
+            <TouchableOpacity accessibilityRole="button" onPress={() => onSelectAction('bills')} style={styles.learnedAction}>
+              <Text style={styles.learnedActionText}>Review upcoming bills</Text>
+              <Ionicons name="arrow-forward" size={15} color={colors.greenDeep} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
             <Text accessibilityRole="header" style={styles.sectionTitle}>{activityMode === 'upcoming' ? 'Upcoming bills' : 'Paid recently'}</Text>
             <View style={styles.activityLabel}>
               <Ionicons name={activityMode === 'upcoming' ? 'calendar-outline' : 'time-outline'} size={15} color={colors.textSecondary} />
@@ -219,6 +266,21 @@ const styles = StyleSheet.create({
   movementSubtitle: { color: colors.textSecondary, fontSize: 10, lineHeight: 15 },
   movementAmount: { color: colors.text, fontSize: 11, fontFamily: font.headline.semibold },
   movementAmountPositive: { color: colors.greenDeep },
+  learnedHeading: { flex: 1, gap: 2 },
+  learnedHeadingIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.greenDim },
+  learnedCard: { overflow: 'hidden', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  learnedIntro: { paddingHorizontal: spacing.sm, paddingTop: spacing.sm, paddingBottom: spacing.xs, color: colors.textSecondary, fontSize: 10, lineHeight: 15 },
+  learnedRow: { flexDirection: 'row', alignItems: 'center', minHeight: 64, gap: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  lastLearnedRow: { borderBottomWidth: 0 },
+  learnedIcon: { width: 34, height: 34, borderRadius: radius.md, backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center' },
+  learnedCopy: { flex: 1, minWidth: 0 },
+  learnedMerchant: { color: colors.text, fontSize: 12, lineHeight: 17, fontFamily: font.headline.semibold },
+  learnedDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 15 },
+  nextDue: { minWidth: 66, alignItems: 'flex-end', gap: 2 },
+  nextDueLabel: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, letterSpacing: 0.4, fontFamily: font.body.bold },
+  nextDueText: { color: colors.text, fontSize: 10, lineHeight: 14, fontFamily: font.headline.semibold },
+  learnedAction: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+  learnedActionText: { color: colors.greenDeep, fontSize: 12, fontFamily: font.headline.semibold },
   activityLabel: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   activityLabelText: { color: colors.textSecondary, fontSize: 10 },
   segmentedControl: { flexDirection: 'row', gap: 4, padding: 4, marginBottom: spacing.sm, backgroundColor: colors.surfaceHigh, borderRadius: radius.md },

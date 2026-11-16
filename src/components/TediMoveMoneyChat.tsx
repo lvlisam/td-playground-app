@@ -115,7 +115,7 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
         </View>
         <View style={styles.demoTag}><Text style={styles.demoTagText}>DEMO</Text></View>
       </View>
-      <Text style={styles.question}>What do you need to take care of today?</Text>
+      <Text style={styles.question}>What do you need to do today?</Text>
 
       <ScrollView
         ref={scrollRef}
