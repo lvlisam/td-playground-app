@@ -372,6 +372,11 @@ export default function DashboardScreen() {
   const [accountView, setAccountView] = useState<AccountView>('personal');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
+  const heroGradientColors = accountView === 'business'
+    ? ['rgba(7,20,33,0.78)', 'rgba(7,20,33,0.5)', 'rgba(7,20,33,0.2)', 'rgba(246,247,244,0.82)']
+    : accountView === 'personal'
+      ? ['rgba(10,54,30,0.68)', 'rgba(10,54,30,0.42)', 'rgba(10,54,30,0.2)', 'rgba(246,247,244,0.82)']
+      : ['rgba(35,139,20,0.72)', 'rgba(35,139,20,0.46)', 'rgba(35,139,20,0.28)', 'rgba(246,247,244,0.82)'];
 
   return (
     <View style={styles.container}>
@@ -382,13 +387,17 @@ export default function DashboardScreen() {
       >
         <View style={[styles.hero, compact && styles.heroCompact]}>
           <Image
-            source={require('../../assets/td-family-hero.png')}
+            source={accountView === 'business'
+              ? require('../../assets/nyc-skyline.png')
+              : accountView === 'family'
+                ? require('../../assets/td-family-hero.png')
+                : require('../../assets/td-human-banking-hero.png')}
             resizeMode="cover"
             style={[StyleSheet.absoluteFill, styles.heroImage]}
             accessible={false}
           />
           <LinearGradient
-            colors={['rgba(35,139,20,0.72)', 'rgba(35,139,20,0.46)', 'rgba(35,139,20,0.28)', 'rgba(246,247,244,0.82)']}
+            colors={heroGradientColors}
             locations={[0, 0.44, 0.72, 1]}
             style={[StyleSheet.absoluteFill, styles.heroGradient]}
           />
