@@ -341,7 +341,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
     : upcomingBillPayments.reduce((total, bill) => total + parseDashboardAmount(bill.amount), 0);
   const netBalance = depositBalance - creditBalance;
   const availableAmount = Math.max(0, parseDashboardAmount(checkingAccount?.amount ?? '0') - creditBalance - plannedGoalContribution - upcomingBillsTotal);
-  const scores: Record<DashboardProfileId, number> = { jane: 82, james: 80, olivia: 91, noah: 88, family: 79, business: 76 };
+  const scores: Record<DashboardProfileId, number> = { jane: 82, james: 80, ava: 84, olivia: 91, noah: 88, family: 79, business: 76 };
   const score = scores[view];
   const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : profile.name;
   const accountLabel = isBusiness ? 'Business accounts' : isFamily ? 'Family accounts' : 'My accounts';

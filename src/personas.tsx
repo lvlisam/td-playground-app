@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-export type DashboardProfileId = 'jane' | 'james' | 'olivia' | 'noah' | 'family' | 'business';
+export type DashboardProfileId = 'jane' | 'james' | 'ava' | 'olivia' | 'noah' | 'family' | 'business';
 export type DashboardTediProfileType = 'individual' | 'household' | 'youth' | 'business';
 
 export function getDashboardTediProfileType(profileId: DashboardProfileId): DashboardTediProfileType {
@@ -37,7 +37,7 @@ export const householdPersonas: DashboardProfile[] = [
     relationship: 'You',
     detail: 'Family planner',
     need: 'Personal and household money, together.',
-    ageLabel: '36',
+    ageLabel: '48',
     contactName: 'Jane Williams',
     contactEmail: 'jane.williams@example.com',
     contactPhone: '+1 (416) 555-0101',
@@ -52,12 +52,27 @@ export const householdPersonas: DashboardProfile[] = [
     relationship: 'Husband',
     detail: 'Household co-planner',
     need: 'A clear view of his everyday accounts.',
-    ageLabel: '38',
+    ageLabel: '50',
     contactName: 'James Williams',
     contactEmail: 'james.williams@example.com',
     contactPhone: '+1 (416) 555-0102',
     tdRelationshipLength: '10 years',
     badge: 'Household',
+    icon: 'person-outline',
+  },
+  {
+    id: 'ava',
+    name: 'Ava',
+    initials: 'AV',
+    relationship: 'Daughter',
+    detail: 'Recent college graduate',
+    need: 'Build confidence with money after college.',
+    ageLabel: '24',
+    contactName: 'Ava Williams',
+    contactEmail: 'ava.williams@example.com',
+    contactPhone: '+1 (416) 555-0106',
+    tdRelationshipLength: '7 years',
+    badge: 'Graduate profile',
     icon: 'person-outline',
   },
   {
@@ -101,7 +116,7 @@ export const dashboardProfileOptions: DashboardProfile[] = [
     relationship: 'Shared household',
     detail: 'Joint balances and goals',
     need: 'Shared household finances.',
-    ageLabel: 'Household ages 12–38',
+    ageLabel: 'Household ages 12–50',
     contactName: 'Jane Williams (primary contact)',
     contactEmail: 'jane.williams@example.com',
     contactPhone: '+1 (416) 555-0101',
@@ -116,7 +131,7 @@ export const dashboardProfileOptions: DashboardProfile[] = [
     relationship: 'Jane’s business',
     detail: 'Business banking',
     need: 'A simpler view of business money.',
-    ageLabel: 'Owner age 36',
+    ageLabel: 'Owner age 48',
     contactName: 'Jane Williams',
     contactEmail: 'jane@northstarstudio.example.com',
     contactPhone: '+1 (416) 555-0105',

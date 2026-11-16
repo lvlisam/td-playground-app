@@ -184,9 +184,12 @@ export default function TabNavigator() {
       {showDeviceFrame && (
         <View style={styles.desktopPageHeader}>
           <View style={styles.desktopPageHeaderAccent} />
-          <Text accessibilityRole="header" style={styles.desktopPageHeaderTitle}>
-            TD Reimagined 2026 HCD Vision
-          </Text>
+          <View style={styles.desktopPageHeaderCopy}>
+            <Text accessibilityRole="header" style={styles.desktopPageHeaderTitle}>
+              TD Reimagined 2026 HCD Vision
+            </Text>
+            <Text style={styles.desktopPageHeaderTagline}>More simple. More helpful. More human.</Text>
+          </View>
         </View>
       )}
       <View style={showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
@@ -342,9 +345,11 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
   previewStage: { flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: 12, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: frameColors.stage },
-  desktopPageHeader: { width: '100%', maxWidth: 1180, minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, shadowColor: colors.text, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 1 },
-  desktopPageHeaderAccent: { width: 4, height: 26, borderRadius: 2, backgroundColor: colors.green },
-  desktopPageHeaderTitle: { flexShrink: 1, color: colors.text, fontSize: 18, lineHeight: 24, fontFamily: font.headline.bold },
+  desktopPageHeader: { width: '100%', maxWidth: 1180, minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 4 },
+  desktopPageHeaderAccent: { width: 4, height: 34, borderRadius: 2, backgroundColor: colors.green },
+  desktopPageHeaderCopy: { flex: 1, gap: 2 },
+  desktopPageHeaderTitle: { flexShrink: 1, color: colors.text, fontSize: 18, lineHeight: 22, fontFamily: font.headline.bold },
+  desktopPageHeaderTagline: { color: colors.textSecondary, fontSize: 12, lineHeight: 16, fontFamily: font.body.medium },
   desktopPreviewBody: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
   mobilePreviewBody: { flex: 1 },
   desktopMenu: { width: 184, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
