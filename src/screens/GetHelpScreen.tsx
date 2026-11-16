@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TediScreen from './TediScreen';
 import { colors, font, radius, spacing } from '../theme';
 
-type VisitMode = 'In branch' | 'Video' | 'Phone';
+type VisitMode = 'In store' | 'Video' | 'Phone';
 
 type AdviceNeed = {
   id: string;
@@ -51,9 +51,9 @@ const supportChannels: {
   {
     icon: 'location-outline',
     title: 'Meet in person',
-    detail: 'Choose a nearby branch and arrange time with an advisor.',
-    action: 'Find a branch',
-    visitMode: 'In branch',
+    detail: 'Choose a nearby store and arrange time with an advisor.',
+    action: 'Find a store',
+    visitMode: 'In store',
   },
 ];
 
@@ -87,18 +87,8 @@ export default function GetHelpScreen() {
         <View style={styles.header}>
           <Text style={styles.eyebrow}>HERE WHEN YOU NEED US</Text>
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Get help</Text>
-          <Text style={styles.subtitle}>Find an answer your way, or connect with an advisor who understands what matters to you.</Text>
         </View>
 
-        <View style={styles.tediIntro}>
-          <View style={styles.tediIcon}>
-            <Ionicons name="sparkles-outline" size={17} color={colors.greenDeep} />
-          </View>
-          <View style={styles.tediCopy}>
-            <Text style={styles.tediTitle}>Start with Tedi</Text>
-            <Text style={styles.bodyCopy}>Ask a question, explore your digital banking tools, or find the right next step.</Text>
-          </View>
-        </View>
         <TediScreen embedded />
 
         <View style={styles.adviceSection}>
@@ -157,7 +147,7 @@ export default function GetHelpScreen() {
               </View>
             ))}
           </View>
-          <Text style={styles.disclaimer}>Scheduling and branch details are illustrative previews. No appointment or support request is sent from this demo.</Text>
+          <Text style={styles.disclaimer}>Scheduling and store details are illustrative previews. No appointment or support request is sent from this demo.</Text>
         </View>
       </ScrollView>
     </View>
@@ -172,11 +162,6 @@ const styles = StyleSheet.create({
   eyebrow: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontWeight: font.weight.bold, letterSpacing: 0.8 },
   title: { color: colors.text, fontSize: 27, lineHeight: 33, fontFamily: font.headline.bold },
   titleCompact: { fontSize: 24, lineHeight: 30 },
-  subtitle: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
-  tediIntro: { flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 3 },
-  tediIcon: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.greenDim },
-  tediCopy: { flex: 1, gap: 2 },
-  tediTitle: { color: colors.text, fontSize: 16, lineHeight: 21, fontFamily: font.headline.semibold },
   bodyCopy: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
   adviceSection: { gap: 8, padding: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
   sectionEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold, letterSpacing: 0.8 },

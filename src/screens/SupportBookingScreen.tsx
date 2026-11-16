@@ -5,10 +5,10 @@ import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 
-type VisitMode = 'In branch' | 'Video' | 'Phone';
+type VisitMode = 'In store' | 'Video' | 'Phone';
 type SupportBookingRoute = RouteProp<{ 'Support & booking': { visitMode?: VisitMode; specialty?: string } }, 'Support & booking'>;
 
-const branches = [
+const stores = [
   { name: 'Downtown', wait: '8 min', address: '120 Broadway' },
   { name: 'Midtown', wait: '14 min', address: '350 Fifth Avenue' },
   { name: 'Queens Center', wait: '21 min', address: '90-15 Queens Blvd' },
@@ -24,8 +24,8 @@ export default function SupportBookingScreen() {
   const compact = width < 360;
   const topInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [supportRequested, setSupportRequested] = useState(false);
-  const [visitMode, setVisitMode] = useState<VisitMode>(route.params?.visitMode ?? 'In branch');
-  const [selectedBranch, setSelectedBranch] = useState(branches[0].name);
+  const [visitMode, setVisitMode] = useState<VisitMode>(route.params?.visitMode ?? 'In store');
+  const [selectedStore, setSelectedStore] = useState(stores[0].name);
   const [selectedSpecialty, setSelectedSpecialty] = useState(
     route.params?.specialty && specialties.includes(route.params.specialty) ? route.params.specialty : specialties[0],
   );
@@ -75,7 +75,7 @@ export default function SupportBookingScreen() {
         <View style={styles.card}>
           <Text style={styles.fieldLabel}>MEETING TYPE</Text>
           <View style={styles.choiceRow}>
-            {(['In branch', 'Video', 'Phone'] as const).map((mode) => (
+            {(['In store', 'Video', 'Phone'] as const).map((mode) => (
               <TouchableOpacity key={mode} accessibilityRole="button" accessibilityState={{ selected: visitMode === mode }} onPress={() => setVisitMode(mode)} style={[styles.choiceChip, visitMode === mode && styles.choiceChipActive]}>
                 <Text style={[styles.choiceText, visitMode === mode && styles.choiceTextActive]}>{mode}</Text>
               </TouchableOpacity>
@@ -100,22 +100,22 @@ export default function SupportBookingScreen() {
             ))}
           </View>
 
-          {visitMode === 'In branch' ? (
+          {visitMode === 'In store' ? (
             <>
-              <View style={styles.branchHeading}>
-                <Text style={styles.fieldLabel}>NEARBY BRANCHES</Text>
+              <View style={styles.storeHeading}>
+                <Text style={styles.fieldLabel}>NEARBY STORES</Text>
                 <Text style={styles.waitLegend}>Live wait · sample</Text>
               </View>
-              {branches.map((branch) => {
-                const selected = selectedBranch === branch.name;
+              {stores.map((store) => {
+                const selected = selectedStore === store.name;
                 return (
-                  <TouchableOpacity key={branch.name} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => setSelectedBranch(branch.name)} style={[styles.branchRow, selected && styles.branchRowSelected]}>
-                    <View style={styles.branchIcon}><Ionicons name="location-outline" size={18} color={colors.greenDeep} /></View>
-                    <View style={styles.branchCopy}>
-                      <Text style={styles.branchName}>{branch.name}</Text>
-                      <Text style={styles.branchAddress}>{branch.address}</Text>
+                  <TouchableOpacity key={store.name} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => setSelectedStore(store.name)} style={[styles.storeRow, selected && styles.storeRowSelected]}>
+                    <View style={styles.storeIcon}><Ionicons name="location-outline" size={18} color={colors.greenDeep} /></View>
+                    <View style={styles.storeCopy}>
+                      <Text style={styles.storeName}>{store.name}</Text>
+                      <Text style={styles.storeAddress}>{store.address}</Text>
                     </View>
-                    <View style={styles.waitTime}><Text style={styles.waitValue}>{branch.wait}</Text><Text style={styles.waitLabel}>wait</Text></View>
+                    <View style={styles.waitTime}><Text style={styles.waitValue}>{store.wait}</Text><Text style={styles.waitLabel}>wait</Text></View>
                   </TouchableOpacity>
                 );
               })}
@@ -154,10 +154,10 @@ export default function SupportBookingScreen() {
           {bookingConfirmed ? (
             <View accessibilityLiveRegion="polite" style={styles.confirmation}>
               <Ionicons name="checkmark-circle" size={18} color={colors.greenDeep} />
-              <Text style={styles.confirmationText}>Preview only: {visitMode.toLowerCase()} with {selectedLanguage === 'English' ? 'an' : 'a'} {selectedLanguage}-speaking {selectedSpecialty.toLowerCase()}{visitMode === 'In branch' ? ` at ${selectedBranch}` : ''}. No real appointment was booked.</Text>
+              <Text style={styles.confirmationText}>Preview only: {visitMode.toLowerCase()} with {selectedLanguage === 'English' ? 'an' : 'a'} {selectedLanguage}-speaking {selectedSpecialty.toLowerCase()}{visitMode === 'In store' ? ` at ${selectedStore}` : ''}. No real appointment was booked.</Text>
             </View>
           ) : null}
-          <Text style={styles.disclaimer}>Sample branch hours and wait times are illustrative and may not reflect actual availability.</Text>
+          <Text style={styles.disclaimer}>Sample store hours and wait times are illustrative and may not reflect actual availability.</Text>
         </View>
       </ScrollView>
     </View>
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   choiceChipActive: { borderColor: colors.greenDeep, backgroundColor: colors.greenDim },
   choiceText: { color: colors.textSecondary, fontSize: 11, fontWeight: font.weight.medium },
   choiceTextActive: { color: colors.greenDeep, fontWeight: font.weight.bold },
-  branchHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  storeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   waitLegend: { color: colors.textTertiary, fontSize: 10 },
-  branchRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 8, borderWidth: 1, borderColor: colors.borderFaint, borderRadius: radius.md },
-  branchRowSelected: { borderColor: colors.greenDeep, backgroundColor: colors.greenDim },
-  branchIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 11, backgroundColor: colors.surfaceHigh },
-  branchCopy: { flex: 1, minWidth: 0 },
-  branchName: { color: colors.text, fontSize: 13, fontFamily: font.headline.semibold },
-  branchAddress: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  storeRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 8, borderWidth: 1, borderColor: colors.borderFaint, borderRadius: radius.md },
+  storeRowSelected: { borderColor: colors.greenDeep, backgroundColor: colors.greenDim },
+  storeIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 11, backgroundColor: colors.surfaceHigh },
+  storeCopy: { flex: 1, minWidth: 0 },
+  storeName: { color: colors.text, fontSize: 13, fontFamily: font.headline.semibold },
+  storeAddress: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
   waitTime: { alignItems: 'flex-end' },
   waitValue: { color: colors.greenDeep, fontSize: 13, fontFamily: font.headline.bold },
   waitLabel: { color: colors.textSecondary, fontSize: 9 },

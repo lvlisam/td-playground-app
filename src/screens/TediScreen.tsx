@@ -21,14 +21,14 @@ type TediChatMessage = {
   confirmationKind?: 'transfer' | 'freeze';
 };
 
-const quickPrompts = ['Show my spending', 'Move money', 'Talk to a person', 'Book a branch visit', 'Explore benefits', 'Manage my card'];
+const quickPrompts = ['Show my spending', 'Move money', 'Talk to a person', 'Book a store visit', 'Explore benefits', 'Manage my card'];
 
 function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
   const input = message.toLowerCase();
 
-  if (/human|person|specialist|support|banker|branch|appointment|meeting/.test(input)) {
+  if (/human|person|specialist|support|banker|store|appointment|meeting/.test(input)) {
     return {
-      text: 'I can help you connect with a specialist, review sample branch wait times, and prepare for your conversation.',
+      text: 'I can help you connect with a specialist, review sample store wait times, and prepare for your conversation.',
       action: { label: 'Open support & booking', destination: 'Support & booking' },
     };
   }

@@ -59,8 +59,8 @@ export default function TediInsightsCard({
           <Ionicons name="sparkles-outline" size={18} color={colors.greenDeep} />
         </View>
         <View style={styles.headingCopy}>
-          <Text style={styles.eyebrow}>TEDI INSIGHTS</Text>
-          <Text accessibilityRole="header" style={styles.title}>A practical next step</Text>
+          <Text style={styles.eyebrow}>Tedi</Text>
+          <Text accessibilityRole="header" style={styles.title}>Insights</Text>
         </View>
       </View>
 
