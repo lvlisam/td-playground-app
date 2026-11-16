@@ -19,6 +19,8 @@ import CreditAndBillsSection from '../components/CreditAndBillsSection';
 import { useAccounts } from '../accounts';
 import type { Account } from '../accounts';
 import { upcomingBillPayments } from '../financeData';
+import { dashboardProfileOptions, useDashboardProfile } from '../personas';
+import type { DashboardProfileId } from '../personas';
 
 const palette = {
   background: colors.bg,
@@ -55,7 +57,6 @@ const recentTransactions = [
   },
 ] as const;
 
-type AccountView = 'personal' | 'family' | 'business';
 type DashboardAccount = Omit<Account, 'id'> & { id: string };
 type DashboardTransaction = {
   id: string;
@@ -121,9 +122,9 @@ const familyAccounts: DashboardAccount[] = [
   { id: 'family-checking', name: 'Shared household', productLabel: 'Family checking', detail: '•••• 2846', amount: '$12,480.30', amountLabel: 'Available balance', note: 'Shared household spending', swatch: colors.green, plan: null },
   { id: 'family-savings', name: 'Family goals', productLabel: 'Family savings', detail: '•••• 7451 · 4.25% APY', amount: '$41,500.00', amountLabel: 'Current balance', note: 'Home and travel goals', swatch: colors.green, plan: null },
   { id: 'family-card', name: 'Household rewards', productLabel: 'Family credit card', detail: '$9,850.00 available', amount: '−$628.45', amountLabel: 'Current balance', note: 'Shared purchases', swatch: colors.text, plan: null },
-  { id: 'family-husband-checking', name: 'Husband’s checking', productLabel: 'Personal checking', detail: '•••• 6318', amount: '$5,240.15', amountLabel: 'Available balance', note: 'Personal spending', swatch: colors.green, plan: null },
-  { id: 'family-child-one-savings', name: 'Child 1’s savings', productLabel: 'Youth savings', detail: '•••• 3920 · 4.25% APY', amount: '$1,250.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
-  { id: 'family-child-two-savings', name: 'Child 2’s savings', productLabel: 'Youth savings', detail: '•••• 7143 · 4.25% APY', amount: '$980.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
+  { id: 'family-husband-checking', name: 'James’s checking', productLabel: 'Personal checking', detail: '•••• 6318', amount: '$5,240.15', amountLabel: 'Available balance', note: 'Personal spending', swatch: colors.green, plan: null },
+  { id: 'family-child-one-savings', name: 'Olivia’s savings', productLabel: 'Youth savings', detail: '•••• 3920 · 4.25% APY', amount: '$1,250.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
+  { id: 'family-child-two-savings', name: 'Noah’s savings', productLabel: 'Youth savings', detail: '•••• 7143 · 4.25% APY', amount: '$980.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
 ];
 
 const familyTransactions: DashboardTransaction[] = [
@@ -132,13 +133,48 @@ const familyTransactions: DashboardTransaction[] = [
   { id: 'family-transfer', merchant: 'Monthly contribution', category: 'Savings · Family goals', time: 'Nov 18, 9:00 AM', amount: '+$450.00', logo: { mark: 'FG', background: colors.greenDim, foreground: colors.greenDeep } },
 ];
 
+const jamesAccounts: DashboardAccount[] = [
+  { id: 'james-checking', name: 'TD Convenience Checking', productLabel: 'Personal checking', detail: '•••• 6318', amount: '$5,240.15', amountLabel: 'Available balance', note: 'Everyday spending', swatch: colors.green, plan: null },
+  { id: 'james-savings', name: 'TD Growth Savings', productLabel: 'Personal savings', detail: '•••• 2054 · 3.75% APY', amount: '$18,600.00', amountLabel: 'Current balance', note: 'Emergency fund', swatch: colors.green, plan: null },
+  { id: 'james-card', name: 'TD Cash Credit Card', productLabel: 'Personal credit card', detail: '$7,500.00 available', amount: '−$925.50', amountLabel: 'Current balance', note: 'Cash back rewards', swatch: colors.text, plan: null },
+];
+
+const oliviaAccounts: DashboardAccount[] = [
+  { id: 'olivia-checking', name: 'TD Youth Checking', productLabel: 'Youth checking', detail: '•••• 3920', amount: '$284.75', amountLabel: 'Available balance', note: 'Allowance and spending', swatch: colors.green, plan: null },
+  { id: 'olivia-savings', name: 'TD Youth Savings', productLabel: 'Youth savings', detail: '•••• 6341 · 4.25% APY', amount: '$1,250.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
+];
+
+const noahAccounts: DashboardAccount[] = [
+  { id: 'noah-checking', name: 'TD Youth Checking', productLabel: 'Youth checking', detail: '•••• 7143', amount: '$168.20', amountLabel: 'Available balance', note: 'Allowance and spending', swatch: colors.green, plan: null },
+  { id: 'noah-savings', name: 'TD Youth Savings', productLabel: 'Youth savings', detail: '•••• 9480 · 4.25% APY', amount: '$980.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
+];
+
+const jamesTransactions: DashboardTransaction[] = [
+  { id: 'james-payroll', merchant: 'Payroll deposit', category: 'Income · Checking', time: 'Today, 8:42 AM', amount: '+$2,860.00', logo: { mark: 'PAY', background: colors.greenDim, foreground: colors.greenDeep } },
+  { id: 'james-coffee', merchant: 'Northside Coffee', category: 'Dining · TD Debit', time: 'Today, 7:58 AM', amount: '−$6.75', logo: { mark: 'NC', background: colors.orangeDim, foreground: colors.orange } },
+  { id: 'james-card-payment', merchant: 'Card payment', category: 'Credit · Checking', time: 'Yesterday, 3:10 PM', amount: '−$125.00', logo: { mark: 'TD', background: colors.blueDim, foreground: colors.teal } },
+];
+
+const oliviaTransactions: DashboardTransaction[] = [
+  { id: 'olivia-bookstore', merchant: 'Campus Bookstore', category: 'School · Youth Checking', time: 'Today, 11:20 AM', amount: '−$18.50', logo: { mark: 'CB', background: colors.purpleDim, foreground: colors.purple } },
+  { id: 'olivia-allowance', merchant: 'Weekly allowance', category: 'Transfer · Youth Checking', time: 'Today, 8:00 AM', amount: '+$25.00', logo: { mark: 'AL', background: colors.greenDim, foreground: colors.greenDeep } },
+  { id: 'olivia-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$10.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
+];
+
+const noahTransactions: DashboardTransaction[] = [
+  { id: 'noah-sports', merchant: 'Sports club', category: 'Activities · Youth Checking', time: 'Today, 9:30 AM', amount: '−$12.00', logo: { mark: 'SC', background: colors.orangeDim, foreground: colors.orange } },
+  { id: 'noah-allowance', merchant: 'Weekly allowance', category: 'Transfer · Youth Checking', time: 'Today, 8:00 AM', amount: '+$20.00', logo: { mark: 'AL', background: colors.greenDim, foreground: colors.greenDeep } },
+  { id: 'noah-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$5.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
+];
+
 function AccountRow({ account, last, compact }: { account: DashboardAccount; last: boolean; compact: boolean }) {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const accessibilityLabel = `${account.name}, ${account.amount}. ${account.detail}${account.note ? `. ${account.note}` : ''}`;
   const rowStyle = [styles.accountRow, compact && styles.accountRowCompact, !last && styles.accountDivider];
   const isBusinessAccount = account.id.startsWith('business-');
   const isFamilyAccount = account.id.startsWith('family-');
-  const isStaticAccount = isBusinessAccount || isFamilyAccount;
+  const isHouseholdMemberAccount = ['james-', 'olivia-', 'noah-'].some((prefix) => account.id.startsWith(prefix));
+  const isStaticAccount = isBusinessAccount || isFamilyAccount || isHouseholdMemberAccount;
   const isCreditAccount = account.id.endsWith('card');
   const content = (
     <>
@@ -200,19 +236,29 @@ function RecentTransactionRow({ transaction, compact, last }: {
   );
 }
 
-function RecentTransactionsSection({ compact, view }: { compact: boolean; view: AccountView }) {
+function RecentTransactionsSection({ compact, view }: { compact: boolean; view: DashboardProfileId }) {
+  const profile = dashboardProfileOptions.find((option) => option.id === view) ?? dashboardProfileOptions[0];
   const transactions = view === 'business'
     ? businessTransactions
     : view === 'family'
       ? familyTransactions
-      : recentTransactions;
+      : view === 'james'
+        ? jamesTransactions
+        : view === 'olivia'
+          ? oliviaTransactions
+          : view === 'noah'
+            ? noahTransactions
+            : recentTransactions;
+  const heading = view === 'business'
+    ? 'Recent business activity'
+    : view === 'family'
+      ? 'Recent family activity'
+      : `Recent activity for ${profile.name}`;
 
   return (
     <View style={[styles.recentTransactionsCard, compact && styles.recentTransactionsCardCompact]}>
       <View style={styles.recentTransactionsHeading}>
-        <Text accessibilityRole="header" style={styles.recentTransactionsTitle}>
-          {view === 'business' ? 'Recent business activity' : view === 'family' ? 'Recent family activity' : 'Recent transactions'}
-        </Text>
+        <Text accessibilityRole="header" style={styles.recentTransactionsTitle}>{heading}</Text>
         <Text style={styles.recentTransactionsSubtitle}>Latest activity</Text>
       </View>
       {transactions.map((transaction, index) => (
@@ -227,40 +273,65 @@ function RecentTransactionsSection({ compact, view }: { compact: boolean; view: 
   );
 }
 
-function FinancialHealthCard({ compact, view }: { compact: boolean; view: AccountView }) {
+function FinancialHealthCard({ compact, view }: { compact: boolean; view: DashboardProfileId }) {
   const [accountsExpanded, setAccountsExpanded] = useState(false);
   const { accounts } = useAccounts();
+  const profile = dashboardProfileOptions.find((option) => option.id === view) ?? dashboardProfileOptions[0];
   const isBusiness = view === 'business';
   const isFamily = view === 'family';
+  const isChildProfile = view === 'olivia' || view === 'noah';
   const visibleAccounts: DashboardAccount[] = isBusiness
     ? businessAccounts
     : isFamily
       ? familyAccounts
-      : accounts;
+      : view === 'james'
+        ? jamesAccounts
+        : view === 'olivia'
+          ? oliviaAccounts
+          : view === 'noah'
+            ? noahAccounts
+            : accounts;
   const creditAccount = visibleAccounts.find((account) => account.id.endsWith('card'));
   const checkingAccount = visibleAccounts.find((account) => account.id.endsWith('checking'));
-  const savingsGoal = view === 'personal' ? accounts.find((account) => account.id === 'savings')?.plan : null;
+  const savingsGoal = view === 'jane' ? accounts.find((account) => account.id === 'savings')?.plan : null;
   const creditBalance = Math.abs(parseDashboardAmount(creditAccount?.amount ?? '0'));
   const depositBalance = visibleAccounts
     .filter((account) => !account.id.endsWith('card'))
     .reduce((total, account) => total + parseDashboardAmount(account.amount), 0);
-  const plannedGoalContribution = savingsGoal?.kind === 'savings-goal' ? savingsGoal.monthlyContribution : isFamily ? 450 : 0;
-  const upcomingBillsTotal = isBusiness
+  const plannedGoalContribution = savingsGoal?.kind === 'savings-goal'
+    ? savingsGoal.monthlyContribution
+    : isFamily
+      ? 450
+      : view === 'olivia'
+        ? 50
+        : view === 'noah'
+          ? 35
+          : 0;
+  const upcomingBillsTotal = isBusiness || isChildProfile
     ? 0
     : upcomingBillPayments.reduce((total, bill) => total + parseDashboardAmount(bill.amount), 0);
   const netBalance = depositBalance - creditBalance;
   const availableAmount = Math.max(0, parseDashboardAmount(checkingAccount?.amount ?? '0') - creditBalance - plannedGoalContribution - upcomingBillsTotal);
-  const score = isBusiness ? 76 : isFamily ? 79 : 82;
-  const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : 'Your Financial Snapshot';
-  const accountLabel = isBusiness ? 'Business accounts' : isFamily ? 'Family accounts' : 'Personal accounts';
+  const scores: Record<DashboardProfileId, number> = { jane: 82, james: 80, olivia: 91, noah: 88, family: 79, business: 76 };
+  const score = scores[view];
+  const viewLabel = isBusiness ? 'Business' : isFamily ? 'Family' : `${profile.name}’s financial snapshot`;
+  const accountLabel = isBusiness ? 'Business accounts' : isFamily ? 'Family accounts' : `${profile.name}’s accounts`;
+  const cardTitle = isBusiness
+    ? 'Business overview'
+    : isFamily
+      ? 'Family finances'
+      : view === 'olivia'
+        ? `${profile.name}’s teen banking`
+        : view === 'noah'
+          ? `${profile.name}’s youth banking`
+          : `${profile.name}’s Financial Snapshot`;
+  const savingsThisMonth = isBusiness ? '+$1,200' : isFamily ? '+$450' : view === 'james' ? '+$310' : view === 'olivia' ? '+$50' : view === 'noah' ? '+$35' : '+$240';
 
   return (
     <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
       <View style={styles.healthSummary}>
         <View style={styles.healthHeader}>
-          <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>
-            {isBusiness ? 'Business overview' : isFamily ? 'Family finances' : 'Your Financial Snapshot'}
-          </Text>
+          <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
         </View>
         <View style={styles.healthMeterRow}>
           <View accessibilityLabel={`${viewLabel} score: ${score} percent`} style={styles.healthMeterTrack}>
@@ -273,27 +344,25 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Accoun
       </View>
       <View style={styles.totalBalanceRow}>
         <View style={styles.totalBalanceCopy}>
-          <Text style={styles.totalBalanceLabel}>NET AFTER CREDIT</Text>
+          <Text style={styles.totalBalanceLabel}>{isChildProfile ? 'TOTAL SAVINGS + SPENDING' : 'NET AFTER CREDIT'}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>
             {formatDashboardCurrency(netBalance)}
           </Text>
         </View>
         <View style={styles.totalBalanceIcon}>
-          <Ionicons name={isBusiness ? 'briefcase-outline' : 'wallet-outline'} size={20} color={colors.greenDeep} />
+          <Ionicons name={isBusiness ? 'briefcase-outline' : isFamily ? 'people-outline' : 'wallet-outline'} size={20} color={colors.greenDeep} />
         </View>
       </View>
       <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
         <View style={styles.healthMetricTile}>
-          <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : 'LEFT BEFORE PAYDAY'}</Text>
+          <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : isChildProfile ? 'SPENDING ACCOUNT' : 'LEFT BEFORE PAYDAY'}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
             {formatDashboardCurrency(availableAmount)}
           </Text>
         </View>
         <View style={styles.healthMetricTile}>
           <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
-            {isBusiness ? '+$1,200' : isFamily ? '+$450' : '+$240'}
-          </Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{savingsThisMonth}</Text>
         </View>
       </View>
       <View style={styles.healthDivider} />
@@ -323,25 +392,19 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Accoun
 }
 
 function DashboardProfileMenu({ view, onChange, compact }: {
-  view: AccountView;
-  onChange: (view: AccountView) => void;
+  view: DashboardProfileId;
+  onChange: (view: DashboardProfileId) => void;
   compact: boolean;
 }) {
-  const options = [
-    { id: 'personal' as const, label: 'Ava', detail: 'Personal banking', icon: 'person-outline' as const },
-    { id: 'family' as const, label: 'Family', detail: 'Shared household finances', icon: 'people-outline' as const },
-    { id: 'business' as const, label: 'Small business', detail: 'Ava’s business banking', icon: 'briefcase-outline' as const },
-  ];
-
   return (
     <View accessibilityRole="menu" accessibilityLabel="Choose a banking profile" style={[styles.profileMenu, compact && styles.profileMenuCompact]}>
-      {options.map((option) => {
+      {dashboardProfileOptions.map((option) => {
         const selected = view === option.id;
         return (
           <TouchableOpacity
             key={option.id}
             accessibilityRole="menuitem"
-            accessibilityLabel={`${option.label}${selected ? ', selected' : ''}`}
+            accessibilityLabel={`${option.name}${selected ? ', selected' : ''}`}
             accessibilityState={{ selected }}
             onPress={() => onChange(option.id)}
             style={styles.profileMenuOption}
@@ -350,7 +413,7 @@ function DashboardProfileMenu({ view, onChange, compact }: {
               <Ionicons name={option.icon} size={16} color={selected ? colors.greenDeep : colors.textSecondary} />
             </View>
             <View style={styles.profileMenuCopy}>
-              <Text style={[styles.profileMenuTitle, selected && styles.profileMenuTitleSelected]}>{option.label}</Text>
+              <Text style={[styles.profileMenuTitle, selected && styles.profileMenuTitleSelected]}>{option.name}</Text>
               <Text style={styles.profileMenuDetail}>{option.detail}</Text>
             </View>
             {selected ? <Ionicons name="checkmark-circle" size={18} color={colors.greenDeep} /> : null}
@@ -369,29 +432,68 @@ export default function DashboardScreen() {
     ? Math.min(390, width - 32, (height - 32) * 0.47)
     : width;
   const compact = previewDeviceWidth < 360;
-  const [accountView, setAccountView] = useState<AccountView>('personal');
+  const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
-  const heroGradientColors = accountView === 'business'
+  const heroGradientColors = activeProfileId === 'business'
     ? ['rgba(7,20,33,0.78)', 'rgba(7,20,33,0.5)', 'rgba(7,20,33,0.2)', 'rgba(246,247,244,0.82)']
-    : accountView === 'personal'
+    : activeProfileId === 'jane' || activeProfileId === 'james'
       ? ['rgba(10,54,30,0.68)', 'rgba(10,54,30,0.42)', 'rgba(10,54,30,0.2)', 'rgba(246,247,244,0.82)']
-      : ['rgba(35,139,20,0.72)', 'rgba(35,139,20,0.46)', 'rgba(35,139,20,0.28)', 'rgba(246,247,244,0.82)'];
+      : activeProfileId === 'olivia'
+        ? ['rgba(8,42,34,0.78)', 'rgba(14,86,57,0.52)', 'rgba(22,108,64,0.28)', 'rgba(246,247,244,0.82)']
+        : activeProfileId === 'noah'
+          ? ['rgba(10,45,65,0.76)', 'rgba(18,83,80,0.54)', 'rgba(32,123,89,0.3)', 'rgba(246,247,244,0.82)']
+          : ['rgba(35,139,20,0.72)', 'rgba(35,139,20,0.46)', 'rgba(35,139,20,0.28)', 'rgba(246,247,244,0.82)'];
+  const heroImage = activeProfileId === 'business'
+    ? require('../../assets/nyc-skyline.png')
+    : activeProfileId === 'olivia'
+      ? require('../../assets/olivia-youth-hero.png')
+      : activeProfileId === 'noah'
+        ? require('../../assets/noah-youth-hero.png')
+        : activeProfileId === 'family'
+          ? require('../../assets/td-family-hero.png')
+          : require('../../assets/td-human-banking-hero.png');
+  const offerEyebrow = activeProfileId === 'business'
+    ? 'BUSINESS BANKING'
+    : activeProfileId === 'family'
+      ? 'FAMILY BANKING'
+      : activeProfileId === 'olivia'
+        ? 'TEEN BANKING'
+        : activeProfileId === 'noah'
+          ? 'YOUNG SAVER'
+          : `MADE FOR ${activeProfile.name.toUpperCase()}`;
+  const offerTitle = activeProfileId === 'business'
+    ? 'More time for your business'
+    : activeProfileId === 'family'
+      ? 'Plans for the whole household'
+      : activeProfileId === 'olivia'
+        ? 'Build confidence with money'
+        : activeProfileId === 'noah'
+          ? 'Save for something awesome'
+          : 'A little more room to grow';
+  const offerDescription = activeProfileId === 'business'
+    ? 'Explore tools to streamline your everyday banking.'
+    : activeProfileId === 'family'
+      ? 'See shared balances and family goals in one view.'
+      : activeProfileId === 'olivia'
+        ? 'Take the next step toward goals that are yours.'
+        : activeProfileId === 'noah'
+          ? 'Turn allowance into a goal you can watch grow.'
+          : 'Explore ways to make your savings go further.';
+  const profileHoverHandlers = Platform.OS === 'web'
+    ? { onMouseEnter: () => setProfileMenuOpen(true), onMouseLeave: () => setProfileMenuOpen(false) }
+    : {};
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 78 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 128 }}
       >
         <View style={[styles.hero, compact && styles.heroCompact]}>
           <Image
-            source={accountView === 'business'
-              ? require('../../assets/nyc-skyline.png')
-              : accountView === 'family'
-                ? require('../../assets/td-family-hero.png')
-                : require('../../assets/td-human-banking-hero.png')}
+            source={heroImage}
             resizeMode="cover"
             style={[StyleSheet.absoluteFill, styles.heroImage]}
             accessible={false}
@@ -403,96 +505,96 @@ export default function DashboardScreen() {
           />
           <View style={[styles.heroForeground, compact && styles.heroForegroundCompact, { paddingTop: previewTopInset + (compact ? 2 : 8) }]}>
             <View style={[styles.topBar, compact && styles.topBarCompact]}>
-              <View style={[styles.identity, compact && styles.identityCompact]}>
-                <View>
-                  <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
-                  <View style={[styles.profileHeaderRow, compact && styles.profileHeaderRowCompact]}>
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      accessibilityLabel="Open Ava’s account settings"
-                      accessibilityHint="Opens account settings"
-                      onPress={() => navigation.navigate('Account settings')}
-                      style={styles.avatarSettingsButton}
-                    >
-                      <Image
-                        source={require('../../assets/maya-avatar.png')}
-                        style={[styles.customerAvatar, compact && styles.customerAvatarCompact]}
-                        resizeMode="cover"
-                        accessible={false}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      accessibilityLabel={`Ava, ${accountView} view`}
-                      accessibilityHint={profileMenuOpen ? 'Closes banking views' : 'Opens banking views'}
-                      accessibilityState={{ expanded: profileMenuOpen }}
-                      onPress={() => setProfileMenuOpen((open) => !open)}
-                      style={styles.customerProfileButton}
-                    >
-                      <Text style={[styles.customerName, compact && styles.customerNameCompact]}>Ava</Text>
-                      <Ionicons name={profileMenuOpen ? 'chevron-up' : 'chevron-down'} size={15} color={colors.white} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      accessibilityLabel="TD Select relationship tier. View benefits"
-                      accessibilityHint="Opens your TD relationship benefits"
-                      hitSlop={8}
-                      onPress={() => navigation.navigate('Benefits')}
-                      style={[styles.relationshipBadge, compact && styles.relationshipBadgeCompact]}
-                    >
-                      <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.white} />
-                      <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>TD Select</Text>
-                      <Ionicons name="chevron-forward" size={9} color={colors.white} />
-                    </TouchableOpacity>
+              <View
+                {...profileHoverHandlers}
+                style={[styles.identity, compact && styles.identityCompact]}
+              >
+                <View style={styles.profileSwitcherAnchor}>
+                  <View>
+                    <Text style={[styles.greeting, compact && styles.greetingCompact]}>Good afternoon,</Text>
+                    <View style={[styles.profileHeaderRow, compact && styles.profileHeaderRowCompact]}>
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open ${activeProfile.name}’s account settings`}
+                        accessibilityHint="Opens account settings"
+                        onPress={() => navigation.navigate('Account settings')}
+                        style={styles.avatarSettingsButton}
+                      >
+                        <View style={[styles.customerAvatar, compact && styles.customerAvatarCompact]} accessible={false}>
+                          <Text style={styles.customerAvatarInitials}>{activeProfile.initials}</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship} view`}
+                        accessibilityHint={profileMenuOpen ? 'Choose a banking profile' : 'Opens banking profiles'}
+                        accessibilityState={{ expanded: profileMenuOpen }}
+                        onPress={() => setProfileMenuOpen((open) => !open)}
+                        style={styles.customerProfileButton}
+                      >
+                        <Text style={[styles.customerName, compact && styles.customerNameCompact]}>{activeProfile.name}</Text>
+                        <Ionicons name={profileMenuOpen ? 'chevron-up' : 'chevron-down'} size={15} color={colors.white} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`${activeProfile.badge} relationship tier. View benefits`}
+                        accessibilityHint="Opens relationship benefits"
+                        hitSlop={8}
+                        onPress={() => navigation.navigate('Benefits')}
+                        style={[styles.relationshipBadge, compact && styles.relationshipBadgeCompact]}
+                      >
+                        <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.white} />
+                        <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>{activeProfile.badge}</Text>
+                        <Ionicons name="chevron-forward" size={9} color={colors.white} />
+                      </TouchableOpacity>
+                    </View>
                   </View>
+                  {profileMenuOpen ? (
+                    <DashboardProfileMenu
+                      view={activeProfileId}
+                      onChange={(profileId) => {
+                        selectProfile(profileId);
+                        setProfileMenuOpen(false);
+                      }}
+                      compact={compact}
+                    />
+                  ) : null}
                 </View>
               </View>
-            <View style={[styles.topActions, compact && styles.topActionsCompact]}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Notifications, 3 unread"
-                accessibilityHint="Opens recent alerts and account activity"
-                onPress={() => navigation.navigate('Notifications')}
-                style={[styles.notificationButton, compact && styles.notificationButtonCompact]}
-              >
-                <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.white} />
-                <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
-              </TouchableOpacity>
+              <View style={[styles.topActions, compact && styles.topActionsCompact]}>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Notifications, 3 unread"
+                  accessibilityHint="Opens recent alerts and account activity"
+                  onPress={() => navigation.navigate('Notifications')}
+                  style={[styles.notificationButton, compact && styles.notificationButtonCompact]}
+                >
+                  <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.white} />
+                  <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          {profileMenuOpen ? (
-            <DashboardProfileMenu
-              view={accountView}
-              onChange={(view) => {
-                setAccountView(view);
-                setProfileMenuOpen(false);
-              }}
-              compact={compact}
-            />
-          ) : null}
           </View>
         </View>
 
-        <FinancialHealthCard compact={compact} view={accountView} />
-        {accountView === 'family' ? <CreditAndBillsSection compact={compact} /> : null}
-        <RecentTransactionsSection compact={compact} view={accountView} />
+        <FinancialHealthCard compact={compact} view={activeProfileId} />
+        {activeProfileId === 'family' ? <CreditAndBillsSection compact={compact} /> : null}
+        <RecentTransactionsSection compact={compact} view={activeProfileId} />
 
         <View style={[styles.content, compact && styles.contentCompact]}>
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
-              <Text style={styles.offersTitle}>{accountView === 'business' ? 'TD for your business' : accountView === 'family' ? 'TD for your family' : 'TD for you'}</Text>
+              <Text style={styles.offersTitle}>{activeProfileId === 'business' ? 'TD for your business' : activeProfileId === 'family' ? 'TD for your family' : activeProfileId === 'olivia' || activeProfileId === 'noah' ? 'TD for young people' : `TD for ${activeProfile.name}`}</Text>
             </View>
             <Text style={styles.offerCount}>3 offers · swipe</Text>
           </View>
           <TouchableOpacity accessibilityRole="button" style={styles.offerCard}>
-            <View style={styles.offerIcon}><Ionicons name="leaf-outline" size={22} color={palette.green} /></View>
+            <View style={styles.offerIcon}><Ionicons name={activeProfileId === 'olivia' ? 'compass-outline' : activeProfileId === 'noah' ? 'football-outline' : 'leaf-outline'} size={22} color={palette.green} /></View>
             <View style={styles.offerCopy}>
-              <Text style={styles.offerEyebrow}>{accountView === 'business' ? 'BUSINESS BANKING' : accountView === 'family' ? 'FAMILY BANKING' : 'MADE FOR AVA'}</Text>
-              <Text style={styles.offerTitle}>{accountView === 'business' ? 'More time for your business' : accountView === 'family' ? 'Plans for the whole household' : 'A little more room to grow'}</Text>
-              <Text style={styles.offerDescription}>
-                {accountView === 'business' ? 'Explore tools to streamline your everyday banking.' : accountView === 'family' ? 'See shared balances and family goals in one view.' : 'Explore ways to make your savings go further.'}
-              </Text>
+              <Text style={styles.offerEyebrow}>{offerEyebrow}</Text>
+              <Text style={styles.offerTitle}>{offerTitle}</Text>
+              <Text style={styles.offerDescription}>{offerDescription}</Text>
             </View>
             <Ionicons name="chevron-forward" size={17} color="rgba(28,28,28,0.58)" />
           </TouchableOpacity>
@@ -505,7 +607,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
-  hero: { minHeight: 172, position: 'relative', overflow: 'hidden' },
+  hero: { minHeight: 172, position: 'relative', overflow: 'visible', zIndex: 10 },
   heroImage: { width: '100%', height: '100%', zIndex: 0 },
   heroGradient: { zIndex: 1 },
   heroForeground: { zIndex: 2, paddingBottom: 30 },
@@ -516,6 +618,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  profileSwitcherAnchor: { position: 'relative' },
   greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
   profileHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   avatarSettingsButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24 },
@@ -524,10 +627,11 @@ const styles = StyleSheet.create({
   relationshipBadgeCompact: { paddingHorizontal: 6 },
   relationshipText: { color: colors.white, fontSize: 10, lineHeight: 13, fontWeight: '700', letterSpacing: 0.2 },
   relationshipTextCompact: { fontSize: 9, lineHeight: 12 },
-  customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, overflow: 'hidden' },
+  customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+  customerAvatarInitials: { color: colors.greenDeep, fontSize: 13, lineHeight: 17, fontFamily: font.body.bold },
   customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
-  profileMenu: { alignSelf: 'flex-start', minWidth: 250, marginLeft: 18, marginTop: 8, padding: 6, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, shadowColor: colors.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.16, shadowRadius: 12, elevation: 6 },
-  profileMenuCompact: { minWidth: 225, marginLeft: 14, marginTop: 6 },
+  profileMenu: { position: 'absolute', zIndex: 20, top: 68, left: 0, minWidth: 250, padding: 6, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, shadowColor: colors.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.16, shadowRadius: 12, elevation: 12 },
+  profileMenuCompact: { minWidth: 225, top: 62 },
   profileMenuOption: { minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 8, borderRadius: 10 },
   profileMenuIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: colors.surfaceMid, alignItems: 'center', justifyContent: 'center' },
   profileMenuIconSelected: { backgroundColor: colors.greenDim },

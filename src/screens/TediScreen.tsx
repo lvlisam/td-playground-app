@@ -152,7 +152,7 @@ export default function TediScreen() {
         style={[
           styles.chatLayout,
           compact && styles.chatLayoutCompact,
-          { paddingTop: topInset + spacing.lg, paddingBottom: insets.bottom + 78 },
+          { paddingTop: topInset + spacing.lg, paddingBottom: insets.bottom + 112 },
         ]}
       >
         <View style={styles.header}>

@@ -52,14 +52,14 @@ export default function PlanScreen() {
       <StatusBar barStyle="dark-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: previewTopInset + spacing.md, paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: previewTopInset + spacing.md, paddingBottom: insets.bottom + 140 }]}
       >
         <View style={styles.header}>
           <View style={styles.headerEyebrow}>
             <Ionicons name="leaf-outline" size={15} color={colors.greenDeep} />
             <Text style={styles.headerEyebrowText}>LIFE &amp; FAMILY PLANNING</Text>
           </View>
-          <Text style={[styles.title, compact && styles.titleCompact]}>Your future, one step at a time.</Text>
+          <Text style={[styles.title, compact && styles.titleCompact]}>Plan</Text>
           <Text style={styles.subtitle}>Start with a goal, then add context as life changes for more relevant next steps.</Text>
         </View>
 

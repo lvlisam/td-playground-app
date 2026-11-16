@@ -26,7 +26,7 @@ export default function BenefitsScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 92 }]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 132 }]}>
         <View style={styles.header}>
           <View style={styles.headingCopy}>
             <Text style={styles.eyebrow}>Everything you hold with TD</Text>

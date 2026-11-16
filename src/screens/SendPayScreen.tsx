@@ -140,7 +140,7 @@ export default function SendPayScreen() {
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 160 }}
       >
         {/* Amount Display */}
         <View style={[styles.amountSection, compact && styles.amountSectionCompact]}>

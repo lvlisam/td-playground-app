@@ -16,6 +16,7 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import SupportBookingScreen from '../screens/SupportBookingScreen';
 import { AccountsProvider } from '../accounts';
 import { colors, font, radius } from '../theme';
+import { householdPersonas, useDashboardProfile } from '../personas';
 
 const Tab = createBottomTabNavigator();
 
@@ -80,17 +81,18 @@ const desktopNavigationItems = [
   { label: 'Move money', route: 'Pay & Transfer', icon: 'swap-horizontal' },
   { label: 'Benefits', route: 'Benefits', icon: 'gift-outline' },
   { label: 'Tedi', route: 'Tedi', icon: 'sparkles-outline' },
+  { label: 'Card Manager', route: 'Card Manager', icon: 'card-outline' },
+  { label: 'Account servicing', route: 'Account servicing', icon: 'construct-outline' },
+  { label: 'Account settings', route: 'Account settings', icon: 'settings-outline' },
+  { label: 'Notifications', route: 'Notifications', icon: 'notifications-outline' },
+  { label: 'Support & booking', route: 'Support & booking', icon: 'help-circle-outline' },
 ] as const;
 
 function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
   return (
     <View style={styles.desktopMenu}>
       <View style={styles.desktopMenuHeading}>
-        <View style={styles.desktopMenuBrandMark}><Text style={styles.desktopMenuBrandText}>TD</Text></View>
-        <View style={styles.desktopMenuBrandCopy}>
-          <Text style={styles.desktopMenuBrandTitle}>TD Banking</Text>
-          <Text numberOfLines={3} style={styles.desktopMenuBrandCaption}>{'Quick access to\nHuman-Centered TD\nof the Future'}</Text>
-        </View>
+        <Text accessibilityRole="header" style={styles.desktopMenuTitle}>Navigation</Text>
       </View>
       <View style={styles.desktopMenuDivider} />
       {desktopNavigationItems.map((item) => (
@@ -112,37 +114,45 @@ function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<Para
 }
 
 function DesktopCustomerInsights() {
-  const personas = [
-    { initials: 'AR', name: 'Ava', detail: 'Planning for a growing family', need: 'A goal plan that flexes with life.' },
-    { initials: 'JM', name: 'Jordan', detail: 'Saving for a first home', need: 'A clearer path from today to someday.' },
-    { initials: 'SK', name: 'Sam', detail: 'Running a small business', need: 'One simpler view of personal and business money.' },
-  ];
+  const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
 
   return (
-    <View style={styles.desktopInsightsPanel} accessibilityLabel="Illustrative TD customer personas and needs">
+    <View style={styles.desktopInsightsPanel} accessibilityLabel="Household profile switcher">
       <View style={styles.insightsEyebrowRow}>
         <Ionicons name="people-outline" size={14} color={colors.greenDeep} />
-        <Text style={styles.insightsEyebrow}>ILLUSTRATIVE DESIGN LENS</Text>
+        <Text style={styles.insightsEyebrow}>HOUSEHOLD PROFILES</Text>
       </View>
-      <Text accessibilityRole="header" style={styles.insightsTitle}>WHAT TD CUSTOMERS NEED</Text>
-      <Text style={styles.insightsIntro}>Clear everyday money, meaningful next steps, and guidance that adapts when life changes.</Text>
+      <Text accessibilityRole="header" style={styles.insightsTitle}>Choose a profile</Text>
+      <Text style={styles.insightsIntro}>Select a family member to update the phone dashboard with their accounts and activity.</Text>
       <View style={styles.personaList}>
-        {personas.map((persona) => (
-          <View key={persona.initials} style={styles.personaRow}>
-            <View style={styles.personaAvatar}><Text style={styles.personaInitials}>{persona.initials}</Text></View>
-            <View style={styles.personaCopy}>
-              <Text style={styles.personaName}>{persona.name}</Text>
-              <Text style={styles.personaDetail}>{persona.detail}</Text>
-              <Text style={styles.personaNeed}>{persona.need}</Text>
-            </View>
-          </View>
-        ))}
+        {householdPersonas.map((persona) => {
+          const selected = activeProfileId === persona.id;
+          return (
+            <TouchableOpacity
+              key={persona.id}
+              accessibilityRole="button"
+              accessibilityLabel={`Show ${persona.name}, ${persona.relationship} dashboard`}
+              accessibilityState={{ selected }}
+              onPress={() => selectProfile(persona.id)}
+              style={[styles.personaRow, selected && styles.personaRowSelected]}
+            >
+              <View style={[styles.personaAvatar, selected && styles.personaAvatarSelected]}>
+                <Text style={styles.personaInitials}>{persona.initials}</Text>
+              </View>
+              <View style={styles.personaCopy}>
+                <Text style={styles.personaName}>{persona.name} <Text style={styles.personaRelationship}>· {persona.relationship}</Text></Text>
+                <Text style={styles.personaDetail}>{persona.detail}</Text>
+                <Text style={styles.personaNeed}>{persona.need}</Text>
+              </View>
+              {selected ? <Ionicons name="checkmark-circle" size={17} color={colors.greenDeep} /> : <Ionicons name="chevron-forward" size={15} color={colors.textTertiary} />}
+            </TouchableOpacity>
+          );
+        })}
       </View>
       <View style={styles.customerQuoteCard}>
-        <Ionicons name="chatbubble-ellipses-outline" size={17} color={colors.greenDeep} />
-        <Text style={styles.customerQuote}>“Help me see what’s safe to spend and keep my bigger goals moving.”</Text>
-        <Text style={styles.customerQuoteAttribution}>Ava · family planner</Text>
-        <Text style={styles.quoteDisclaimer}>Illustrative persona quote, not a verbatim customer testimonial.</Text>
+        <Ionicons name="phone-portrait-outline" size={17} color={colors.greenDeep} />
+        <Text style={styles.customerQuote}>The phone preview is showing {activeProfile.name}&apos;s dashboard.</Text>
+        <Text style={styles.customerQuoteAttribution}>{activeProfile.detail}</Text>
       </View>
     </View>
   );
@@ -186,10 +196,6 @@ export default function TabNavigator() {
                   screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
                       height: 68 + insets.bottom + (showDeviceFrame ? 18 : 0),
                       paddingBottom: showDeviceFrame ? 14 : insets.bottom || 4,
                       backgroundColor: frameColors.white,
@@ -314,13 +320,9 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
   previewStage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingHorizontal: 16, backgroundColor: frameColors.stage },
-  desktopMenu: { width: 152, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
-  desktopMenuHeading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 5 },
-  desktopMenuBrandMark: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.greenDeep, alignItems: 'center', justifyContent: 'center' },
-  desktopMenuBrandCopy: { flex: 1, minWidth: 0 },
-  desktopMenuBrandText: { color: frameColors.white, fontSize: 12, fontWeight: '800', letterSpacing: -0.5 },
-  desktopMenuBrandTitle: { color: colors.text, fontSize: 12, lineHeight: 15, fontFamily: font.headline.semibold },
-  desktopMenuBrandCaption: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  desktopMenu: { width: 184, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
+  desktopMenuHeading: { paddingHorizontal: 6, paddingBottom: 5 },
+  desktopMenuTitle: { color: colors.text, fontSize: 14, lineHeight: 18, fontFamily: font.headline.semibold },
   desktopMenuDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderFaint, marginBottom: 3 },
   desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
@@ -331,11 +333,14 @@ const styles = StyleSheet.create({
   insightsTitle: { color: colors.text, fontSize: 21, lineHeight: 26, fontFamily: font.headline.bold },
   insightsIntro: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
   personaList: { gap: 10 },
-  personaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 9 },
-  personaAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  personaRow: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: 9, padding: 8, borderRadius: 13, borderWidth: 1, borderColor: 'transparent' },
+  personaRowSelected: { backgroundColor: colors.greenDim, borderColor: colors.green },
+  personaAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.surfaceMid, alignItems: 'center', justifyContent: 'center' },
+  personaAvatarSelected: { backgroundColor: colors.surface },
   personaInitials: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
   personaCopy: { flex: 1, gap: 1 },
   personaName: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.semibold },
+  personaRelationship: { color: colors.textSecondary, fontFamily: font.body.regular },
   personaDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
   personaNeed: { color: colors.greenDeep, fontSize: 10, lineHeight: 14, fontFamily: font.body.medium },
   customerQuoteCard: { padding: 12, borderRadius: 14, backgroundColor: colors.greenDim, gap: 6 },

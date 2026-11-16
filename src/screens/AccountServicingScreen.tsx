@@ -59,7 +59,7 @@ export default function AccountServicingScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 136 }}>
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to home" onPress={() => navigation.navigate('Home')} style={styles.backButton}>
             <Ionicons name="arrow-back" size={20} color={colors.text} />

@@ -36,7 +36,7 @@ export default function SupportBookingScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 100 }]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 140 }]}>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>HERE WHEN YOU NEED US</Text>
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Talk to a person</Text>
