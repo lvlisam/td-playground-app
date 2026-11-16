@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 
 type VisitMode = 'In branch' | 'Video' | 'Phone';
+type SupportBookingRoute = RouteProp<{ 'Support & booking': { visitMode?: VisitMode; specialty?: string } }, 'Support & booking'>;
 
 const branches = [
   { name: 'Downtown', wait: '8 min', address: '120 Broadway' },
@@ -16,18 +18,26 @@ const languages = ['English', 'Spanish', 'Mandarin'];
 const prepItems = ['Review my accounts', 'Talk through a savings goal', 'Ask about a recent transaction'];
 
 export default function SupportBookingScreen() {
+  const route = useRoute<SupportBookingRoute>();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
   const topInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
   const [supportRequested, setSupportRequested] = useState(false);
-  const [visitMode, setVisitMode] = useState<VisitMode>('In branch');
+  const [visitMode, setVisitMode] = useState<VisitMode>(route.params?.visitMode ?? 'In branch');
   const [selectedBranch, setSelectedBranch] = useState(branches[0].name);
-  const [selectedSpecialty, setSelectedSpecialty] = useState(specialties[0]);
+  const [selectedSpecialty, setSelectedSpecialty] = useState(
+    route.params?.specialty && specialties.includes(route.params.specialty) ? route.params.specialty : specialties[0],
+  );
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [checkedPrep, setCheckedPrep] = useState<string[]>([prepItems[0]]);
   const [agenda, setAgenda] = useState('');
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+
+  useEffect(() => {
+    if (route.params?.visitMode) setVisitMode(route.params.visitMode);
+    if (route.params?.specialty && specialties.includes(route.params.specialty)) setSelectedSpecialty(route.params.specialty);
+  }, [route.params?.visitMode, route.params?.specialty]);
 
   const togglePrep = (item: string) => {
     setCheckedPrep((current) => current.includes(item) ? current.filter((value) => value !== item) : [...current, item]);
@@ -39,7 +49,7 @@ export default function SupportBookingScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 140 }]}>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>HERE WHEN YOU NEED US</Text>
-          <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Talk to a person</Text>
+          <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Meet with an advisor</Text>
           <Text style={styles.subtitle}>Get help now or choose a banker and make time to talk.</Text>
         </View>
 
@@ -132,7 +142,7 @@ export default function SupportBookingScreen() {
             multiline
             maxLength={240}
             onChangeText={setAgenda}
-            placeholder="Anything else you&apos;d like to discuss?"
+            placeholder={"Anything else you'd like to discuss?"}
             placeholderTextColor={colors.textTertiary}
             style={styles.agendaInput}
             value={agenda}

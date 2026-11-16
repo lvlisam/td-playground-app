@@ -93,12 +93,12 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
   };
 }
 
-export default function TediScreen() {
+export default function TediScreen({ embedded = false }: { embedded?: boolean }) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { width } = useWindowDimensions();
   const compact = width < 360;
-  const topInset = Platform.OS === 'web' ? 24 : insets.top;
+  const topInset = embedded ? 0 : Platform.OS === 'web' ? 24 : insets.top;
   const scrollRef = useRef<ScrollView>(null);
   const nextMessageId = useRef(1);
   const [draft, setDraft] = useState('');
@@ -109,6 +109,7 @@ export default function TediScreen() {
       text: 'Good afternoon, Ava. I can help you find spending insights, send money, explore benefits, or manage your card.',
     },
   ]);
+  const shouldScrollToEnd = useRef(false);
 
   const sendMessage = (value = draft) => {
     const text = value.trim();
@@ -118,6 +119,7 @@ export default function TediScreen() {
     const userMessage: TediChatMessage = { id: nextMessageId.current++, role: 'user', text };
     const assistantMessage: TediChatMessage = { id: nextMessageId.current++, role: 'assistant', ...reply };
 
+    shouldScrollToEnd.current = true;
     setMessages((current) => [...current, userMessage, assistantMessage]);
     setDraft('');
   };
@@ -135,6 +137,7 @@ export default function TediScreen() {
         ? { label: 'Review card controls', destination: 'Card Manager' }
         : undefined,
     };
+    shouldScrollToEnd.current = true;
     setMessages((current) => [
       ...current.map((item) => item.id === message.id ? { ...item, confirmationPrompt: undefined } : item),
       confirmationMessage,
@@ -143,7 +146,7 @@ export default function TediScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, embedded && styles.embeddedContainer]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={insets.top}
     >
@@ -152,7 +155,8 @@ export default function TediScreen() {
         style={[
           styles.chatLayout,
           compact && styles.chatLayoutCompact,
-          { paddingTop: topInset + spacing.lg, paddingBottom: insets.bottom + 112 },
+          embedded && styles.embeddedChatLayout,
+          { paddingTop: embedded ? spacing.md : topInset + spacing.lg, paddingBottom: embedded ? spacing.md : insets.bottom + 112 },
         ]}
       >
         <View style={styles.header}>
@@ -171,7 +175,12 @@ export default function TediScreen() {
           contentContainerStyle={styles.messagesContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+          onContentSizeChange={() => {
+            if (shouldScrollToEnd.current) {
+              shouldScrollToEnd.current = false;
+              scrollRef.current?.scrollToEnd({ animated: true });
+            }
+          }}
         >
           {messages.map((message) => (
             <View
@@ -265,7 +274,9 @@ export default function TediScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
+  embeddedContainer: { height: 440, minHeight: 440, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
   chatLayout: { flex: 1, paddingHorizontal: spacing.lg, gap: spacing.md },
+  embeddedChatLayout: { paddingHorizontal: spacing.md, gap: spacing.sm },
   chatLayoutCompact: { paddingHorizontal: 16, gap: 12 },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   assistantIcon: { width: 54, height: 54, borderRadius: radius.xl, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },

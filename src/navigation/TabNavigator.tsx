@@ -10,6 +10,7 @@ import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
 import TediScreen from '../screens/TediScreen';
+import GetHelpScreen from '../screens/GetHelpScreen';
 import AccountServicingScreen from '../screens/AccountServicingScreen';
 import AccountSettingsScreen from '../screens/AccountSettingsScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
@@ -80,12 +81,11 @@ const desktopNavigationItems = [
   { label: 'Plan', route: 'Plan', icon: 'analytics-outline' },
   { label: 'Move money', route: 'Pay & Transfer', icon: 'swap-horizontal' },
   { label: 'Benefits', route: 'Benefits', icon: 'gift-outline' },
-  { label: 'Tedi', route: 'Tedi', icon: 'sparkles-outline' },
+  { label: 'Get Help', route: 'Get Help', icon: 'help-circle-outline' },
   { label: 'Card Manager', route: 'Card Manager', icon: 'card-outline' },
   { label: 'Account servicing', route: 'Account servicing', icon: 'construct-outline' },
   { label: 'Account settings', route: 'Account settings', icon: 'settings-outline' },
   { label: 'Notifications', route: 'Notifications', icon: 'notifications-outline' },
-  { label: 'Support & booking', route: 'Support & booking', icon: 'help-circle-outline' },
 ] as const;
 
 function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
@@ -288,10 +288,10 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
-                    name="Tedi"
-                    component={TediScreen}
+                    name="Get Help"
+                    component={GetHelpScreen}
                     options={{
-                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'sparkles' : 'sparkles-outline'} focused={focused} />,
+                      tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'help-circle' : 'help-circle-outline'} focused={focused} />,
                     }}
                   />
                   <Tab.Screen
