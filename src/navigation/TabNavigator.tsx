@@ -177,10 +177,19 @@ export default function TabNavigator() {
   const [activeTab, setActiveTab] = React.useState('Home');
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showCustomerInsights = showDeviceFrame && width >= 1100;
-  const deviceWidth = showDeviceFrame ? Math.min(390, width - 32, (height - 32) * 0.47) : width;
+  const deviceWidth = showDeviceFrame ? Math.min(390, width - 32, Math.max(320, height - 104) * 0.47) : width;
   const deviceHeight = showDeviceFrame ? deviceWidth / 0.47 : height;
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage]}>
+      {showDeviceFrame && (
+        <View style={styles.desktopPageHeader}>
+          <View style={styles.desktopPageHeaderAccent} />
+          <Text accessibilityRole="header" style={styles.desktopPageHeaderTitle}>
+            TD Reimagined 2026 HCD Vision
+          </Text>
+        </View>
+      )}
+      <View style={showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
       {showDeviceFrame && <DesktopNavigationMenu navigation={navigation} />}
       <View
         style={[
@@ -325,13 +334,19 @@ export default function TabNavigator() {
         )}
       </View>
       {showCustomerInsights ? <DesktopCustomerInsights /> : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
-  previewStage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingHorizontal: 16, backgroundColor: frameColors.stage },
+  previewStage: { flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: 12, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: frameColors.stage },
+  desktopPageHeader: { width: '100%', maxWidth: 1180, minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, shadowColor: colors.text, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 1 },
+  desktopPageHeaderAccent: { width: 4, height: 26, borderRadius: 2, backgroundColor: colors.green },
+  desktopPageHeaderTitle: { flexShrink: 1, color: colors.text, fontSize: 18, lineHeight: 24, fontFamily: font.headline.bold },
+  desktopPreviewBody: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
+  mobilePreviewBody: { flex: 1 },
   desktopMenu: { width: 184, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
   desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
