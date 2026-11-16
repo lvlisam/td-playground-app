@@ -19,20 +19,11 @@ TextWithDefaults.defaultProps = {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    [font.body.light]: require('./assets/fonts/TDSansBody-Light.ttf'),
-    [font.body.lightItalic]: require('./assets/fonts/TDSansBody-LightItalic.ttf'),
     [font.body.regular]: require('./assets/fonts/TDSansBody-Regular.ttf'),
-    [font.body.italic]: require('./assets/fonts/TDSansBody-Italic.ttf'),
     [font.body.medium]: require('./assets/fonts/TDSansBody-Medium.ttf'),
-    [font.body.mediumItalic]: require('./assets/fonts/TDSansBody-MediumItalic.ttf'),
     [font.body.bold]: require('./assets/fonts/TDSansBody-Bold.ttf'),
-    [font.body.boldItalic]: require('./assets/fonts/TDSansBody-BoldItalic.ttf'),
-    [font.headline.light]: require('./assets/fonts/TDSansHeadline-Light.ttf'),
-    [font.headline.lightItalic]: require('./assets/fonts/TDSansHeadline-LightItalic.ttf'),
     [font.headline.regular]: require('./assets/fonts/TDSansHeadline-Regular.ttf'),
-    [font.headline.italic]: require('./assets/fonts/TDSansHeadline-Italic.ttf'),
     [font.headline.bold]: require('./assets/fonts/TDSansHeadline-Bold.ttf'),
-    [font.headline.boldItalic]: require('./assets/fonts/TDSansHeadline-BoldItalic.ttf'),
   });
 
   if (!fontsLoaded) return null;
