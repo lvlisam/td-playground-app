@@ -620,9 +620,9 @@ export default function DashboardScreen() {
           <View style={styles.offersHeading}>
             <View style={styles.offersTitleGroup}>
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
-              <Text style={styles.offersTitle}>{activeProfileId === 'business' ? 'TD for your business' : activeProfileId === 'family' ? 'TD for your family' : activeProfileId === 'olivia' || activeProfileId === 'noah' ? 'TD for young people' : `TD for ${activeProfile.name}`}</Text>
+              <Text style={styles.offersTitle}>{activeProfileId === 'business' ? 'TD for your business' : activeProfileId === 'family' ? 'TD for your family' : activeProfileId === 'olivia' || activeProfileId === 'noah' ? 'TD for young people' : activeProfileId === 'jane' ? 'TD for Me' : `TD for ${activeProfile.name}`}</Text>
             </View>
-            <Text style={styles.offerCount}>3 offers · swipe</Text>
+            <Text style={styles.offerCount}>3 offers</Text>
           </View>
           <TouchableOpacity accessibilityRole="button" style={styles.offerCard}>
             <View style={styles.offerIcon}><Ionicons name={activeProfileId === 'olivia' ? 'compass-outline' : activeProfileId === 'noah' ? 'football-outline' : 'leaf-outline'} size={22} color={palette.green} /></View>
