@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import {
-  Image,
   Platform,
   ScrollView,
   StatusBar,
@@ -745,24 +744,6 @@ export default function DashboardScreen() {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
-  const heroGradientColors = activeProfileId === 'business'
-    ? ['rgba(14,46,28,0.88)', 'rgba(22,104,48,0.78)', 'rgba(35,139,20,0.62)', 'rgba(234,246,230,0.92)']
-    : activeProfileId === 'jane' || activeProfileId === 'james'
-      ? ['rgba(10,54,30,0.88)', 'rgba(18,96,43,0.78)', 'rgba(35,139,20,0.62)', 'rgba(234,246,230,0.92)']
-      : activeProfileId === 'olivia'
-        ? ['rgba(8,42,34,0.9)', 'rgba(14,86,57,0.82)', 'rgba(22,108,64,0.68)', 'rgba(234,246,230,0.94)']
-        : activeProfileId === 'noah'
-          ? ['rgba(10,45,35,0.9)', 'rgba(18,83,50,0.82)', 'rgba(32,123,45,0.68)', 'rgba(234,246,230,0.94)']
-          : ['rgba(35,139,20,0.88)', 'rgba(35,139,20,0.78)', 'rgba(53,198,0,0.62)', 'rgba(234,246,230,0.94)'];
-  const heroImage = activeProfileId === 'business'
-    ? require('../../assets/nyc-skyline.png')
-    : activeProfileId === 'olivia'
-      ? require('../../assets/olivia-youth-hero.png')
-      : activeProfileId === 'noah'
-        ? require('../../assets/noah-youth-hero.png')
-        : activeProfileId === 'family'
-          ? require('../../assets/td-family-hero.png')
-          : require('../../assets/td-human-banking-hero.png');
   const offerEyebrow = activeProfileId === 'business'
     ? 'BUSINESS BANKING'
     : activeProfileId === 'family'
@@ -802,17 +783,6 @@ export default function DashboardScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 128 }}
       >
         <View style={[styles.hero, compact && styles.heroCompact, profileMenuOpen && styles.heroMenuOpen]}>
-          <Image
-            source={heroImage}
-            resizeMode="cover"
-            style={[StyleSheet.absoluteFill, styles.heroImage]}
-            accessible={false}
-          />
-          <LinearGradient
-            colors={heroGradientColors}
-            locations={[0, 0.44, 0.72, 1]}
-            style={[StyleSheet.absoluteFill, styles.heroGradient]}
-          />
           <View style={[styles.heroForeground, compact && styles.heroForegroundCompact, { paddingTop: previewTopInset + (compact ? 2 : 8) }]}>
             <View style={[styles.topBar, compact && styles.topBarCompact]}>
               <View
@@ -928,10 +898,8 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
-  hero: { minHeight: 172, position: 'relative', overflow: 'visible', zIndex: 0 },
+  hero: { minHeight: 172, position: 'relative', overflow: 'visible', zIndex: 0, backgroundColor: palette.greenDeep },
   heroMenuOpen: { zIndex: 20, elevation: 20 },
-  heroImage: { width: '100%', height: '100%', zIndex: 0 },
-  heroGradient: { zIndex: 1 },
   heroForeground: { zIndex: 2, paddingBottom: 30 },
   topBar: {
     flexDirection: 'row',
