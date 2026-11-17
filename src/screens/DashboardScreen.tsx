@@ -432,6 +432,9 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           ) : null}
         </View>
       </View>
+      {!isBusiness && !isFamily && !isChildProfile ? (
+        <PaydayCountdownMeter compact={compact} amount={availableAmount} />
+      ) : null}
       <View style={styles.healthDivider} />
       <TouchableOpacity
         accessibilityRole="button"
@@ -452,9 +455,6 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
             <AccountRow key={account.id} account={account} last={index === visibleAccounts.length - 1} compact={compact} />
           ))}
         </View>
-      ) : null}
-      {!isBusiness && !isFamily && !isChildProfile ? (
-        <PaydayCountdownMeter compact={compact} amount={availableAmount} />
       ) : null}
     </View>
   );
