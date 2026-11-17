@@ -98,33 +98,38 @@ export default function GetHelpScreen() {
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Get help</Text>
         </View>
 
-        <TediScreen ref={tediRef} embedded hideComposer />
-
-        <View style={styles.adviceSection}>
-          <Text style={styles.sectionEyebrow}>PERSONALIZED SUPPORT</Text>
-          <Text accessibilityRole="header" style={styles.sectionTitle}>What would you like help with?</Text>
-          <Text style={styles.bodyCopy}>We’ll use your focus to suggest an advisor specialty when you schedule.</Text>
-          <View style={styles.needChips}>
-            {adviceNeeds.map((need) => {
-              const selected = selectedNeed.id === need.id;
-              return (
-                <TouchableOpacity
-                  key={need.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected }}
-                  onPress={() => setSelectedNeedId(need.id)}
-                  style={[styles.needChip, selected && styles.needChipSelected]}
-                >
-                  <Text style={[styles.needChipText, selected && styles.needChipTextSelected]}>{need.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          <View style={styles.recommendation}>
-            <Ionicons name="sparkles-outline" size={16} color={colors.greenDeep} />
-            <Text style={styles.recommendationText}>Recommended advisor: {selectedNeed.specialty}</Text>
-          </View>
-        </View>
+        <TediScreen
+          ref={tediRef}
+          embedded
+          hideComposer
+          footer={(
+            <View style={styles.adviceSection}>
+              <Text style={styles.sectionEyebrow}>PERSONALIZED SUPPORT</Text>
+              <Text accessibilityRole="header" style={styles.sectionTitle}>What would you like help with?</Text>
+              <Text style={styles.bodyCopy}>Choose a focus and we’ll recommend the right advisor when you connect.</Text>
+              <View style={styles.needChips}>
+                {adviceNeeds.map((need) => {
+                  const selected = selectedNeed.id === need.id;
+                  return (
+                    <TouchableOpacity
+                      key={need.id}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      onPress={() => setSelectedNeedId(need.id)}
+                      style={[styles.needChip, selected && styles.needChipSelected]}
+                    >
+                      <Text style={[styles.needChipText, selected && styles.needChipTextSelected]}>{need.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <View style={styles.recommendation}>
+                <Ionicons name="sparkles-outline" size={16} color={colors.greenDeep} />
+                <Text style={styles.recommendationText}>Recommended advisor: {selectedNeed.specialty}</Text>
+              </View>
+            </View>
+          )}
+        />
 
         <View style={styles.channelsSection}>
           <View style={styles.channelHeading}>
@@ -234,7 +239,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 27, lineHeight: 33, fontFamily: font.headline.bold },
   titleCompact: { fontSize: 24, lineHeight: 30 },
   bodyCopy: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
-  adviceSection: { gap: 8, padding: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
+  adviceSection: { gap: 8 },
   sectionEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold, letterSpacing: 0.8 },
   sectionTitle: { color: colors.text, fontSize: 18, lineHeight: 24, fontFamily: font.headline.semibold },
   needChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 3 },

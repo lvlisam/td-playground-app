@@ -94,10 +94,10 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
 }
 
 export type TediScreenHandle = { sendMessage: (message: string) => void };
-type TediScreenProps = { embedded?: boolean; hideComposer?: boolean };
+type TediScreenProps = { embedded?: boolean; hideComposer?: boolean; footer?: React.ReactNode };
 
 const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function TediScreen(
-  { embedded = false, hideComposer = false },
+  { embedded = false, hideComposer = false, footer },
   ref,
 ) {
   const insets = useSafeAreaInsets();
@@ -278,6 +278,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
           </View>
         )}
       </View>
+      {embedded && footer ? <View style={styles.embeddedFooter}>{footer}</View> : null}
     </KeyboardAvoidingView>
   );
 });
@@ -286,7 +287,8 @@ export default TediScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  embeddedContainer: { height: 440, minHeight: 440, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
+  embeddedContainer: { height: 560, minHeight: 560, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
+  embeddedFooter: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: colors.surface },
   chatLayout: { flex: 1, paddingHorizontal: spacing.lg, gap: spacing.md },
   embeddedChatLayout: { paddingHorizontal: spacing.md, gap: spacing.sm },
   chatLayoutCompact: { paddingHorizontal: 16, gap: 12 },
