@@ -9,10 +9,10 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import ScreenBackButton from '../components/ScreenBackButton';
 
 type NotificationIcon = keyof typeof Ionicons.glyphMap;
 
@@ -61,7 +61,6 @@ const notifications: BankNotification[] = [
 ];
 
 export default function NotificationsScreen() {
-  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
@@ -76,14 +75,7 @@ export default function NotificationsScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 140 }}
       >
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Back to home"
-            onPress={() => navigation.navigate('Home')}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={20} color={colors.text} />
-          </TouchableOpacity>
+          <ScreenBackButton style={styles.backButton} />
           <Text accessibilityRole="header" style={styles.headerTitle}>Notifications</Text>
           <View style={styles.headerSpacer} />
         </View>

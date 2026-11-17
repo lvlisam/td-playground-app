@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import AccountNicknameEditor from '../components/AccountNicknameEditor';
+import ScreenBackButton from '../components/ScreenBackButton';
 import { useAccounts } from '../accounts';
 
 type ToggleRowProps = {
@@ -152,6 +153,7 @@ export default function CardsScreen() {
       >
         {/* Header */}
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
+          <ScreenBackButton />
           <Text style={styles.title}>Card manager</Text>
           <TouchableOpacity style={styles.addBtn}>
             <Ionicons name="add" size={20} color={colors.greenDeep} />

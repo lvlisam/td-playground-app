@@ -155,7 +155,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, embedded && styles.embeddedContainer, embedded && !isEmptyEmbedded && styles.embeddedFixedContainer]}
+      style={[styles.container, embedded && styles.embeddedContainer, isEmptyEmbedded && styles.embeddedEmptyContainer, embedded && !isEmptyEmbedded && styles.embeddedFixedContainer]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={insets.top}
     >
@@ -282,7 +282,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
           </View>
         )}
       </View>
-      {embedded && footer ? <View style={styles.embeddedFooter}>{footer}</View> : null}
+      {embedded && footer ? <View style={[styles.embeddedFooter, isEmptyEmbedded && styles.embeddedEmptyFooter]}>{footer}</View> : null}
     </KeyboardAvoidingView>
   );
 });
@@ -292,8 +292,10 @@ export default TediScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   embeddedContainer: { flex: 0, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
+  embeddedEmptyContainer: { height: 0, borderWidth: 0 },
   embeddedFixedContainer: { height: 560, minHeight: 560 },
   embeddedFooter: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: colors.surface },
+  embeddedEmptyFooter: { borderTopWidth: 0 },
   chatLayout: { flex: 1, paddingHorizontal: spacing.lg, gap: spacing.md },
   embeddedChatLayout: { paddingHorizontal: spacing.md, gap: spacing.sm },
   embeddedEmptyChatLayout: { flex: 0 },

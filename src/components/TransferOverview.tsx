@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import ScreenBackButton from './ScreenBackButton';
 import { paidBillPayments, upcomingBillPayments } from '../financeData';
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import TransactionBrandIcon from './TransactionBrandIcon';
@@ -98,6 +99,7 @@ export default function TransferOverview({ onSelectAction }: TransferOverviewPro
         contentContainerStyle={[styles.content, { paddingTop: previewTopInset + spacing.sm, paddingBottom: insets.bottom + 112 }]}
       >
         <View style={styles.header}>
+          <ScreenBackButton />
           <Text accessibilityRole="header" style={styles.title}>Move money</Text>
         </View>
 

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import FamilyPlanBuilder from '../components/FamilyPlanBuilder';
 import AccountPlanCard from '../components/AccountPlanCard';
+import ScreenBackButton from '../components/ScreenBackButton';
 import { useAccounts } from '../accounts';
 
 function SavingsMomentumCard() {
@@ -55,6 +56,7 @@ export default function PlanScreen() {
         contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: previewTopInset + spacing.md, paddingBottom: insets.bottom + 140 }]}
       >
         <View style={styles.header}>
+          <ScreenBackButton />
           <Text style={[styles.title, compact && styles.titleCompact]}>Plan</Text>
           <Text style={styles.subtitle}>Start with a goal, then add context as life changes for more relevant next steps.</Text>
         </View>

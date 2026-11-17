@@ -7,6 +7,7 @@ import AccountNicknameEditor from '../components/AccountNicknameEditor';
 import { useAccounts } from '../accounts';
 import type { AccountId } from '../accounts';
 import { colors, font, radius, spacing } from '../theme';
+import ScreenBackButton from '../components/ScreenBackButton';
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -61,9 +62,7 @@ export default function AccountServicingScreen() {
       <StatusBar barStyle="dark-content" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 136 }}>
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to home" onPress={() => navigation.navigate('Home')} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={20} color={colors.text} />
-          </TouchableOpacity>
+          <ScreenBackButton style={styles.backButton} />
           <Text style={styles.headerTitle}>Account servicing</Text>
           <View style={styles.headerSpacer} />
         </View>

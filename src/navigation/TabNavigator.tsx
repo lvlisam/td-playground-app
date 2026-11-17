@@ -214,6 +214,7 @@ export default function TabNavigator() {
             <View style={[styles.deviceScreen, !showDeviceFrame && styles.nativeScreen]}>
               <AccountsProvider>
               <Tab.Navigator
+                  backBehavior="history"
                   screenListeners={({ route }) => ({
                     focus: () => setActiveTab(route.name),
                   })}

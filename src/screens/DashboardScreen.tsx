@@ -871,7 +871,7 @@ export default function DashboardScreen() {
             <PaydayCountdownMeter compact={compact} amount={amountBeforePayday} />
           </View>
         ) : null}
-        <FinancialHealthCard compact={compact} view={activeProfileId} />
+        {activeProfileId !== 'jane' ? <FinancialHealthCard compact={compact} view={activeProfileId} /> : null}
         <SavingsGoalsSection
           compact={compact}
           view={activeProfileId}

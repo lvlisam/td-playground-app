@@ -4,6 +4,7 @@ import { useNavigation, type NavigationProp, type ParamListBase } from '@react-n
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import ScreenBackButton from '../components/ScreenBackButton';
 import { useAccounts } from '../accounts';
 import { dashboardProfileOptions, useDashboardProfile } from '../personas';
 import type { DashboardProfileId } from '../personas';
@@ -182,6 +183,7 @@ export default function BenefitsScreen() {
         contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 132 }]}
       >
         <View style={styles.header}>
+          <ScreenBackButton />
           <Text style={[styles.title, compact && styles.titleCompact]}>Benefits</Text>
           <Text style={styles.subtitle}>Rewards you can use now, with a clearer view of what could come next.</Text>
           <View style={styles.profileChip}>

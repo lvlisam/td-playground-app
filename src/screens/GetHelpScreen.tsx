@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TediScreen, { type TediScreenHandle } from './TediScreen';
 import { colors, font, radius, spacing } from '../theme';
+import ScreenBackButton from '../components/ScreenBackButton';
 
 type VisitMode = 'In store' | 'Video' | 'Phone';
 
@@ -94,42 +95,40 @@ export default function GetHelpScreen() {
         contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 132 }]}
       >
         <View style={styles.header}>
+          <ScreenBackButton />
           <Text style={styles.eyebrow}>HERE WHEN YOU NEED US</Text>
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Get help</Text>
         </View>
 
-        <TediScreen
-          ref={tediRef}
-          embedded
-          hideComposer
-          footer={(
-            <View style={styles.adviceSection}>
-              <Text style={styles.sectionEyebrow}>PERSONALIZED SUPPORT</Text>
-              <Text accessibilityRole="header" style={styles.sectionTitle}>What would you like help with?</Text>
-              <Text style={styles.bodyCopy}>Choose a focus and we’ll recommend the right advisor when you connect.</Text>
-              <View style={styles.needChips}>
-                {adviceNeeds.map((need) => {
-                  const selected = selectedNeed.id === need.id;
-                  return (
-                    <TouchableOpacity
-                      key={need.id}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      onPress={() => setSelectedNeedId(need.id)}
-                      style={[styles.needChip, selected && styles.needChipSelected]}
-                    >
-                      <Text style={[styles.needChipText, selected && styles.needChipTextSelected]}>{need.label}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              <View style={styles.recommendation}>
-                <Ionicons name="sparkles-outline" size={16} color={colors.greenDeep} />
-                <Text style={styles.recommendationText}>Recommended advisor: {selectedNeed.specialty}</Text>
-              </View>
+        <TediScreen ref={tediRef} embedded hideComposer />
+
+        <View style={styles.adviceCard}>
+          <View style={styles.adviceSection}>
+            <Text style={styles.sectionEyebrow}>PERSONALIZED SUPPORT</Text>
+            <Text accessibilityRole="header" style={styles.sectionTitle}>What would you like help with?</Text>
+            <Text style={styles.bodyCopy}>Choose a focus and we’ll recommend the right advisor when you connect.</Text>
+            <View style={styles.needChips}>
+              {adviceNeeds.map((need) => {
+                const selected = selectedNeed.id === need.id;
+                return (
+                  <TouchableOpacity
+                    key={need.id}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    onPress={() => setSelectedNeedId(need.id)}
+                    style={[styles.needChip, selected && styles.needChipSelected]}
+                  >
+                    <Text style={[styles.needChipText, selected && styles.needChipTextSelected]}>{need.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
-          )}
-        />
+            <View style={styles.recommendation}>
+              <Ionicons name="sparkles-outline" size={16} color={colors.greenDeep} />
+              <Text style={styles.recommendationText}>Recommended advisor: {selectedNeed.specialty}</Text>
+            </View>
+          </View>
+        </View>
 
         <View style={styles.channelsSection}>
           <View style={styles.channelHeading}>
@@ -239,6 +238,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 27, lineHeight: 33, fontFamily: font.headline.bold },
   titleCompact: { fontSize: 24, lineHeight: 30 },
   bodyCopy: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
+  adviceCard: { padding: spacing.md, borderRadius: radius.xl, backgroundColor: colors.surface },
   adviceSection: { gap: 8 },
   sectionEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold, letterSpacing: 0.8 },
   sectionTitle: { color: colors.text, fontSize: 18, lineHeight: 24, fontFamily: font.headline.semibold },

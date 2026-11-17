@@ -1,10 +1,10 @@
 import React from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import ConnectedDataSection from '../components/ConnectedDataSection';
+import ScreenBackButton from '../components/ScreenBackButton';
 import { useDashboardProfile } from '../personas';
 
 const createSettingsOverview = (name: string) => [
@@ -15,7 +15,6 @@ const createSettingsOverview = (name: string) => [
 ];
 
 export default function AccountSettingsScreen() {
-  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { activeProfile } = useDashboardProfile();
   const settingsOverview = createSettingsOverview(activeProfile.name);
   const profileDetails = [
@@ -35,14 +34,7 @@ export default function AccountSettingsScreen() {
       <StatusBar barStyle="dark-content" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}>
         <View style={[styles.header, compact && styles.headerCompact, { paddingTop: previewTopInset + spacing.sm }]}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Back to home"
-            onPress={() => navigation.navigate('Home')}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={20} color={colors.text} />
-          </TouchableOpacity>
+          <ScreenBackButton style={styles.backButton} />
           <Text accessibilityRole="header" style={styles.headerTitle}>Account settings</Text>
           <View style={styles.headerSpacer} />
         </View>

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
+import ScreenBackButton from '../components/ScreenBackButton';
 
 type VisitMode = 'In store' | 'Video' | 'Phone';
 type SupportBookingRoute = RouteProp<{ 'Support & booking': { visitMode?: VisitMode; specialty?: string } }, 'Support & booking'>;
@@ -48,6 +49,7 @@ export default function SupportBookingScreen() {
       <StatusBar barStyle="dark-content" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingTop: topInset + spacing.md, paddingBottom: insets.bottom + 140 }]}>
         <View style={styles.header}>
+          <ScreenBackButton />
           <Text style={styles.eyebrow}>HERE WHEN YOU NEED US</Text>
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Meet with an advisor</Text>
           <Text style={styles.subtitle}>Get help now or choose a banker and make time to talk.</Text>
