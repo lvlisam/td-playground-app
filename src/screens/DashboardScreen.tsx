@@ -450,7 +450,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
   const savingsThisMonth = getSavingsThisMonth(view);
 
   return (
-    <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
+    <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact, view === 'jane' && styles.financialHealthCardAfterAccounts]}>
       {view !== 'jane' ? (
         <View style={styles.totalBalanceRow}>
           <View style={styles.totalBalanceCopy}>
@@ -499,7 +499,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           </View>
         ) : null}
       </View>
-      {!isBusiness && !isFamily && !isChildProfile ? (
+      {view !== 'jane' && !isBusiness && !isFamily && !isChildProfile ? (
         <PaydayCountdownMeter compact={compact} amount={availableAmount} />
       ) : null}
       {view !== 'jane' ? (
@@ -546,8 +546,8 @@ function AccountCardsSection({ compact, view }: { compact: boolean; view: Dashbo
     ...accounts.filter((account) => account.id !== frontAccount.id),
     frontAccount,
   ];
-  const stackOffset = compact ? 44 : 48;
-  const cardHeight = compact ? 168 : 176;
+  const stackOffset = compact ? 36 : 38;
+  const cardHeight = compact ? 132 : 140;
 
   return (
     <View style={[styles.accountShowcaseSection, compact && styles.accountShowcaseSectionCompact]}>
@@ -741,6 +741,13 @@ export default function DashboardScreen() {
     ? Math.min(390, width - 32, (height - 32) * 0.47)
     : width;
   const compact = previewDeviceWidth < 360;
+  const { accounts: dashboardAccounts } = useAccounts();
+  const checkingBalance = parseDashboardAmount(dashboardAccounts.find((account) => account.id.endsWith('checking'))?.amount ?? '0');
+  const creditBalance = Math.abs(parseDashboardAmount(dashboardAccounts.find((account) => account.id.endsWith('card'))?.amount ?? '0'));
+  const savingsPlan = dashboardAccounts.find((account) => account.id === 'savings')?.plan;
+  const plannedGoalContribution = savingsPlan?.kind === 'savings-goal' ? savingsPlan.monthlyContribution : 0;
+  const upcomingBillsTotal = upcomingBillPayments.reduce((total, bill) => total + parseDashboardAmount(bill.amount), 0);
+  const amountBeforePayday = Math.max(0, checkingBalance - creditBalance - plannedGoalContribution - upcomingBillsTotal);
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
@@ -777,7 +784,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 128 }}
@@ -813,7 +820,7 @@ export default function DashboardScreen() {
                         style={styles.customerProfileButton}
                       >
                         <Text style={[styles.customerName, compact && styles.customerNameCompact]}>{activeProfile.name}</Text>
-                        <Ionicons name={profileMenuOpen ? 'chevron-up' : 'chevron-down'} size={15} color={colors.white} />
+                        <Ionicons name={profileMenuOpen ? 'chevron-up' : 'chevron-down'} size={15} color={colors.textSecondary} />
                       </TouchableOpacity>
                       <TouchableOpacity
                         accessibilityRole="button"
@@ -823,9 +830,9 @@ export default function DashboardScreen() {
                         onPress={() => navigation.navigate('Benefits')}
                         style={[styles.relationshipBadge, compact && styles.relationshipBadgeCompact]}
                       >
-                        <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.white} />
+                        <Ionicons name="ribbon-outline" size={compact ? 11 : 12} color={colors.greenDeep} />
                         <Text style={[styles.relationshipText, compact && styles.relationshipTextCompact]}>{activeProfile.badge}</Text>
-                        <Ionicons name="chevron-forward" size={9} color={colors.white} />
+                        <Ionicons name="chevron-forward" size={9} color={colors.greenDeep} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -849,7 +856,7 @@ export default function DashboardScreen() {
                   onPress={() => navigation.navigate('Notifications')}
                   style={[styles.notificationButton, compact && styles.notificationButtonCompact]}
                 >
-                  <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.white} />
+                  <Ionicons name="notifications-outline" size={compact ? 18 : 22} color={colors.text} />
                   <View style={styles.notificationCount}><Text style={styles.notificationCountText}>3</Text></View>
                 </TouchableOpacity>
               </View>
@@ -859,6 +866,11 @@ export default function DashboardScreen() {
 
         {activeProfileId === 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <AccountCardsSection compact={compact} view={activeProfileId} />
+        {activeProfileId === 'jane' ? (
+          <View style={[styles.paydaySection, compact && styles.paydaySectionCompact]}>
+            <PaydayCountdownMeter compact={compact} amount={amountBeforePayday} />
+          </View>
+        ) : null}
         <FinancialHealthCard compact={compact} view={activeProfileId} />
         <SavingsGoalsSection
           compact={compact}
@@ -898,9 +910,9 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
-  hero: { minHeight: 172, position: 'relative', overflow: 'visible', zIndex: 0, backgroundColor: palette.greenDeep },
+  hero: { minHeight: 136, position: 'relative', overflow: 'visible', zIndex: 0, backgroundColor: palette.background },
   heroMenuOpen: { zIndex: 20, elevation: 20 },
-  heroForeground: { zIndex: 2, paddingBottom: 30 },
+  heroForeground: { zIndex: 2, paddingBottom: 12 },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -909,17 +921,17 @@ const styles = StyleSheet.create({
   },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   profileSwitcherAnchor: { position: 'relative' },
-  greeting: { color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 18 },
+  greeting: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
   profileHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   avatarSettingsButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24 },
   customerProfileButton: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44 },
-  relationshipBadge: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.34)' },
+  relationshipBadge: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10, backgroundColor: colors.surfaceMid, borderWidth: 1, borderColor: colors.borderFaint },
   relationshipBadgeCompact: { paddingHorizontal: 6 },
-  relationshipText: { color: colors.white, fontSize: 10, lineHeight: 13, fontWeight: '700', letterSpacing: 0.2 },
+  relationshipText: { color: colors.greenDeep, fontSize: 10, lineHeight: 13, fontWeight: '700', letterSpacing: 0.2 },
   relationshipTextCompact: { fontSize: 9, lineHeight: 12 },
-  customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+  customerAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   customerAvatarInitials: { color: colors.greenDeep, fontSize: 13, lineHeight: 17, fontFamily: font.body.bold },
-  customerName: { color: colors.white, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
+  customerName: { color: palette.ink, fontSize: 17, fontFamily: font.headline.bold, lineHeight: 22 },
   profileMenu: { position: 'absolute', zIndex: 20, top: 68, left: 0, minWidth: 250, padding: 6, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, shadowColor: colors.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.16, shadowRadius: 12, elevation: 12 },
   profileMenuCompact: { minWidth: 225, top: 62 },
   profileMenuOption: { minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 8, borderRadius: 10 },
@@ -930,10 +942,11 @@ const styles = StyleSheet.create({
   profileMenuTitleSelected: { color: colors.greenDeep },
   profileMenuDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.13)', alignItems: 'center', justifyContent: 'center' },
-  notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
+  notificationButton: { width: 46, height: 46, borderRadius: 24, backgroundColor: colors.surfaceMid, alignItems: 'center', justifyContent: 'center' },
+  notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.background, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   financialHealthCard: { zIndex: 2, marginHorizontal: 16, marginTop: -26, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 10, shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
+  financialHealthCardAfterAccounts: { marginTop: 0 },
   savingsGoalsSection: { marginHorizontal: 16, marginBottom: 14, gap: 9 },
   savingsGoalsSectionCompact: { marginHorizontal: 12, marginBottom: 12, gap: 7 },
   savingsGoalsHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
@@ -964,6 +977,8 @@ const styles = StyleSheet.create({
   monthlySavingsFootnote: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
   healthMeterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
+  paydaySection: { marginHorizontal: 16, marginBottom: 14 },
+  paydaySectionCompact: { marginHorizontal: 12, marginBottom: 12 },
   paydayCard: { gap: 8, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
   paydayCardCompact: { padding: 9, gap: 7 },
   paydayMetricsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
@@ -1029,8 +1044,8 @@ const styles = StyleSheet.create({
   accountShowcaseBalanceAmount: { color: palette.ink, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
   accountShowcaseList: { position: 'relative' },
   accountShowcaseTouchable: { position: 'absolute', left: 0, right: 0, borderRadius: 18, overflow: 'hidden', shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 9, elevation: 2 },
-  accountShowcaseCard: { minHeight: 176, padding: 16, borderRadius: 18, gap: 5 },
-  accountShowcaseCardCompact: { minHeight: 168, padding: 14 },
+  accountShowcaseCard: { minHeight: 140, padding: 12, borderRadius: 18, gap: 4 },
+  accountShowcaseCardCompact: { minHeight: 132, padding: 11 },
   accountShowcaseTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 },
   accountShowcaseIdentity: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 9 },
   accountShowcaseBrand: { width: 30, height: 30, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
@@ -1066,8 +1081,8 @@ const styles = StyleSheet.create({
   offerTitle: { color: palette.ink, fontSize: 13, fontFamily: font.headline.bold, marginTop: 2 },
   offerDescription: { color: 'rgba(28,28,28,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
 
-  heroCompact: { minHeight: 150 },
-  heroForegroundCompact: { paddingBottom: 10 },
+  heroCompact: { minHeight: 112 },
+  heroForegroundCompact: { paddingBottom: 8 },
   topBarCompact: { paddingHorizontal: 14 },
   identityCompact: { gap: 6 },
   greetingCompact: { fontSize: 11, lineHeight: 15 },
