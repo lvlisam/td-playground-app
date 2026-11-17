@@ -108,7 +108,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
   const scrollRef = useRef<ScrollView>(null);
   const nextMessageId = useRef(1);
   const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState<TediChatMessage[]>([
+  const [messages, setMessages] = useState<TediChatMessage[]>(() => embedded ? [] : [
     {
       id: 0,
       role: 'assistant',
@@ -167,15 +167,17 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
           { paddingTop: embedded ? spacing.md : topInset + spacing.lg, paddingBottom: embedded ? spacing.md : insets.bottom + 112 },
         ]}
       >
-        <View style={styles.header}>
-          <View style={[styles.assistantIcon, compact && styles.assistantIconCompact]}>
-            <Ionicons name="sparkles-outline" size={compact ? 22 : 26} color={colors.greenDeep} />
+        {!embedded ? (
+          <View style={styles.header}>
+            <View style={[styles.assistantIcon, compact && styles.assistantIconCompact]}>
+              <Ionicons name="sparkles-outline" size={compact ? 22 : 26} color={colors.greenDeep} />
+            </View>
+            <View style={styles.headerCopy}>
+              <Text style={styles.eyebrow}>YOUR TD ASSISTANT</Text>
+              <Text style={[styles.title, compact && styles.titleCompact]}>Tedi</Text>
+            </View>
           </View>
-          <View style={styles.headerCopy}>
-            <Text style={styles.eyebrow}>YOUR TD ASSISTANT</Text>
-            <Text style={[styles.title, compact && styles.titleCompact]}>Tedi</Text>
-          </View>
-        </View>
+        ) : null}
 
         <ScrollView
           ref={scrollRef}

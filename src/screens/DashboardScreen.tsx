@@ -411,6 +411,25 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
         <View style={styles.healthMetricTile}>
           <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{savingsThisMonth}</Text>
+          {!isFamily ? (
+            <>
+              {cardTitle !== 'Jane’s Financial Snapshot' ? <Text style={styles.healthMetricDetail}>{cardTitle}</Text> : null}
+              <View style={styles.healthMeterRow}>
+                <View
+                  accessible
+                  accessibilityRole="progressbar"
+                  accessibilityLabel={`${viewLabel} financial health`}
+                  accessibilityValue={{ min: 0, max: 100, now: score }}
+                  style={styles.healthMeterTrack}
+                >
+                  <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+                </View>
+                <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+                  {score}<Text style={styles.healthScoreScale}> / 100</Text>
+                </Text>
+              </View>
+            </>
+          ) : null}
         </View>
       </View>
       <View style={styles.healthDivider} />
@@ -434,31 +453,6 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           ))}
         </View>
       ) : null}
-
-      <View style={styles.healthDivider} />
-      <View style={styles.healthSummary}>
-        {cardTitle !== 'Jane’s Financial Snapshot' && (
-          <View style={styles.healthHeader}>
-            <Text numberOfLines={1} style={[styles.healthTitle, compact && styles.healthTitleCompact]}>{cardTitle}</Text>
-          </View>
-        )}
-        {!isFamily ? (
-          <View style={styles.healthMeterRow}>
-            <View
-              accessible
-              accessibilityRole="progressbar"
-              accessibilityLabel={`${viewLabel} financial health`}
-              accessibilityValue={{ min: 0, max: 100, now: score }}
-              style={styles.healthMeterTrack}
-            >
-              <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
-            </View>
-            <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
-              {score}<Text style={styles.healthScoreScale}> / 100</Text>
-            </Text>
-          </View>
-        ) : null}
-      </View>
       {!isBusiness && !isFamily && !isChildProfile ? (
         <PaydayCountdownMeter compact={compact} amount={availableAmount} />
       ) : null}
@@ -756,9 +750,6 @@ const styles = StyleSheet.create({
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   financialHealthCard: { zIndex: 2, marginHorizontal: 16, marginTop: -26, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 10, shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
-  healthSummary: { gap: 5 },
-  healthHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  healthTitle: { flex: 1, minWidth: 0, color: palette.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' },
   healthMeterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
   paydayCard: { gap: 8, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
@@ -850,7 +841,6 @@ const styles = StyleSheet.create({
   topActionsCompact: { gap: 4 },
   notificationButtonCompact: { width: 34, height: 34 },
   financialHealthCardCompact: { marginHorizontal: 12, marginTop: -22, marginBottom: 12, padding: 12, gap: 8 },
-  healthTitleCompact: { fontSize: 14, lineHeight: 18 },
   healthScoreCompact: { fontSize: 12, lineHeight: 15 },
   totalBalanceValueCompact: { fontSize: 20, lineHeight: 24 },
   healthMetricsCompact: { gap: 6 },
