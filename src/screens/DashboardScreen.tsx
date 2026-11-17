@@ -480,7 +480,6 @@ function PaydayCountdownMeter({ compact, amount }: { compact: boolean; amount: n
         <View style={[styles.paydayMetric, styles.paydayCountdown]}>
           <Text style={styles.paydayLabel}>NEXT PAYDAY</Text>
           <Text accessibilityLabel={`${countdownLabel} until payday`} style={styles.paydayCounter}>{countdownLabel}</Text>
-          <Text style={styles.paydayDetail}>Estimated on the 15th and month-end</Text>
         </View>
       </View>
       <View
@@ -769,7 +768,6 @@ const styles = StyleSheet.create({
   paydayCountdown: { alignItems: 'flex-end' },
   paydayLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
   paydayAmount: { color: palette.ink, fontSize: 19, lineHeight: 24, fontFamily: font.headline.bold },
-  paydayDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, textAlign: 'right' },
   paydayCounter: { flexShrink: 0, color: colors.greenDeep, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
   paydayTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
   paydayFill: { height: '100%', borderRadius: 4, backgroundColor: colors.greenDeep },
