@@ -115,6 +115,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
       text: 'Good afternoon, Ava. I can help you find spending insights, send money, explore benefits, or manage your card.',
     },
   ]);
+  const isEmptyEmbedded = embedded && messages.length === 0;
   const shouldScrollToEnd = useRef(false);
 
   const sendMessage = (value = draft) => {
@@ -154,7 +155,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, embedded && styles.embeddedContainer]}
+      style={[styles.container, embedded && styles.embeddedContainer, embedded && !isEmptyEmbedded && styles.embeddedFixedContainer]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={insets.top}
     >
@@ -164,7 +165,8 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
           styles.chatLayout,
           compact && styles.chatLayoutCompact,
           embedded && styles.embeddedChatLayout,
-          { paddingTop: embedded ? spacing.md : topInset + spacing.lg, paddingBottom: embedded ? spacing.md : insets.bottom + 112 },
+          isEmptyEmbedded && styles.embeddedEmptyChatLayout,
+          { paddingTop: isEmptyEmbedded ? 0 : embedded ? spacing.md : topInset + spacing.lg, paddingBottom: isEmptyEmbedded ? 0 : embedded ? spacing.md : insets.bottom + 112 },
         ]}
       >
         {!embedded ? (
@@ -181,7 +183,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
 
         <ScrollView
           ref={scrollRef}
-          style={styles.messages}
+          style={[styles.messages, isEmptyEmbedded && styles.emptyEmbeddedMessages]}
           contentContainerStyle={styles.messagesContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -289,11 +291,14 @@ export default TediScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  embeddedContainer: { height: 560, minHeight: 560, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
+  embeddedContainer: { flex: 0, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
+  embeddedFixedContainer: { height: 560, minHeight: 560 },
   embeddedFooter: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: colors.surface },
   chatLayout: { flex: 1, paddingHorizontal: spacing.lg, gap: spacing.md },
   embeddedChatLayout: { paddingHorizontal: spacing.md, gap: spacing.sm },
+  embeddedEmptyChatLayout: { flex: 0 },
   chatLayoutCompact: { paddingHorizontal: 16, gap: 12 },
+  emptyEmbeddedMessages: { flex: 0, height: 0 },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   assistantIcon: { width: 54, height: 54, borderRadius: radius.xl, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   assistantIconCompact: { width: 46, height: 46, borderRadius: radius.lg },

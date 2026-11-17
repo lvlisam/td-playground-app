@@ -676,12 +676,12 @@ function PaydayCountdownMeter({ compact, amount }: { compact: boolean; amount: n
   return (
     <View style={[styles.paydayCard, compact && styles.paydayCardCompact]}>
       <View style={styles.paydayMetricsRow}>
-        <View style={styles.paydayMetric}>
-          <Text style={styles.paydayLabel}>LEFT BEFORE PAYDAY</Text>
+        <View style={[styles.paydayMetric, styles.paydayPrimaryMetric]}>
+          <Text numberOfLines={1} style={styles.paydayLabel}>Left before payday</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={styles.paydayAmount}>{formatDashboardCurrency(amount)}</Text>
         </View>
         <View style={[styles.paydayMetric, styles.paydayCountdown]}>
-          <Text style={styles.paydayLabel}>NEXT PAYDAY</Text>
+          <Text numberOfLines={1} style={styles.paydayLabel}>Next payday</Text>
           <Text accessibilityLabel={`${countdownLabel} until payday`} style={styles.paydayCounter}>{countdownLabel}</Text>
         </View>
       </View>
@@ -979,12 +979,13 @@ const styles = StyleSheet.create({
   healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
   paydaySection: { marginHorizontal: 16, marginBottom: 14 },
   paydaySectionCompact: { marginHorizontal: 12, marginBottom: 12 },
-  paydayCard: { gap: 8, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
-  paydayCardCompact: { padding: 9, gap: 7 },
-  paydayMetricsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  paydayCard: { gap: 8, padding: 12, borderWidth: 1, borderColor: colors.borderFaint, borderRadius: 12, backgroundColor: colors.surface },
+  paydayCardCompact: { padding: 10, gap: 7 },
+  paydayMetricsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   paydayMetric: { flex: 1, minWidth: 0, gap: 2 },
-  paydayCountdown: { alignItems: 'flex-end' },
-  paydayLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
+  paydayPrimaryMetric: { flex: 1.2 },
+  paydayCountdown: { flex: 0.8, alignItems: 'flex-end' },
+  paydayLabel: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, fontWeight: '700', letterSpacing: 0.2 },
   paydayAmount: { color: palette.ink, fontSize: 19, lineHeight: 24, fontFamily: font.headline.bold },
   paydayCounter: { flexShrink: 0, color: colors.greenDeep, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
   paydayTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
