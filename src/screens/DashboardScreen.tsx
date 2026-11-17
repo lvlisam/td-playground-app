@@ -452,17 +452,19 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
 
   return (
     <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
-      <View style={styles.totalBalanceRow}>
-        <View style={styles.totalBalanceCopy}>
-          <Text style={styles.totalBalanceLabel}>{isChildProfile ? 'TOTAL SAVINGS + SPENDING' : 'TOTAL AVAILABLE BALANCE'}</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>
-            {formatDashboardCurrency(netBalance)}
-          </Text>
+      {view !== 'jane' ? (
+        <View style={styles.totalBalanceRow}>
+          <View style={styles.totalBalanceCopy}>
+            <Text style={styles.totalBalanceLabel}>{isChildProfile ? 'TOTAL SAVINGS + SPENDING' : 'TOTAL AVAILABLE BALANCE'}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.totalBalanceValue, compact && styles.totalBalanceValueCompact]}>
+              {formatDashboardCurrency(netBalance)}
+            </Text>
+          </View>
+          <View style={styles.totalBalanceIcon}>
+            <Ionicons name={isBusiness ? 'briefcase-outline' : isFamily ? 'people-outline' : 'wallet-outline'} size={20} color={colors.greenDeep} />
+          </View>
         </View>
-        <View style={styles.totalBalanceIcon}>
-          <Ionicons name={isBusiness ? 'briefcase-outline' : isFamily ? 'people-outline' : 'wallet-outline'} size={20} color={colors.greenDeep} />
-        </View>
-      </View>
+      ) : null}
       <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
         {isBusiness || isFamily || isChildProfile ? (
           <View style={styles.healthMetricTile}>
@@ -534,6 +536,10 @@ function AccountCardsSection({ compact, view }: { compact: boolean; view: Dashbo
   const { accounts } = useAccounts();
   const [frontAccountId, setFrontAccountId] = useState<Account['id']>('checking');
   const frontAccount = accounts.find((account) => account.id === frontAccountId) ?? accounts[0];
+  const totalAvailableBalance = accounts.reduce((total, account) => {
+    const amount = parseDashboardAmount(account.amount);
+    return total + (account.id.endsWith('card') ? -amount : amount);
+  }, 0);
 
   if (view !== 'jane' || !frontAccount) return null;
 
@@ -550,7 +556,15 @@ function AccountCardsSection({ compact, view }: { compact: boolean; view: Dashbo
         <Text accessibilityRole="header" style={styles.accountShowcaseTitle}>My accounts</Text>
         <Text style={styles.accountShowcaseCount}>{accounts.length} accounts</Text>
       </View>
-      <Text style={styles.accountShowcaseHint}>Tap a card to bring it to the top</Text>
+      <View
+        accessible
+        accessibilityRole="text"
+        accessibilityLabel={`Total available balance ${formatDashboardCurrency(totalAvailableBalance)}`}
+        style={styles.accountShowcaseBalanceRow}
+      >
+        <Text style={styles.accountShowcaseBalanceLabel}>Total available balance</Text>
+        <Text style={styles.accountShowcaseBalanceAmount}>{formatDashboardCurrency(totalAvailableBalance)}</Text>
+      </View>
       <View style={[styles.accountShowcaseList, { height: cardHeight + (stackedAccounts.length - 1) * stackOffset }]}>
         {stackedAccounts.map((account, index) => (
           <AccountShowcaseCard
@@ -874,8 +888,8 @@ export default function DashboardScreen() {
         </View>
 
         {activeProfileId === 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
-        <FinancialHealthCard compact={compact} view={activeProfileId} />
         <AccountCardsSection compact={compact} view={activeProfileId} />
+        <FinancialHealthCard compact={compact} view={activeProfileId} />
         <SavingsGoalsSection
           compact={compact}
           view={activeProfileId}
@@ -1042,7 +1056,9 @@ const styles = StyleSheet.create({
   accountShowcaseHeading: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
   accountShowcaseTitle: { color: palette.ink, fontSize: 16, lineHeight: 21, fontFamily: font.headline.bold },
   accountShowcaseCount: { color: colors.textSecondary, fontSize: 11, lineHeight: 15 },
-  accountShowcaseHint: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, marginTop: -6 },
+  accountShowcaseBalanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: -6 },
+  accountShowcaseBalanceLabel: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, fontFamily: font.body.regular },
+  accountShowcaseBalanceAmount: { color: palette.ink, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
   accountShowcaseList: { position: 'relative' },
   accountShowcaseTouchable: { position: 'absolute', left: 0, right: 0, borderRadius: 18, overflow: 'hidden', shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 9, elevation: 2 },
   accountShowcaseCard: { minHeight: 176, padding: 16, borderRadius: 18, gap: 5 },
