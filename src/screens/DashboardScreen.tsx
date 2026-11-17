@@ -78,6 +78,15 @@ function formatDashboardCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value);
 }
 
+function getSavingsThisMonth(view: DashboardProfileId) {
+  return view === 'business' ? 1200 : view === 'family' ? 450 : view === 'james' ? 310 : view === 'olivia' ? 50 : view === 'noah' ? 35 : 240;
+}
+
+function formatMonthlySavings(value: number) {
+  const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.abs(value));
+  return `${value < 0 ? '−' : '+'}${formattedAmount}`;
+}
+
 function getPaydayCountdown(today = new Date()) {
   const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const dayOfMonth = today.getDate();
@@ -384,7 +393,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
         : view === 'noah'
           ? `${profile.name}’s youth banking`
           : `${profile.name}’s Financial Snapshot`;
-  const savingsThisMonth = isBusiness ? '+$1,200' : isFamily ? '+$450' : view === 'james' ? '+$310' : view === 'olivia' ? '+$50' : view === 'noah' ? '+$35' : '+$240';
+  const savingsThisMonth = getSavingsThisMonth(view);
 
   return (
     <View style={[styles.financialHealthCard, compact && styles.financialHealthCardCompact]}>
@@ -410,7 +419,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
         ) : null}
         <View style={styles.healthMetricTile}>
           <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{savingsThisMonth}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{formatMonthlySavings(savingsThisMonth)}</Text>
           {!isFamily ? (
             <>
               {cardTitle !== 'Jane’s Financial Snapshot' ? <Text style={styles.healthMetricDetail}>{cardTitle}</Text> : null}
@@ -456,6 +465,94 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
           ))}
         </View>
       ) : null}
+    </View>
+  );
+}
+
+function SavingsGoalsSection({ compact, view, onOpenPlans }: {
+  compact: boolean;
+  view: DashboardProfileId;
+  onOpenPlans: () => void;
+}) {
+  const { accounts } = useAccounts();
+  const savingsAccount = accounts.find((account) => account.id === 'savings');
+  const plan = savingsAccount?.plan;
+
+  if (view !== 'jane' || !savingsAccount || plan?.kind !== 'savings-goal') return null;
+
+  const savedThisMonth = getSavingsThisMonth(view);
+  const goalProgress = Math.max(0, Math.min(100, Math.round((plan.savedAmount / plan.targetAmount) * 100)));
+  const monthlyProgress = Math.max(0, Math.min(100, Math.round((savedThisMonth / plan.monthlyContribution) * 100)));
+
+  return (
+    <View style={[styles.savingsGoalsSection, compact && styles.savingsGoalsSectionCompact]}>
+      <View style={styles.savingsGoalsHeading}>
+        <View style={styles.savingsGoalsTitleRow}>
+          <View style={styles.savingsGoalsHeadingIcon}>
+            <Ionicons name="flag-outline" size={17} color={colors.greenDeep} />
+          </View>
+          <Text style={styles.savingsGoalsTitle}>Savings goals</Text>
+        </View>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="View savings and account plans"
+          onPress={onOpenPlans}
+          style={styles.savingsGoalsAction}
+        >
+          <Text style={styles.savingsGoalsActionText}>View plan</Text>
+          <Ionicons name="chevron-forward" size={14} color={colors.greenDeep} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.savingsGoalCard}>
+        <View style={styles.savingsGoalHeader}>
+          <View style={styles.savingsGoalIcon}>
+            <Ionicons name="airplane-outline" size={17} color={colors.greenDeep} />
+          </View>
+          <View style={styles.savingsGoalCopy}>
+            <Text numberOfLines={1} style={styles.savingsGoalName}>{savingsAccount.name}</Text>
+            <Text style={styles.savingsGoalDate}>Target {plan.targetDate}</Text>
+          </View>
+          <Text style={styles.savingsGoalPercent}>{goalProgress}%</Text>
+        </View>
+
+        <View
+          accessible
+          accessibilityRole="progressbar"
+          accessibilityLabel={`${savingsAccount.name} overall goal progress`}
+          accessibilityValue={{ min: 0, max: 100, now: goalProgress }}
+          style={styles.savingsGoalTrack}
+        >
+          <View style={[styles.savingsGoalFill, { width: `${goalProgress}%` }]} />
+        </View>
+        <View style={styles.savingsGoalAmounts}>
+          <Text style={styles.savingsGoalAmount}>{formatDashboardCurrency(plan.savedAmount)} saved</Text>
+          <Text style={styles.savingsGoalAmount}>{formatDashboardCurrency(plan.targetAmount)} goal</Text>
+        </View>
+
+        <View style={styles.savingsGoalDivider} />
+
+        <View style={styles.monthlySavingsHeading}>
+          <View>
+            <Text style={styles.monthlySavingsLabel}>Saved this month</Text>
+            <Text style={styles.monthlySavingsAmount}>{formatMonthlySavings(savedThisMonth)}</Text>
+          </View>
+          <View style={styles.monthlyTargetCopy}>
+            <Text style={styles.monthlySavingsLabel}>Monthly contribution</Text>
+            <Text style={styles.monthlyTargetAmount}>{formatDashboardCurrency(plan.monthlyContribution)}</Text>
+          </View>
+        </View>
+        <View
+          accessible
+          accessibilityRole="progressbar"
+          accessibilityLabel="Monthly savings contribution progress"
+          accessibilityValue={{ min: 0, max: 100, now: monthlyProgress }}
+          style={styles.monthlySavingsTrack}
+        >
+          <View style={[styles.monthlySavingsFill, { width: `${monthlyProgress}%` }]} />
+        </View>
+        <Text style={styles.monthlySavingsFootnote}>{monthlyProgress}% of your monthly contribution goal</Text>
+      </View>
     </View>
   );
 }
@@ -679,6 +776,11 @@ export default function DashboardScreen() {
 
         {activeProfileId === 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <FinancialHealthCard compact={compact} view={activeProfileId} />
+        <SavingsGoalsSection
+          compact={compact}
+          view={activeProfileId}
+          onOpenPlans={() => navigation.navigate('Plan')}
+        />
         {activeProfileId !== 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <RecentTransactionsSection compact={compact} view={activeProfileId} />
         <TediInsightsCard
@@ -750,6 +852,34 @@ const styles = StyleSheet.create({
   notificationCount: { position: 'absolute', right: -1, top: -3, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.red, borderWidth: 1.5, borderColor: palette.greenDeep, alignItems: 'center', justifyContent: 'center' },
   notificationCountText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   financialHealthCard: { zIndex: 2, marginHorizontal: 16, marginTop: -26, marginBottom: 14, padding: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 10, shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
+  savingsGoalsSection: { marginHorizontal: 16, marginBottom: 14, gap: 9 },
+  savingsGoalsSectionCompact: { marginHorizontal: 12, marginBottom: 12, gap: 7 },
+  savingsGoalsHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  savingsGoalsTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  savingsGoalsHeadingIcon: { width: 30, height: 30, borderRadius: 10, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  savingsGoalsTitle: { color: colors.text, fontSize: 16, lineHeight: 21, fontFamily: font.headline.bold },
+  savingsGoalsAction: { minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 5 },
+  savingsGoalsActionText: { color: colors.greenDeep, fontSize: 11, lineHeight: 16, fontFamily: font.headline.semibold },
+  savingsGoalCard: { padding: 14, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 9 },
+  savingsGoalHeader: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  savingsGoalIcon: { width: 34, height: 34, borderRadius: 11, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  savingsGoalCopy: { flex: 1, minWidth: 0, gap: 2 },
+  savingsGoalName: { color: colors.text, fontSize: 13, lineHeight: 17, fontFamily: font.headline.semibold },
+  savingsGoalDate: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  savingsGoalPercent: { color: colors.greenDeep, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
+  savingsGoalTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
+  savingsGoalFill: { height: '100%', borderRadius: 4, backgroundColor: colors.greenDeep },
+  savingsGoalAmounts: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  savingsGoalAmount: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  savingsGoalDivider: { height: 1, backgroundColor: colors.borderFaint, marginVertical: 2 },
+  monthlySavingsHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  monthlyTargetCopy: { alignItems: 'flex-end' },
+  monthlySavingsLabel: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  monthlySavingsAmount: { color: colors.greenDeep, fontSize: 16, lineHeight: 21, fontFamily: font.headline.bold },
+  monthlyTargetAmount: { color: colors.text, fontSize: 13, lineHeight: 18, fontFamily: font.headline.semibold },
+  monthlySavingsTrack: { height: 5, borderRadius: 3, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
+  monthlySavingsFill: { height: '100%', borderRadius: 3, backgroundColor: colors.green },
+  monthlySavingsFootnote: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
   healthMeterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
   paydayCard: { gap: 8, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
