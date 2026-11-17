@@ -7,6 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F6F7F6",
+    "extra": {
+      "router": {
+        "headOrigin": "https://current-app-display-td-future-web.v0.build"
+      }
+    },
     "splash": {
       "backgroundColor": "#F6F7F6"
     },

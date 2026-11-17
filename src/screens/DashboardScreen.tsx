@@ -400,12 +400,14 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
         </View>
       </View>
       <View style={[styles.healthMetrics, compact && styles.healthMetricsCompact]}>
-        <View style={styles.healthMetricTile}>
-            <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : isChildProfile ? 'SPENDING ACCOUNT' : isFamily ? 'AFTER GOAL PLAN' : 'LEFT BEFORE PAYDAY'}</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
-            {formatDashboardCurrency(availableAmount)}
-          </Text>
-        </View>
+        {isBusiness || isFamily || isChildProfile ? (
+          <View style={styles.healthMetricTile}>
+            <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>{isBusiness ? 'CASH AFTER CARD' : isChildProfile ? 'SPENDING ACCOUNT' : 'AFTER GOAL PLAN'}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>
+              {formatDashboardCurrency(availableAmount)}
+            </Text>
+          </View>
+        ) : null}
         <View style={styles.healthMetricTile}>
           <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{savingsThisMonth}</Text>
@@ -458,24 +460,28 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
         ) : null}
       </View>
       {!isBusiness && !isFamily && !isChildProfile ? (
-        <PaydayCountdownMeter compact={compact} />
+        <PaydayCountdownMeter compact={compact} amount={availableAmount} />
       ) : null}
     </View>
   );
 }
 
-function PaydayCountdownMeter({ compact }: { compact: boolean }) {
+function PaydayCountdownMeter({ compact, amount }: { compact: boolean; amount: number }) {
   const { daysUntilPayday, progress } = getPaydayCountdown();
   const countdownLabel = daysUntilPayday === 0 ? 'Payday today' : `${daysUntilPayday} ${daysUntilPayday === 1 ? 'day' : 'days'}`;
 
   return (
     <View style={[styles.paydayCard, compact && styles.paydayCardCompact]}>
-      <View style={styles.paydayHeader}>
-        <View style={styles.paydayCopy}>
+      <View style={styles.paydayMetricsRow}>
+        <View style={styles.paydayMetric}>
+          <Text style={styles.paydayLabel}>LEFT BEFORE PAYDAY</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={styles.paydayAmount}>{formatDashboardCurrency(amount)}</Text>
+        </View>
+        <View style={[styles.paydayMetric, styles.paydayCountdown]}>
           <Text style={styles.paydayLabel}>NEXT PAYDAY</Text>
+          <Text accessibilityLabel={`${countdownLabel} until payday`} style={styles.paydayCounter}>{countdownLabel}</Text>
           <Text style={styles.paydayDetail}>Estimated on the 15th and month-end</Text>
         </View>
-        <Text accessibilityLabel={`${countdownLabel} until payday`} style={styles.paydayCounter}>{countdownLabel}</Text>
       </View>
       <View
         accessible
@@ -758,10 +764,12 @@ const styles = StyleSheet.create({
   healthScore: { flexShrink: 0, color: colors.greenDeep, fontSize: 13, lineHeight: 16, fontFamily: font.headline.bold },
   paydayCard: { gap: 8, padding: 10, borderRadius: 12, backgroundColor: colors.surfaceMid },
   paydayCardCompact: { padding: 9, gap: 7 },
-  paydayHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  paydayCopy: { flex: 1, minWidth: 0, gap: 2 },
+  paydayMetricsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  paydayMetric: { flex: 1, minWidth: 0, gap: 2 },
+  paydayCountdown: { alignItems: 'flex-end' },
   paydayLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.5 },
-  paydayDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14 },
+  paydayAmount: { color: palette.ink, fontSize: 19, lineHeight: 24, fontFamily: font.headline.bold },
+  paydayDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, textAlign: 'right' },
   paydayCounter: { flexShrink: 0, color: colors.greenDeep, fontSize: 14, lineHeight: 18, fontFamily: font.headline.bold },
   paydayTrack: { height: 7, borderRadius: 4, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
   paydayFill: { height: '100%', borderRadius: 4, backgroundColor: colors.greenDeep },
