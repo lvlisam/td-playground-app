@@ -417,29 +417,31 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
             </Text>
           </View>
         ) : null}
-        <View style={styles.healthMetricTile}>
-          <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{formatMonthlySavings(savingsThisMonth)}</Text>
-          {!isFamily ? (
-            <>
-              {cardTitle !== 'Jane’s Financial Snapshot' ? <Text style={styles.healthMetricDetail}>{cardTitle}</Text> : null}
-              <View style={styles.healthMeterRow}>
-                <View
-                  accessible
-                  accessibilityRole="progressbar"
-                  accessibilityLabel={`${viewLabel} financial health`}
-                  accessibilityValue={{ min: 0, max: 100, now: score }}
-                  style={styles.healthMeterTrack}
-                >
-                  <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+        {view !== 'jane' ? (
+          <View style={styles.healthMetricTile}>
+            <Text numberOfLines={compact ? 2 : 1} style={[styles.healthMetricLabel, compact && styles.healthMetricLabelCompact]}>SAVED THIS MONTH</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.healthMetricValue, compact && styles.healthMetricValueCompact]}>{formatMonthlySavings(savingsThisMonth)}</Text>
+            {!isFamily ? (
+              <>
+                {cardTitle !== 'Jane’s Financial Snapshot' ? <Text style={styles.healthMetricDetail}>{cardTitle}</Text> : null}
+                <View style={styles.healthMeterRow}>
+                  <View
+                    accessible
+                    accessibilityRole="progressbar"
+                    accessibilityLabel={`${viewLabel} financial health`}
+                    accessibilityValue={{ min: 0, max: 100, now: score }}
+                    style={styles.healthMeterTrack}
+                  >
+                    <View style={[styles.healthMeterFill, { width: `${score}%` }]} />
+                  </View>
+                  <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
+                    {score}<Text style={styles.healthScoreScale}> / 100</Text>
+                  </Text>
                 </View>
-                <Text accessibilityLabel={`${viewLabel} score ${score} out of 100`} style={[styles.healthScore, compact && styles.healthScoreCompact]}>
-                  {score}<Text style={styles.healthScoreScale}> / 100</Text>
-                </Text>
-              </View>
-            </>
-          ) : null}
-        </View>
+              </>
+            ) : null}
+          </View>
+        ) : null}
       </View>
       {!isBusiness && !isFamily && !isChildProfile ? (
         <PaydayCountdownMeter compact={compact} amount={availableAmount} />
