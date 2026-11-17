@@ -288,6 +288,52 @@ function AccountRow({ account, last, compact }: { account: DashboardAccount; las
   );
 }
 
+const accountCardGradients: Record<Account['id'], [string, string]> = {
+  checking: ['#35C600', '#238B14'],
+  savings: ['#1B7550', '#15543D'],
+  card: ['#36443D', '#1A2721'],
+};
+
+function AccountShowcaseCard({ account, compact }: { account: Account; compact: boolean }) {
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const isCreditAccount = account.id === 'card';
+  const iconName = isCreditAccount ? 'card-outline' : account.id === 'savings' ? 'leaf-outline' : 'wallet-outline';
+
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={`${account.name}, ${account.amountLabel.toLowerCase()} ${account.amount}, ${account.detail}`}
+      accessibilityHint={isCreditAccount ? 'Opens card manager' : 'Opens account details'}
+      onPress={() => isCreditAccount
+        ? navigation.navigate('Card Manager')
+        : navigation.navigate('Account servicing', { accountId: account.id })}
+      style={styles.accountShowcaseTouchable}
+    >
+      <LinearGradient
+        colors={accountCardGradients[account.id]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.accountShowcaseCard, compact && styles.accountShowcaseCardCompact]}
+      >
+        <View style={styles.accountShowcaseTop}>
+          <View style={styles.accountShowcaseBrand}>
+            <Text style={styles.accountShowcaseBrandText}>TD</Text>
+          </View>
+          <Ionicons name={iconName} size={20} color="rgba(255,255,255,0.88)" />
+        </View>
+        <Text numberOfLines={1} style={styles.accountShowcaseProduct}>{account.productLabel.toUpperCase()}</Text>
+        <Text numberOfLines={1} style={styles.accountShowcaseName}>{account.name}</Text>
+        <Text numberOfLines={1} adjustsFontSizeToFit style={styles.accountShowcaseAmount}>{account.amount}</Text>
+        <View style={styles.accountShowcaseFooter}>
+          <Text style={styles.accountShowcaseAmountLabel}>{account.amountLabel}</Text>
+          <Text numberOfLines={1} style={styles.accountShowcaseDetail}>{account.detail}</Text>
+        </View>
+        {account.note ? <Text style={styles.accountShowcaseNote}>{account.note}</Text> : null}
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
+
 function RecentTransactionRow({ transaction, compact, last }: {
   transaction: DashboardTransaction;
   compact: boolean;
@@ -446,27 +492,49 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
       {!isBusiness && !isFamily && !isChildProfile ? (
         <PaydayCountdownMeter compact={compact} amount={availableAmount} />
       ) : null}
-      <View style={styles.healthDivider} />
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={`${accountLabel}, ${visibleAccounts.length} linked`}
-        accessibilityHint={accountsExpanded ? 'Hides your linked accounts' : 'Shows your linked accounts'}
-        accessibilityState={{ expanded: accountsExpanded }}
-        onPress={() => setAccountsExpanded((expanded) => !expanded)}
-        style={styles.accountSectionHeader}
-      >
-        <View style={styles.accountSectionCopy}>
-          <Text style={styles.accountSectionTitle}>{accountLabel}</Text>
-          <Text style={styles.linkedAccountCount}>{visibleAccounts.length} linked</Text>
-        </View>
-      </TouchableOpacity>
-      {accountsExpanded ? (
-        <View style={styles.accountList}>
-          {visibleAccounts.map((account, index) => (
-            <AccountRow key={account.id} account={account} last={index === visibleAccounts.length - 1} compact={compact} />
-          ))}
-        </View>
+      {view !== 'jane' ? (
+        <>
+          <View style={styles.healthDivider} />
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={`${accountLabel}, ${visibleAccounts.length} linked`}
+            accessibilityHint={accountsExpanded ? 'Hides your linked accounts' : 'Shows your linked accounts'}
+            accessibilityState={{ expanded: accountsExpanded }}
+            onPress={() => setAccountsExpanded((expanded) => !expanded)}
+            style={styles.accountSectionHeader}
+          >
+            <View style={styles.accountSectionCopy}>
+              <Text style={styles.accountSectionTitle}>{accountLabel}</Text>
+              <Text style={styles.linkedAccountCount}>{visibleAccounts.length} linked</Text>
+            </View>
+          </TouchableOpacity>
+          {accountsExpanded ? (
+            <View style={styles.accountList}>
+              {visibleAccounts.map((account, index) => (
+                <AccountRow key={account.id} account={account} last={index === visibleAccounts.length - 1} compact={compact} />
+              ))}
+            </View>
+          ) : null}
+        </>
       ) : null}
+    </View>
+  );
+}
+
+function AccountCardsSection({ compact, view }: { compact: boolean; view: DashboardProfileId }) {
+  const { accounts } = useAccounts();
+
+  if (view !== 'jane') return null;
+
+  return (
+    <View style={[styles.accountShowcaseSection, compact && styles.accountShowcaseSectionCompact]}>
+      <View style={styles.accountShowcaseHeading}>
+        <Text accessibilityRole="header" style={styles.accountShowcaseTitle}>My accounts</Text>
+        <Text style={styles.accountShowcaseCount}>{accounts.length} accounts</Text>
+      </View>
+      <View style={styles.accountShowcaseList}>
+        {accounts.map((account) => <AccountShowcaseCard key={account.id} account={account} compact={compact} />)}
+      </View>
     </View>
   );
 }
@@ -778,6 +846,7 @@ export default function DashboardScreen() {
 
         {activeProfileId === 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <FinancialHealthCard compact={compact} view={activeProfileId} />
+        <AccountCardsSection compact={compact} view={activeProfileId} />
         <SavingsGoalsSection
           compact={compact}
           view={activeProfileId}
@@ -939,6 +1008,25 @@ const styles = StyleSheet.create({
   transactionMeta: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, fontFamily: font.body.regular },
   transactionAmount: { color: palette.ink, fontSize: 12, lineHeight: 16, fontFamily: font.headline.bold, flexShrink: 0 },
   transactionAmountCredit: { color: colors.greenDeep },
+  accountShowcaseSection: { marginHorizontal: 16, marginBottom: 14, gap: 10 },
+  accountShowcaseSectionCompact: { marginHorizontal: 12, marginBottom: 12, gap: 8 },
+  accountShowcaseHeading: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
+  accountShowcaseTitle: { color: palette.ink, fontSize: 16, lineHeight: 21, fontFamily: font.headline.bold },
+  accountShowcaseCount: { color: colors.textSecondary, fontSize: 11, lineHeight: 15 },
+  accountShowcaseList: { gap: 10 },
+  accountShowcaseTouchable: { borderRadius: 18, overflow: 'hidden', shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 9, elevation: 2 },
+  accountShowcaseCard: { minHeight: 158, padding: 16, borderRadius: 18, gap: 3 },
+  accountShowcaseCardCompact: { minHeight: 150, padding: 14 },
+  accountShowcaseTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1 },
+  accountShowcaseBrand: { width: 30, height: 30, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
+  accountShowcaseBrandText: { color: colors.white, fontSize: 12, fontWeight: '800', letterSpacing: -0.6 },
+  accountShowcaseProduct: { color: 'rgba(255,255,255,0.76)', fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.7 },
+  accountShowcaseName: { color: colors.white, fontSize: 14, lineHeight: 18, fontFamily: font.headline.semibold },
+  accountShowcaseAmount: { color: colors.white, fontSize: 27, lineHeight: 32, fontFamily: font.headline.bold },
+  accountShowcaseFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 1 },
+  accountShowcaseAmountLabel: { color: 'rgba(255,255,255,0.78)', fontSize: 10, lineHeight: 14 },
+  accountShowcaseDetail: { flexShrink: 1, color: 'rgba(255,255,255,0.84)', fontSize: 10, lineHeight: 14, textAlign: 'right' },
+  accountShowcaseNote: { color: colors.white, fontSize: 10, lineHeight: 14, fontFamily: font.headline.semibold, marginTop: 1 },
   accountList: { backgroundColor: colors.surface, borderRadius: 12, overflow: 'hidden' },
   accountRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, gap: 8 },
   accountDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderFaint },
