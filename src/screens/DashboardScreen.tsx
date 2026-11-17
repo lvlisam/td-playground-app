@@ -294,8 +294,14 @@ const accountCardGradients: Record<Account['id'], [string, string]> = {
   card: ['#36443D', '#1A2721'],
 };
 
-function AccountShowcaseCard({ account, compact }: { account: Account; compact: boolean }) {
-  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+function AccountShowcaseCard({ account, compact, isFront, stackIndex, stackOffset, onBringForward }: {
+  account: Account;
+  compact: boolean;
+  isFront: boolean;
+  stackIndex: number;
+  stackOffset: number;
+  onBringForward: (accountId: Account['id']) => void;
+}) {
   const isCreditAccount = account.id === 'card';
   const iconName = isCreditAccount ? 'card-outline' : account.id === 'savings' ? 'leaf-outline' : 'wallet-outline';
 
@@ -303,11 +309,10 @@ function AccountShowcaseCard({ account, compact }: { account: Account; compact: 
     <TouchableOpacity
       accessibilityRole="button"
       accessibilityLabel={`${account.name}, ${account.amountLabel.toLowerCase()} ${account.amount}, ${account.detail}`}
-      accessibilityHint={isCreditAccount ? 'Opens card manager' : 'Opens account details'}
-      onPress={() => isCreditAccount
-        ? navigation.navigate('Card Manager')
-        : navigation.navigate('Account servicing', { accountId: account.id })}
-      style={styles.accountShowcaseTouchable}
+      accessibilityHint={isFront ? 'This card is already at the top' : 'Brings this account card to the top'}
+      accessibilityState={{ selected: isFront }}
+      onPress={() => onBringForward(account.id)}
+      style={[styles.accountShowcaseTouchable, { top: stackIndex * stackOffset, zIndex: stackIndex }]}
     >
       <LinearGradient
         colors={accountCardGradients[account.id]}
@@ -316,13 +321,17 @@ function AccountShowcaseCard({ account, compact }: { account: Account; compact: 
         style={[styles.accountShowcaseCard, compact && styles.accountShowcaseCardCompact]}
       >
         <View style={styles.accountShowcaseTop}>
-          <View style={styles.accountShowcaseBrand}>
-            <Text style={styles.accountShowcaseBrandText}>TD</Text>
+          <View style={styles.accountShowcaseIdentity}>
+            <View style={styles.accountShowcaseBrand}>
+              <Text style={styles.accountShowcaseBrandText}>TD</Text>
+            </View>
+            <View style={styles.accountShowcaseCopy}>
+              <Text numberOfLines={1} style={styles.accountShowcaseProduct}>{account.productLabel.toUpperCase()}</Text>
+              <Text numberOfLines={1} style={styles.accountShowcaseName}>{account.name}</Text>
+            </View>
           </View>
           <Ionicons name={iconName} size={20} color="rgba(255,255,255,0.88)" />
         </View>
-        <Text numberOfLines={1} style={styles.accountShowcaseProduct}>{account.productLabel.toUpperCase()}</Text>
-        <Text numberOfLines={1} style={styles.accountShowcaseName}>{account.name}</Text>
         <Text numberOfLines={1} adjustsFontSizeToFit style={styles.accountShowcaseAmount}>{account.amount}</Text>
         <View style={styles.accountShowcaseFooter}>
           <Text style={styles.accountShowcaseAmountLabel}>{account.amountLabel}</Text>
@@ -523,8 +532,17 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
 
 function AccountCardsSection({ compact, view }: { compact: boolean; view: DashboardProfileId }) {
   const { accounts } = useAccounts();
+  const [frontAccountId, setFrontAccountId] = useState<Account['id']>('checking');
+  const frontAccount = accounts.find((account) => account.id === frontAccountId) ?? accounts[0];
 
-  if (view !== 'jane') return null;
+  if (view !== 'jane' || !frontAccount) return null;
+
+  const stackedAccounts = [
+    ...accounts.filter((account) => account.id !== frontAccount.id),
+    frontAccount,
+  ];
+  const stackOffset = compact ? 44 : 48;
+  const cardHeight = compact ? 168 : 176;
 
   return (
     <View style={[styles.accountShowcaseSection, compact && styles.accountShowcaseSectionCompact]}>
@@ -532,8 +550,19 @@ function AccountCardsSection({ compact, view }: { compact: boolean; view: Dashbo
         <Text accessibilityRole="header" style={styles.accountShowcaseTitle}>My accounts</Text>
         <Text style={styles.accountShowcaseCount}>{accounts.length} accounts</Text>
       </View>
-      <View style={styles.accountShowcaseList}>
-        {accounts.map((account) => <AccountShowcaseCard key={account.id} account={account} compact={compact} />)}
+      <Text style={styles.accountShowcaseHint}>Tap a card to bring it to the top</Text>
+      <View style={[styles.accountShowcaseList, { height: cardHeight + (stackedAccounts.length - 1) * stackOffset }]}>
+        {stackedAccounts.map((account, index) => (
+          <AccountShowcaseCard
+            key={account.id}
+            account={account}
+            compact={compact}
+            isFront={account.id === frontAccount.id}
+            stackIndex={index}
+            stackOffset={stackOffset}
+            onBringForward={setFrontAccountId}
+          />
+        ))}
       </View>
     </View>
   );
@@ -1013,15 +1042,18 @@ const styles = StyleSheet.create({
   accountShowcaseHeading: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
   accountShowcaseTitle: { color: palette.ink, fontSize: 16, lineHeight: 21, fontFamily: font.headline.bold },
   accountShowcaseCount: { color: colors.textSecondary, fontSize: 11, lineHeight: 15 },
-  accountShowcaseList: { gap: 10 },
-  accountShowcaseTouchable: { borderRadius: 18, overflow: 'hidden', shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 9, elevation: 2 },
-  accountShowcaseCard: { minHeight: 158, padding: 16, borderRadius: 18, gap: 3 },
-  accountShowcaseCardCompact: { minHeight: 150, padding: 14 },
-  accountShowcaseTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1 },
+  accountShowcaseHint: { color: colors.textSecondary, fontSize: 10, lineHeight: 14, marginTop: -6 },
+  accountShowcaseList: { position: 'relative' },
+  accountShowcaseTouchable: { position: 'absolute', left: 0, right: 0, borderRadius: 18, overflow: 'hidden', shadowColor: colors.greenDeep, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 9, elevation: 2 },
+  accountShowcaseCard: { minHeight: 176, padding: 16, borderRadius: 18, gap: 5 },
+  accountShowcaseCardCompact: { minHeight: 168, padding: 14 },
+  accountShowcaseTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 },
+  accountShowcaseIdentity: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 9 },
   accountShowcaseBrand: { width: 30, height: 30, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
   accountShowcaseBrandText: { color: colors.white, fontSize: 12, fontWeight: '800', letterSpacing: -0.6 },
-  accountShowcaseProduct: { color: 'rgba(255,255,255,0.76)', fontSize: 9, lineHeight: 13, fontWeight: '700', letterSpacing: 0.7 },
-  accountShowcaseName: { color: colors.white, fontSize: 14, lineHeight: 18, fontFamily: font.headline.semibold },
+  accountShowcaseCopy: { flex: 1, minWidth: 0, gap: 1 },
+  accountShowcaseProduct: { color: 'rgba(255,255,255,0.76)', fontSize: 9, lineHeight: 12, fontWeight: '700', letterSpacing: 0.7 },
+  accountShowcaseName: { color: colors.white, fontSize: 13, lineHeight: 16, fontFamily: font.headline.semibold },
   accountShowcaseAmount: { color: colors.white, fontSize: 27, lineHeight: 32, fontFamily: font.headline.bold },
   accountShowcaseFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 1 },
   accountShowcaseAmountLabel: { color: 'rgba(255,255,255,0.78)', fontSize: 10, lineHeight: 14 },
