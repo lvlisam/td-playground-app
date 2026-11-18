@@ -160,7 +160,7 @@ export default function GetHelpScreen() {
               </View>
             ))}
           </View>
-          <Text style={styles.disclaimer}>Scheduling and store details are illustrative previews. No appointment or support request is sent from this demo.</Text>
+          <Text style={styles.disclaimer}>Store availability and scheduling details are illustrative. No appointment or support request is submitted here.</Text>
         </View>
       </ScrollView>
       <KeyboardAvoidingView

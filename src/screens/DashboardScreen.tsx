@@ -241,7 +241,7 @@ type DashboardRecommendation = {
   eyebrow: string;
   title: string;
   description: string;
-  destination: 'Benefits' | 'Plan' | 'Card Manager';
+  destination: 'Benefits' | 'Insights' | 'Card Manager';
 };
 
 function getDashboardRecommendation(
@@ -267,7 +267,7 @@ function getDashboardRecommendation(
       eyebrow: 'FOR YOUR HOUSEHOLD',
       title: 'Bring family goals into focus',
       description: `${categoryContext} Review shared savings goals alongside your household plan.`,
-      destination: 'Plan',
+      destination: 'Insights',
     };
   }
 
@@ -276,7 +276,7 @@ function getDashboardRecommendation(
       eyebrow: 'AGE-APPROPRIATE IDEA',
       title: 'Build a youth savings goal',
       description: `${categoryContext} Explore a simple savings goal that fits this youth profile.`,
-      destination: 'Plan',
+      destination: 'Insights',
     };
   }
 
@@ -294,7 +294,7 @@ function getDashboardRecommendation(
       eyebrow: 'BASED ON RECENT ACTIVITY',
       title: 'Explore a savings goal',
       description: `${categoryContext} A savings goal can help you organize money for a future home-related expense.`,
-      destination: 'Plan',
+      destination: 'Insights',
     };
   }
 
@@ -912,7 +912,7 @@ export default function DashboardScreen() {
         <SavingsGoalsSection
           compact={compact}
           view={activeProfileId}
-          onOpenPlans={() => navigation.navigate('Plan')}
+          onOpenPlans={() => navigation.navigate('Insights')}
         />
         {activeProfileId !== 'family' ? <FamilyMoneyHub profileId={activeProfileId} /> : null}
         <RecentTransactionsSection compact={compact} view={activeProfileId} />

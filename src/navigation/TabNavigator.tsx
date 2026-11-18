@@ -78,7 +78,7 @@ function PhoneStatusBar({ light }: { light: boolean }) {
 
 const desktopNavigationItems = [
   { label: 'Home', route: 'Home', icon: 'home-outline' },
-  { label: 'Plan', route: 'Plan', icon: 'analytics-outline' },
+  { label: 'Insights', route: 'Insights', icon: 'analytics-outline' },
   { label: 'Move money', route: 'Pay & Transfer', icon: 'swap-horizontal' },
   { label: 'Benefits', route: 'Benefits', icon: 'gift-outline' },
   { label: 'Get Help', route: 'Get Help', icon: 'help-circle-outline' },
@@ -164,7 +164,7 @@ function DesktopCustomerInsights() {
           <Ionicons name="call-outline" size={13} color={colors.greenDeep} />
           <Text style={styles.profileDetailsText}>{activeProfile.contactPhone}</Text>
         </View>
-        <Text style={styles.profileDisclaimer}>Illustrative demo contact information.</Text>
+        <Text style={styles.profileDisclaimer}>Illustrative contact information.</Text>
       </View>
     </View>
   );
@@ -262,7 +262,7 @@ export default function TabNavigator() {
                     }}
                   />
                   <Tab.Screen
-                    name="Plan"
+                    name="Insights"
                     component={PlanScreen}
                     options={{
                       tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'analytics' : 'analytics-outline'} focused={focused} />,

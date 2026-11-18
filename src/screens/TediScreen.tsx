@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 
-type TediDestination = 'Home' | 'Plan' | 'Pay & Transfer' | 'Benefits' | 'Card Manager' | 'Support & booking';
+type TediDestination = 'Home' | 'Insights' | 'Pay & Transfer' | 'Benefits' | 'Card Manager' | 'Support & booking';
 
 type TediAction = {
   label: string;
@@ -35,26 +35,26 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
 
   if (/freeze|lock card/.test(input)) {
     return {
-      text: 'I can stage a card-freeze preview. It will not affect a real card.',
+      text: 'I can prepare a card-freeze request for review. It will not affect a real card.',
       action: { label: 'Open card controls', destination: 'Card Manager' },
-      confirmationPrompt: 'Confirm demo card-freeze preview?',
+      confirmationPrompt: 'Review a card-freeze request? It will not affect a real card.',
       confirmationKind: 'freeze',
     };
   }
 
   if (/send money|transfer|move money|send to/.test(input)) {
     return {
-      text: 'I can stage a transfer preview. No funds will move in this demo.',
+      text: 'I can prepare a transfer for review. No funds will move.',
       action: { label: 'Open Move money', destination: 'Pay & Transfer' },
-      confirmationPrompt: 'Confirm demo transfer preview?',
+      confirmationPrompt: 'Review transfer details? No funds will move.',
       confirmationKind: 'transfer',
     };
   }
 
   if (/spend|transaction|budget|saving|account/.test(input)) {
     return {
-      text: 'Your spending insights and recent activity are in Plan.',
-      action: { label: 'Open Plan', destination: 'Plan' },
+text: 'Your account insights and month-over-month activity are here.',
+    action: { label: 'Open Insights', destination: 'Insights' },
     };
   }
 
@@ -74,16 +74,16 @@ function getTediReply(message: string): Omit<TediChatMessage, 'id' | 'role'> {
 
   if (/suggest|recommend|save more/.test(input)) {
     return {
-      text: 'A small weekly transfer could help build your getaway fund. I can prepare a demo action for you to review first.',
-      confirmationPrompt: 'Preview a $25 weekly savings transfer? No funds will move.',
+      text: 'A small weekly transfer could help build your getaway fund. I can prepare the details for your review.',
+      confirmationPrompt: 'Review a $25 weekly savings transfer? No funds will move.',
       confirmationKind: 'transfer',
-      action: { label: 'Open your savings plan', destination: 'Plan' },
+      action: { label: 'Open savings insights', destination: 'Insights' },
     };
   }
 
   if (/card|pin/.test(input)) {
     return {
-      text: 'Review card controls, limits, and the single-use card demo.',
+      text: 'Review card controls, limits, and one-time card options.',
       action: { label: 'Open card controls', destination: 'Card Manager' },
     };
   }
@@ -139,9 +139,9 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
       role: 'assistant',
       text: confirmed
         ? (message.confirmationKind === 'freeze'
-          ? 'Demo freeze confirmed. No real card was changed.'
-          : 'Demo transfer confirmed. No money was moved.')
-        : 'Demo action canceled. Nothing was changed.',
+          ? 'Card-freeze request reviewed. No real card was changed.'
+          : 'Transfer details reviewed. No money was moved.')
+        : 'Request canceled. Nothing was changed.',
       action: confirmed && message.confirmationKind === 'freeze'
         ? { label: 'Review card controls', destination: 'Card Manager' }
         : undefined,
@@ -224,7 +224,7 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
                         <Text style={styles.confirmationCancelText}>Cancel</Text>
                       </TouchableOpacity>
                       <TouchableOpacity accessibilityRole="button" onPress={() => resolveConfirmation(message, true)} style={styles.confirmationConfirm}>
-                        <Text style={styles.confirmationConfirmText}>Confirm preview</Text>
+                        <Text style={styles.confirmationConfirmText}>Confirm details</Text>
                       </TouchableOpacity>
                     </View>
                   </View>

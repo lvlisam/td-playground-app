@@ -98,8 +98,8 @@ export default function SendPayScreen() {
     ? amountValue > 0 && amountValue <= 6842.17 && sourceAccount !== destinationAccount
     : Boolean(selectedContact) && amountValue > 0 && (activeTab === 'Request' || amountValue <= 6842.17);
   const confirmAction = () => {
-    const actionLabel = activeTab === 'Request' ? 'Request preview' : activeTab === 'Move' ? 'Transfer preview' : activeTab === 'Pay Bill' ? 'Bill payment preview' : 'Send preview';
-    setActionStatus(`${actionLabel} confirmed for demo only. No money was moved.`);
+    const actionLabel = activeTab === 'Request' ? 'Request' : activeTab === 'Move' ? 'Transfer' : activeTab === 'Pay Bill' ? 'Bill payment' : 'Send';
+    setActionStatus(`${actionLabel} was not submitted. No money was moved.`);
     setShowConfirmation(false);
   };
 
@@ -265,7 +265,7 @@ export default function SendPayScreen() {
 
         <View style={[styles.section, compact && styles.sectionCompact]}>
           {actionStatus ? <Text accessibilityLiveRegion="polite" style={styles.actionStatus}>{actionStatus}</Text> : null}
-          {!canSend && amountValue > 6842.17 && activeTab !== 'Request' ? <Text accessibilityRole="alert" style={styles.actionError}>Amount exceeds the available demo balance of $6,842.17.</Text> : null}
+          {!canSend && amountValue > 6842.17 && activeTab !== 'Request' ? <Text accessibilityRole="alert" style={styles.actionError}>Amount exceeds the available balance shown here ($6,842.17).</Text> : null}
           <TouchableOpacity accessibilityRole="button" disabled={!canSend} onPress={() => setShowConfirmation(true)} style={{ opacity: canSend ? 1 : 0.4 }}>
             <LinearGradient colors={[colors.greenDeep, colors.green]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.sendBtn}>
               <Ionicons name="paper-plane-outline" size={20} color={colors.text} />
@@ -283,15 +283,15 @@ export default function SendPayScreen() {
               {activeTab === 'Move'
                 ? `Move $${Number(amount).toFixed(2)} from ${sourceAccount} to ${destinationAccount}?`
                 : activeTab === 'Pay Bill'
-                  ? `Preview a $${Number(amount).toFixed(2)} payment to ${visibleContacts.find((contact) => contact.id === selectedContact)?.name}?`
-                  : activeTab === 'Request'
-                    ? `Preview a $${Number(amount).toFixed(2)} request from ${visibleContacts.find((contact) => contact.id === selectedContact)?.name}?`
-                    : `Preview sending $${Number(amount).toFixed(2)} to ${visibleContacts.find((contact) => contact.id === selectedContact)?.name}?`}
-              {' '}This is a demo; no money will move.
+                ? `Review a $${Number(amount).toFixed(2)} payment to ${visibleContacts.find((contact) => contact.id === selectedContact)?.name}?`
+                : activeTab === 'Request'
+                    ? `Review a $${Number(amount).toFixed(2)} request from ${visibleContacts.find((contact) => contact.id === selectedContact)?.name}?`
+                    : `Review sending $${Number(amount).toFixed(2)} to ${visibleContacts.find((contact) => contact.id === selectedContact)?.name}?`}
+              {' '}This action will not be submitted, and no money will move.
             </Text>
             <View style={styles.confirmationDialogActions}>
               <TouchableOpacity accessibilityRole="button" onPress={() => setShowConfirmation(false)} style={styles.confirmationCancelButton}><Text style={styles.confirmationCancelText}>Cancel</Text></TouchableOpacity>
-              <TouchableOpacity accessibilityRole="button" onPress={confirmAction} style={styles.confirmationConfirmButton}><Text style={styles.confirmationConfirmText}>Confirm demo</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" onPress={confirmAction} style={styles.confirmationConfirmButton}><Text style={styles.confirmationConfirmText}>Close</Text></TouchableOpacity>
             </View>
           </View>
         </View>

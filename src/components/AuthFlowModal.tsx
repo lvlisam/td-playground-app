@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, font, radius, spacing } from '../theme';
+import { devSupabaseRedirectUrl, supabase } from '../supabase';
 
 type AuthMode = 'sign-in' | 'sign-up';
 
@@ -19,21 +20,48 @@ type AuthFlowModalProps = {
   onClose: () => void;
 };
 
+function getAuthErrorMessage(error: unknown, mode: AuthMode) {
+  const { code, status } = (error ?? {}) as { code?: string; status?: number };
+
+  if (status === 429 || code === 'over_request_rate_limit' || code === 'over_email_send_rate_limit') {
+    return 'Too many attempts. Please wait a moment and try again.';
+  }
+  if (mode === 'sign-in') {
+    if (code === 'email_not_confirmed') return 'Confirm your email address using the link in your inbox, then sign in.';
+    if (code === 'invalid_credentials') return 'Invalid email or password.';
+    return 'Unable to sign in right now. Please try again.';
+  }
+  if (code === 'weak_password') return 'Please choose a stronger password.';
+  if (code === 'email_address_invalid') return 'Please enter a valid email address.';
+  if (code === 'email_address_not_authorized') return 'Confirmation email cannot be sent to that address. Try another email.';
+  return 'Unable to create an account right now. Please check your details and try again.';
+}
+
 export default function AuthFlowModal({ visible, onClose }: AuthFlowModalProps) {
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isSignUp = mode === 'sign-up';
+
+  useEffect(() => {
+    if (!visible) return;
+    setMode('sign-in');
+    setName('');
+    setEmail('');
+    setPassword('');
+    setFeedback('');
+  }, [visible]);
 
   function changeMode(nextMode: AuthMode) {
     setMode(nextMode);
     setFeedback('');
   }
 
-  function submit() {
-    const normalizedEmail = email.trim();
+  async function submit() {
+    const normalizedEmail = email.trim().toLowerCase();
     if (isSignUp && !name.trim()) {
       setFeedback('Enter your name to continue.');
       return;
@@ -50,7 +78,43 @@ export default function AuthFlowModal({ visible, onClose }: AuthFlowModalProps) 
       setFeedback('Use at least 8 characters for your password.');
       return;
     }
-    setFeedback('Authentication is not connected in this preview. No account was created and no one was signed in.');
+
+    setIsSubmitting(true);
+    setFeedback('');
+    try {
+      if (isSignUp) {
+        const emailRedirectTo = devSupabaseRedirectUrl ??
+          (Platform.OS === 'web' && typeof window !== 'undefined'
+            ? `${window.location.origin}/auth/callback`
+            : undefined);
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+          options: {
+            ...(emailRedirectTo ? { emailRedirectTo } : {}),
+            data: { full_name: name.trim() },
+          },
+        });
+        if (error) throw error;
+        if (data.session) {
+          onClose();
+          return;
+        }
+        setFeedback('Check your inbox for a confirmation link to finish creating your account.');
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
+      if (error) throw error;
+      onClose();
+    } catch (error: unknown) {
+      setFeedback(getAuthErrorMessage(error, mode));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -148,7 +212,6 @@ export default function AuthFlowModal({ visible, onClose }: AuthFlowModalProps) 
                 autoCapitalize="none"
                 autoComplete={isSignUp ? 'new-password' : 'current-password'}
                 onChangeText={setPassword}
-                onSubmitEditing={submit}
                 placeholder={isSignUp ? 'At least 8 characters' : 'Enter your password'}
                 placeholderTextColor={colors.textTertiary}
                 returnKeyType="done"
@@ -159,16 +222,19 @@ export default function AuthFlowModal({ visible, onClose }: AuthFlowModalProps) 
               />
             </View>
 
-            <Text style={styles.previewNotice}>
-              This preview has no connected authentication service. Submitting will not create an account or sign you in.
+            <Text style={styles.authNotice}>
+              Your app sign-in is separate from TD banking access.
             </Text>
 
             <TouchableOpacity
               accessibilityRole="button"
+              disabled={isSubmitting}
               onPress={submit}
-              style={styles.submitButton}
+              style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
             >
-              <Text style={styles.submitButtonText}>{isSignUp ? 'Create account' : 'Sign in'}</Text>
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? 'Please wait…' : isSignUp ? 'Create account' : 'Sign in'}
+              </Text>
               <Ionicons name="arrow-forward" size={18} color={colors.text} />
             </TouchableOpacity>
 
@@ -202,8 +268,9 @@ const styles = StyleSheet.create({
   fieldGroup: { gap: spacing.xs },
   label: { color: colors.text, fontFamily: font.body.medium, fontSize: font.size.sm },
   input: { minHeight: 48, paddingHorizontal: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text, fontFamily: font.body.regular, fontSize: font.size.base },
-  previewNotice: { padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.yellowDim, color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 18 },
+  authNotice: { padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.greenDim, color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 18 },
   submitButton: { minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: radius.md, backgroundColor: colors.green },
+  submitButtonDisabled: { opacity: 0.6 },
   submitButtonText: { color: colors.text, fontSize: font.size.base, fontFamily: font.body.bold },
-  feedback: { color: colors.greenDeep, fontSize: font.size.sm, lineHeight: 20 },
+  feedback: { color: colors.textSecondary, fontSize: font.size.sm, lineHeight: 20 },
 });

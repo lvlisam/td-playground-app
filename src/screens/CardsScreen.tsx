@@ -124,7 +124,7 @@ export default function CardsScreen() {
   const [editingLimit, setEditingLimit] = useState<'daily' | 'atm' | null>(null);
   const [limitDraft, setLimitDraft] = useState('');
   const [limitError, setLimitError] = useState('');
-  const [demoMessage, setDemoMessage] = useState('');
+  const [cardNotice, setCardNotice] = useState('');
 
   const openLimitEditor = (limit: 'daily' | 'atm') => {
     setEditingLimit(limit);
@@ -140,7 +140,7 @@ export default function CardsScreen() {
     }
     if (editingLimit === 'daily') setDailyLimit(String(value));
     if (editingLimit === 'atm') setAtmLimit(String(value));
-    setDemoMessage('Demo card setting updated. No real card was changed.');
+    setCardNotice('Settings are saved on this screen only. No active card was changed.');
     setEditingLimit(null);
   };
 
@@ -159,6 +159,11 @@ export default function CardsScreen() {
             <Ionicons name="add" size={20} color={colors.greenDeep} />
             <Text style={styles.addBtnText}>Add Card</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={[styles.screenNotice, compact && styles.screenNoticeCompact]}>
+          <Ionicons name="information-circle-outline" size={18} color={colors.greenDeep} />
+          <Text style={styles.screenNoticeText}>Card details and controls here are illustrative; no active card is issued or changed.</Text>
         </View>
 
         {/* Virtual Card */}
@@ -242,23 +247,23 @@ export default function CardsScreen() {
                 <Ionicons name="flash-outline" size={19} color={colors.greenDeep} />
               </View>
               <View style={styles.singleUseCopy}>
-                <Text style={styles.singleUseTitle}>{singleUseCardCreated ? 'Demo card ready' : 'Safer one-time online purchases'}</Text>
-                <Text style={styles.singleUseDescription}>{singleUseCardCreated ? '•••• 9142 · expires after one purchase' : 'Create a virtual card number for one purchase.'}</Text>
+                <Text style={styles.singleUseTitle}>{singleUseCardCreated ? 'Example card ready' : 'Safer one-time online purchases'}</Text>
+                <Text style={styles.singleUseDescription}>{singleUseCardCreated ? '•••• 9142 · example number only' : 'Review an example card number for a one-time purchase.'}</Text>
               </View>
             </View>
             <TouchableOpacity
               accessibilityRole="button"
-              accessibilityLabel={singleUseCardCreated ? 'Create another single-use demo card' : 'Create single-use demo card'}
+              accessibilityLabel={singleUseCardCreated ? 'Show another example single-use card' : 'Show example single-use card'}
               onPress={() => {
                 setSingleUseCardCreated(true);
-                setDemoMessage('Demo single-use card created. It cannot be used for real purchases.');
+                setCardNotice('This example card cannot be used to make purchases.');
               }}
               style={styles.singleUseButton}
             >
-              <Text style={styles.singleUseButtonText}>{singleUseCardCreated ? 'Create another' : 'Create demo card'}</Text>
+              <Text style={styles.singleUseButtonText}>{singleUseCardCreated ? 'Show another example' : 'Show card example'}</Text>
               <Ionicons name="arrow-forward" size={16} color={colors.white} />
             </TouchableOpacity>
-            {demoMessage ? <Text accessibilityRole="text" style={styles.demoNotice}>{demoMessage}</Text> : null}
+            {cardNotice ? <Text accessibilityRole="text" style={styles.cardNotice}>{cardNotice}</Text> : null}
           </View>
         </View>
 
@@ -271,7 +276,7 @@ export default function CardsScreen() {
               iconColor={frozen ? colors.blue : colors.textSecondary}
               iconBg={frozen ? colors.blueDim : colors.surfaceHigh}
               label="Freeze Card"
-              description={frozen ? 'Card is frozen — no transactions allowed' : 'Temporarily lock your card'}
+              description={frozen ? 'Freeze setting is on for this screen only' : 'Review a card-freeze setting'}
               value={frozen}
               onToggle={() => setFrozen(v => !v)}
             />
@@ -281,7 +286,7 @@ export default function CardsScreen() {
               iconColor={streetSafe ? colors.greenDeep : colors.textSecondary}
               iconBg={streetSafe ? colors.greenDim : colors.surfaceHigh}
               label="Street Safe"
-              description={streetSafe ? 'On-the-go spending is capped in this demo' : 'Apply a lower-risk card profile while out'}
+              description={streetSafe ? 'Spending cap shown on this screen only' : 'Review a lower-risk spending profile'}
               value={streetSafe}
               onToggle={() => setStreetSafe((value) => !value)}
             />
@@ -291,7 +296,7 @@ export default function CardsScreen() {
               iconColor={colors.greenDeep}
               iconBg={colors.greenDim}
               label="Contactless Payments"
-              description="Tap to pay at terminals"
+              description="Preference shown on this screen only"
               value={contactless}
               onToggle={() => setContactless(v => !v)}
             />
@@ -301,7 +306,7 @@ export default function CardsScreen() {
               iconColor={colors.teal}
               iconBg={colors.tealDim}
               label="Online Payments"
-              description="Use card for e-commerce"
+              description="Preference shown on this screen only"
               value={onlinePayments}
               onToggle={() => setOnlinePayments(v => !v)}
             />
@@ -368,7 +373,7 @@ export default function CardsScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.limitDialog}>
             <Text accessibilityRole="header" style={styles.limitDialogTitle}>{editingLimit === 'daily' ? 'Daily spend limit' : 'ATM withdrawal limit'}</Text>
-            <Text style={styles.limitDialogDescription}>Set a demo limit. This does not update a real card.</Text>
+            <Text style={styles.limitDialogDescription}>Set an example limit. This does not update an active card.</Text>
             <TextInput
               accessibilityLabel="Card limit amount"
               keyboardType="decimal-pad"
@@ -477,7 +482,10 @@ const styles = StyleSheet.create({
   singleUseDescription: { color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 16 },
   singleUseButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 42, borderRadius: radius.md, backgroundColor: colors.greenDeep, marginBottom: 12 },
   singleUseButtonText: { color: colors.white, fontSize: font.size.sm, fontWeight: font.weight.bold },
-  demoNotice: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, paddingBottom: 10 },
+  cardNotice: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, paddingBottom: 10 },
+  screenNotice: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginHorizontal: spacing.md, marginBottom: spacing.md, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.greenDim },
+  screenNoticeCompact: { marginHorizontal: 12, padding: 12 },
+  screenNoticeText: { flex: 1, color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 17 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: 'rgba(0,0,0,0.42)' },
   limitDialog: { width: '100%', maxWidth: 360, padding: 20, borderRadius: radius.xl, backgroundColor: colors.surface, gap: 12 },
   limitDialogTitle: { color: colors.text, fontSize: 18, fontFamily: font.headline.bold },

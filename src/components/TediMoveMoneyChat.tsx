@@ -19,25 +19,25 @@ const actionLabels: Record<TediAction, string> = {
   bills: 'Review a bill payment',
 };
 
-function getDemoFallbackReply(message: string): Pick<ChatMessage, 'text' | 'action'> {
+function getFallbackReply(message: string): Pick<ChatMessage, 'text' | 'action'> {
   const normalized = message.toLowerCase();
   const nextBill = upcomingBillPayments[0];
 
   if (/bill|due|upcoming/.test(normalized)) {
     return {
-      text: `I couldn’t reach the AI service, but the sample bill list shows ${nextBill.merchant} (${nextBill.amount}) ${nextBill.timing.toLowerCase()}. Want to review a demo payment?`,
+      text: `I couldn’t reach the AI service, but the sample bill list shows ${nextBill.merchant} (${nextBill.amount}) ${nextBill.timing.toLowerCase()}. Want to review the payment details?`,
       action: 'bills',
     };
   }
   if (/move|transfer|saving|savings/.test(normalized)) {
     return {
-      text: 'I couldn’t reach the AI service. The demo activity includes a sample $250 transfer to savings today. You can open the transfer form and review it yourself.',
+      text: 'I couldn’t reach the AI service. The recent activity example includes a $250 transfer to savings today. You can open the transfer form and review it yourself.',
       action: 'move',
     };
   }
   if (/send|request|pay/.test(normalized)) {
     return {
-      text: 'I couldn’t reach the AI service, but I can open the demo send form for you to review. No money will move.',
+      text: 'I couldn’t reach the AI service, but I can open the send form for you to review. It won’t be submitted, and no money will move.',
       action: 'send',
     };
   }
@@ -85,7 +85,7 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
       }]);
       setNextId((current) => current + 1);
     } catch {
-      const fallback = getDemoFallbackReply(text);
+      const fallback = getFallbackReply(text);
       setMessages((current) => [...current, {
         id: nextId + 1,
         role: 'assistant',

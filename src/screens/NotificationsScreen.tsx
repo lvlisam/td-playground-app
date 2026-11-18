@@ -123,7 +123,7 @@ export default function NotificationsScreen() {
         <View style={[styles.notice, compact && styles.noticeCompact]}>
           <Ionicons name="information-circle-outline" size={19} color={colors.greenDeep} />
           <Text style={styles.noticeText}>
-            Example notifications only. This preview isn&apos;t connected to a live bank account.
+            Example notifications only. This account isn&apos;t connected to a live bank account.
           </Text>
         </View>
       </ScrollView>

@@ -59,14 +59,14 @@ export default function SupportBookingScreen() {
           <View style={styles.supportIcon}><Ionicons name="chatbubbles-outline" size={21} color={colors.greenDeep} /></View>
           <View style={styles.supportCopy}>
             <Text style={styles.cardTitle}>Human help, without the wait</Text>
-            <Text style={styles.bodyCopy}>Illustrative support response: usually under 2 minutes.</Text>
+            <Text style={styles.bodyCopy}>Typical response times are shown for reference; no specialist is connected.</Text>
           </View>
-          <View style={styles.availability}><View style={styles.onlineDot} /><Text style={styles.availabilityText}>Available</Text></View>
+          <View style={styles.availability}><View style={styles.onlineDot} /><Text style={styles.availabilityText}>Not connected</Text></View>
           <TouchableOpacity accessibilityRole="button" onPress={() => setSupportRequested(true)} style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>{supportRequested ? 'Request received' : 'Request a person'}</Text>
+            <Text style={styles.primaryButtonText}>{supportRequested ? 'No request sent' : 'Check support options'}</Text>
             <Ionicons name={supportRequested ? 'checkmark' : 'arrow-forward'} size={17} color={colors.white} />
           </TouchableOpacity>
-          {supportRequested ? <Text accessibilityLiveRegion="polite" style={styles.statusNote}>Demo request received. A real specialist has not been contacted.</Text> : null}
+          {supportRequested ? <Text accessibilityLiveRegion="polite" style={styles.statusNote}>Support isn’t connected. A real specialist has not been contacted.</Text> : null}
         </View>
 
         <View style={styles.sectionHeading}>
@@ -106,7 +106,7 @@ export default function SupportBookingScreen() {
             <>
               <View style={styles.storeHeading}>
                 <Text style={styles.fieldLabel}>NEARBY STORES</Text>
-                <Text style={styles.waitLegend}>Live wait · sample</Text>
+                <Text style={styles.waitLegend}>Example wait times</Text>
               </View>
               {stores.map((store) => {
                 const selected = selectedStore === store.name;
@@ -150,16 +150,16 @@ export default function SupportBookingScreen() {
             value={agenda}
           />
           <TouchableOpacity accessibilityRole="button" onPress={() => setBookingConfirmed(true)} style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>{bookingConfirmed ? 'Preview saved' : 'Preview booking'}</Text>
+            <Text style={styles.primaryButtonText}>{bookingConfirmed ? 'Details prepared' : 'Review booking'}</Text>
             <Ionicons name={bookingConfirmed ? 'checkmark' : 'calendar-outline'} size={17} color={colors.white} />
           </TouchableOpacity>
           {bookingConfirmed ? (
             <View accessibilityLiveRegion="polite" style={styles.confirmation}>
               <Ionicons name="checkmark-circle" size={18} color={colors.greenDeep} />
-              <Text style={styles.confirmationText}>Preview only: {visitMode.toLowerCase()} with {selectedLanguage === 'English' ? 'an' : 'a'} {selectedLanguage}-speaking {selectedSpecialty.toLowerCase()}{visitMode === 'In store' ? ` at ${selectedStore}` : ''}. No real appointment was booked.</Text>
+              <Text style={styles.confirmationText}>Meeting details: {visitMode.toLowerCase()} with {selectedLanguage === 'English' ? 'an' : 'a'} {selectedLanguage}-speaking {selectedSpecialty.toLowerCase()}{visitMode === 'In store' ? ` at ${selectedStore}` : ''}. No real appointment was booked.</Text>
             </View>
           ) : null}
-          <Text style={styles.disclaimer}>Sample store hours and wait times are illustrative and may not reflect actual availability.</Text>
+          <Text style={styles.disclaimer}>Store hours and wait times are examples and may not reflect actual availability.</Text>
         </View>
       </ScrollView>
     </View>

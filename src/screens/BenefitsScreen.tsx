@@ -212,7 +212,7 @@ export default function BenefitsScreen() {
               <Text style={styles.offerCountLabel}>offers to explore</Text>
             </View>
           </View>
-          <Text style={styles.heroFootnote}>Illustrative demo balance. Check your account for actual rewards and eligibility.</Text>
+          <Text style={styles.heroFootnote}>Illustrative balance. Check your account for actual rewards and eligibility.</Text>
         </View>
 
         <View style={styles.offersSection}>
@@ -269,7 +269,7 @@ export default function BenefitsScreen() {
               >
                 <View style={[styles.peerFill, { width: progressWidth }]} />
               </View>
-              <Text style={styles.peerDisclaimer}>Illustrative demo comparison, not live customer or account data.</Text>
+              <Text style={styles.peerDisclaimer}>Illustrative comparison, not live customer or account data.</Text>
             </View>
           </View>
         </View>
@@ -316,7 +316,7 @@ export default function BenefitsScreen() {
             <TouchableOpacity
               accessibilityRole="button"
               accessibilityHint="Opens your planning tools"
-              onPress={() => navigation.navigate('Plan')}
+              onPress={() => navigation.navigate('Insights')}
               style={styles.strategyButton}
             >
               <Text style={styles.strategyButtonText}>Review your plan</Text>
@@ -327,7 +327,7 @@ export default function BenefitsScreen() {
 
         <View style={styles.disclaimer}>
           <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
-          <Text style={styles.disclaimerText}>Offers, product comparisons and balances on this screen are illustrative demo data. Product eligibility, rates and terms vary. Review official account details before making financial decisions.</Text>
+          <Text style={styles.disclaimerText}>Offers, product comparisons and balances on this screen are illustrative. Product eligibility, rates and terms vary. Review official account details before making financial decisions.</Text>
         </View>
       </ScrollView>
     </View>

@@ -90,9 +90,9 @@ export default function AccountServicingScreen() {
             <Text style={styles.primaryActionText}>Move money</Text>
           </TouchableOpacity>
           {isSavings ? (
-            <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Plan')} style={styles.secondaryAction}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Insights')} style={styles.secondaryAction}>
               <Ionicons name="analytics-outline" size={18} color={colors.greenDeep} />
-              <Text style={styles.secondaryActionText}>Savings plan</Text>
+              <Text style={styles.secondaryActionText}>Savings insights</Text>
             </TouchableOpacity>
           ) : null}
         </View>
@@ -125,7 +125,7 @@ export default function AccountServicingScreen() {
 
         <View style={styles.notice}>
           <Ionicons name="information-circle-outline" size={19} color={colors.greenDeep} />
-          <Text style={styles.noticeText}>Account servicing actions shown here are a demo. Transfers and account changes are not submitted to a bank.</Text>
+          <Text style={styles.noticeText}>Changes on this screen are not connected to a bank. Transfers and account updates are not submitted.</Text>
         </View>
       </ScrollView>
     </View>

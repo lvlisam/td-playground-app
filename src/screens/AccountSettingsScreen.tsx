@@ -7,30 +7,61 @@ import ConnectedDataSection from '../components/ConnectedDataSection';
 import ScreenBackButton from '../components/ScreenBackButton';
 import AuthFlowModal from '../components/AuthFlowModal';
 import { useDashboardProfile } from '../personas';
+import { useAuth } from '../auth';
 
-const createSettingsOverview = (name: string) => [
+const createSettingsOverview = (name: string, email?: string) => [
   { icon: 'person-outline' as const, title: 'Profile information', detail: `Account holder: ${name}` },
-  { icon: 'lock-closed-outline' as const, title: 'Security & sign-in', detail: 'Sign in or create an account' },
+  { icon: 'lock-closed-outline' as const, title: 'Security & sign-in', detail: email ? `Signed in as ${email}` : 'Sign in or create an account' },
   { icon: 'notifications-outline' as const, title: 'Alerts & notifications', detail: 'Account activity and reminders' },
   { icon: 'shield-checkmark-outline' as const, title: 'Privacy & data', detail: 'Privacy preferences and permissions' },
 ];
 
 export default function AccountSettingsScreen() {
   const { activeProfile } = useDashboardProfile();
+  const { user, signOut, loading: authLoading } = useAuth();
   const [authFlowVisible, setAuthFlowVisible] = useState(false);
   const [authStatus, setAuthStatus] = useState('');
-  const settingsOverview = createSettingsOverview(activeProfile.name);
-  const profileDetails = [
-    { icon: 'person-outline' as const, title: 'Contact', detail: activeProfile.contactName },
-    { icon: 'calendar-outline' as const, title: 'Age', detail: activeProfile.ageLabel },
-    { icon: 'mail-outline' as const, title: 'Email', detail: activeProfile.contactEmail },
-    { icon: 'call-outline' as const, title: 'Phone', detail: activeProfile.contactPhone },
-    { icon: 'time-outline' as const, title: 'TD relationship', detail: `${activeProfile.tdRelationshipLength} with TD` },
-  ];
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const accountName = typeof user?.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : '';
+  const profileName = user ? accountName || user.email || 'Account' : activeProfile.name;
+  const profileInitials = user
+    ? profileName.split(/\s+/).map((part) => part[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
+    : activeProfile.initials;
+  const settingsOverview = createSettingsOverview(profileName, user?.email ?? undefined);
+  const profileDetails = user
+    ? [
+        ...(accountName ? [{ icon: 'person-outline' as const, title: 'Name', detail: accountName }] : []),
+        ...(user.email ? [{ icon: 'mail-outline' as const, title: 'Email', detail: user.email }] : []),
+      ]
+    : [
+        { icon: 'person-outline' as const, title: 'Contact', detail: activeProfile.contactName },
+        { icon: 'calendar-outline' as const, title: 'Age', detail: activeProfile.ageLabel },
+        { icon: 'mail-outline' as const, title: 'Email', detail: activeProfile.contactEmail },
+        { icon: 'call-outline' as const, title: 'Phone', detail: activeProfile.contactPhone },
+        { icon: 'time-outline' as const, title: 'TD relationship', detail: `${activeProfile.tdRelationshipLength} with TD` },
+      ];
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
+
+  function openAuthFlow() {
+    setAuthStatus('');
+    setAuthFlowVisible(true);
+  }
+
+  async function handleSignOut() {
+    setAuthStatus('');
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      setAuthStatus('You’re signed out.');
+    } catch {
+      setAuthStatus('Unable to sign out right now. Please try again.');
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -44,12 +75,14 @@ export default function AccountSettingsScreen() {
 
         <View style={[styles.profileCard, compact && styles.profileCardCompact]}>
           <View style={styles.avatar} accessible={false}>
-            <Text style={styles.avatarInitials}>{activeProfile.initials}</Text>
+            <Text style={styles.avatarInitials}>{profileInitials || 'AC'}</Text>
           </View>
           <View style={styles.profileCopy}>
-            <Text style={styles.profileEyebrow}>{activeProfile.relationship.toUpperCase()} PROFILE</Text>
-            <Text style={styles.profileName}>{activeProfile.name}</Text>
-            <Text style={styles.profileDescription}>Manage {activeProfile.name}’s profile and banking preferences.</Text>
+            <Text style={styles.profileEyebrow}>{user ? 'SIGNED-IN ACCOUNT' : `${activeProfile.relationship.toUpperCase()} PROFILE`}</Text>
+            <Text style={styles.profileName}>{profileName}</Text>
+            <Text style={styles.profileDescription}>
+              {user ? 'Your app sign-in is separate from TD banking access.' : `Manage ${activeProfile.name}’s profile and banking preferences.`}
+            </Text>
           </View>
         </View>
 
@@ -99,10 +132,7 @@ export default function AccountSettingsScreen() {
                     <TouchableOpacity
                       accessibilityRole="button"
                       accessibilityLabel="Open sign-in and sign-up options"
-                      onPress={() => {
-                        setAuthStatus('');
-                        setAuthFlowVisible(true);
-                      }}
+                      onPress={openAuthFlow}
                     >
                       {row}
                     </TouchableOpacity>
@@ -119,18 +149,30 @@ export default function AccountSettingsScreen() {
 
         <View style={styles.notice}>
           <Ionicons name="information-circle-outline" size={19} color={colors.greenDeep} />
-          <Text style={styles.noticeText}>This screen is a preview; profile and contact details are illustrative and aren’t connected to a live bank account.</Text>
+          <Text style={styles.noticeText}>
+            {user
+              ? 'Your app sign-in is separate from TD banking access; no banking data is connected.'
+              : 'Profile and contact examples are illustrative and aren’t connected to a live bank account.'}
+          </Text>
         </View>
 
         <View style={styles.accountActions}>
           {authStatus ? <Text accessibilityLiveRegion="polite" style={styles.authStatus}>{authStatus}</Text> : null}
           <TouchableOpacity
             accessibilityRole="button"
-            onPress={() => setAuthStatus('No active session is connected to this preview, so there is nothing to log out of.')}
-            style={styles.logoutButton}
+            accessibilityLabel={user ? 'Log out of your app account' : 'Sign in or create an app account'}
+            disabled={authLoading || isSigningOut}
+            onPress={user ? handleSignOut : openAuthFlow}
+            style={[styles.logoutButton, (authLoading || isSigningOut) && styles.logoutButtonDisabled]}
           >
-            <Ionicons name="log-out-outline" size={19} color={colors.red} />
-            <Text style={styles.logoutText}>Log out</Text>
+            <Ionicons
+              name={user ? 'log-out-outline' : 'log-in-outline'}
+              size={19}
+              color={user ? colors.red : colors.greenDeep}
+            />
+            <Text style={[styles.logoutText, !user && styles.loginActionText]}>
+              {isSigningOut ? 'Signing out…' : user ? 'Log out' : 'Sign in or create account'}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -171,5 +213,7 @@ const styles = StyleSheet.create({
   accountActions: { marginHorizontal: spacing.md, marginTop: spacing.xl, marginBottom: spacing.md, gap: spacing.sm },
   authStatus: { color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 18 },
   logoutButton: { minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  logoutButtonDisabled: { opacity: 0.6 },
   logoutText: { color: colors.red, fontFamily: font.body.bold, fontSize: font.size.sm },
+  loginActionText: { color: colors.greenDeep },
 });

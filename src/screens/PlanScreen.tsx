@@ -5,40 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import FamilyPlanBuilder from '../components/FamilyPlanBuilder';
 import AccountPlanCard from '../components/AccountPlanCard';
+import AccountMonthOverMonth from '../components/AccountMonthOverMonth';
 import ScreenBackButton from '../components/ScreenBackButton';
 import { useAccounts } from '../accounts';
-
-function SavingsMomentumCard() {
-  return (
-    <View style={styles.momentumCard}>
-      <View style={styles.momentumHeading}>
-        <View style={styles.momentumIcon}>
-          <Ionicons name="trending-up-outline" size={18} color={colors.greenDeep} />
-        </View>
-        <View style={styles.momentumCopy}>
-          <Text style={styles.momentumEyebrow}>SAVINGS MOMENTUM</Text>
-          <Text style={styles.momentumTitle}>A little more room to grow</Text>
-        </View>
-        <Text style={styles.momentumPeriod}>NOV</Text>
-      </View>
-      <View style={styles.momentumValues}>
-        <View>
-          <Text style={styles.momentumAmount}>+$240</Text>
-          <Text style={styles.momentumLabel}>saved this month</Text>
-        </View>
-        <Ionicons name="arrow-forward" size={17} color={colors.textTertiary} />
-        <View>
-          <Text style={styles.momentumCompare}>+$180</Text>
-          <Text style={styles.momentumLabel}>saved in October</Text>
-        </View>
-        <View style={styles.momentumChange}>
-          <Text style={styles.momentumChangeText}>+$60</Text>
-        </View>
-      </View>
-      <Text style={styles.momentumFootnote}>Example data: savings increased month over month.</Text>
-    </View>
-  );
-}
 
 export default function PlanScreen() {
   const { accounts, updatePlan } = useAccounts();
@@ -57,13 +26,13 @@ export default function PlanScreen() {
       >
         <View style={styles.header}>
           <ScreenBackButton />
-          <Text style={[styles.title, compact && styles.titleCompact]}>Plan</Text>
-          <Text style={styles.subtitle}>Start with a goal, then add context as life changes for more relevant next steps.</Text>
+          <Text style={[styles.title, compact && styles.titleCompact]}>Insights</Text>
+          <Text style={styles.subtitle}>See how your overall accounts and individual balances are changing month to month.</Text>
         </View>
 
-        <SavingsMomentumCard />
+        <AccountMonthOverMonth accounts={accounts} />
         <View style={styles.sectionHeading}>
-          <Text style={styles.sectionTitle}>Account plans</Text>
+          <Text style={styles.sectionTitle}>Your account plans</Text>
           <Text style={styles.sectionSubtitle}>A simple view of your savings goal and monthly spending.</Text>
         </View>
         <View style={styles.accountPlans}>

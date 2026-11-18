@@ -244,7 +244,7 @@ export default function FamilyPlanBuilder() {
 
       <View style={styles.exampleNotice}>
         <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
-        <Text style={styles.exampleText}>Example numbers from the demo account. Edit them to fit your plan.</Text>
+        <Text style={styles.exampleText}>Example numbers. Edit them to fit your plan.</Text>
       </View>
 
       <View style={styles.inputRow}>
