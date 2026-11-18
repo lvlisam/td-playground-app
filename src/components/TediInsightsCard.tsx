@@ -3,16 +3,16 @@ import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View }
 import { Ionicons } from '@expo/vector-icons';
 import { colors, font, radius, spacing } from '../theme';
 
-export type TediProfileType = 'individual' | 'household' | 'youth' | 'business';
+export type TediProfileId = 'jane' | 'james' | 'ava' | 'olivia' | 'noah' | 'family' | 'business';
 export type TediCategoryTotal = { category: string; amount: number };
 
 type InsightResponse = { recommendation?: unknown; error?: unknown };
 
 export default function TediInsightsCard({
-  profileType,
+  profileId,
   categoryTotals,
 }: {
-  profileType: TediProfileType;
+  profileId: TediProfileId;
   categoryTotals: TediCategoryTotal[];
 }) {
   const [recommendation, setRecommendation] = useState('');
@@ -33,9 +33,9 @@ export default function TediInsightsCard({
       const response = await fetch('/api/tedi-home-insights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileType, categoryTotals }),
+        body: JSON.stringify({ profileId, categoryTotals }),
       });
-      const payload = (await response.json()) as InsightResponse;
+      const payload = (await response.json().catch(() => ({}))) as InsightResponse;
 
       if (!response.ok) {
         const message = typeof payload.error === 'string' ? payload.error : 'Tedi could not create an insight right now.';
@@ -64,7 +64,7 @@ export default function TediInsightsCard({
         </View>
       </View>
 
-      <Text style={styles.intro}>Ask Tedi for a helpful idea based on this profile&apos;s recent spending categories.</Text>
+      <Text style={styles.intro}>Ask Tedi for helpful ideas, based on this profile and recent spending.</Text>
 
       {recommendation ? (
         <View style={styles.recommendation}>
@@ -75,14 +75,14 @@ export default function TediInsightsCard({
 
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel={isLoading ? 'Tedi is preparing an insight' : recommendation ? 'Refresh Tedi recommendation' : 'Get a Tedi recommendation'}
+        accessibilityLabel={isLoading ? 'Tedi is preparing an idea' : recommendation ? 'Ask Tedi for another idea' : 'Ask Tedi for helpful ideas'}
         accessibilityState={{ disabled: isLoading }}
         disabled={isLoading}
         onPress={requestInsight}
         style={[styles.button, isLoading && styles.buttonDisabled]}
       >
         {isLoading ? <ActivityIndicator size="small" color={colors.white} /> : <Ionicons name="sparkles-outline" size={16} color={colors.white} />}
-        <Text style={styles.buttonText}>{isLoading ? 'Tedi is thinking…' : recommendation ? 'Refresh recommendation' : 'Get recommendation'}</Text>
+        <Text style={styles.buttonText}>{isLoading ? 'Tedi is thinking…' : recommendation ? 'Ask for another idea' : 'Ask Tedi for ideas'}</Text>
       </TouchableOpacity>
 
     </View>

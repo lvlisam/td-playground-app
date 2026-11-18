@@ -20,7 +20,7 @@ import FamilyMoneyHub from '../components/FamilyMoneyHub';
 import { useAccounts } from '../accounts';
 import type { Account } from '../accounts';
 import { upcomingBillPayments } from '../financeData';
-import { dashboardProfileOptions, getDashboardTediProfileType, useDashboardProfile } from '../personas';
+import { dashboardProfileOptions, useDashboardProfile } from '../personas';
 import type { DashboardProfileId } from '../personas';
 
 const palette = {
@@ -221,13 +221,6 @@ function getTransactionsForProfile(view: DashboardProfileId): readonly Dashboard
             : recentTransactions;
 }
 
-function getTediProfileType(view: DashboardProfileId) {
-  if (view === 'business') return 'business' as const;
-  if (view === 'family') return 'household' as const;
-  if (view === 'olivia' || view === 'noah') return 'youth' as const;
-  return 'individual' as const;
-}
-
 function getTediCategoryTotals(view: DashboardProfileId): TediCategoryTotal[] {
   const totals = new Map<string, number>();
   getTransactionsForProfile(view).forEach((transaction) => {
@@ -242,6 +235,75 @@ function getTediCategoryTotals(view: DashboardProfileId): TediCategoryTotal[] {
     category,
     amount: Math.round(amount * 100) / 100,
   }));
+}
+
+type DashboardRecommendation = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  destination: 'Benefits' | 'Plan' | 'Card Manager';
+};
+
+function getDashboardRecommendation(
+  profileId: DashboardProfileId,
+  categoryTotals: TediCategoryTotal[],
+): DashboardRecommendation {
+  const topCategory = [...categoryTotals].sort((a, b) => b.amount - a.amount)[0]?.category;
+  const categoryContext = topCategory
+    ? `The recent sample includes ${topCategory.toLowerCase()} activity.`
+    : 'This profile has only a small recent activity sample.';
+
+  if (profileId === 'business') {
+    return {
+      eyebrow: 'FOR YOUR BUSINESS',
+      title: 'Explore business banking tools',
+      description: `${categoryContext} Review small-business account and benefit tools for a clearer view of operating expenses.`,
+      destination: 'Benefits',
+    };
+  }
+
+  if (profileId === 'family') {
+    return {
+      eyebrow: 'FOR YOUR HOUSEHOLD',
+      title: 'Bring family goals into focus',
+      description: `${categoryContext} Review shared savings goals alongside your household plan.`,
+      destination: 'Plan',
+    };
+  }
+
+  if (profileId === 'olivia' || profileId === 'noah') {
+    return {
+      eyebrow: 'AGE-APPROPRIATE IDEA',
+      title: 'Build a youth savings goal',
+      description: `${categoryContext} Explore a simple savings goal that fits this youth profile.`,
+      destination: 'Plan',
+    };
+  }
+
+  if (topCategory === 'Credit payment') {
+    return {
+      eyebrow: 'BASED ON RECENT ACTIVITY',
+      title: 'Review your card controls',
+      description: `${categoryContext} Card controls can help you review alerts and manage everyday card use.`,
+      destination: 'Card Manager',
+    };
+  }
+
+  if (topCategory === 'Home') {
+    return {
+      eyebrow: 'BASED ON RECENT ACTIVITY',
+      title: 'Explore a savings goal',
+      description: `${categoryContext} A savings goal can help you organize money for a future home-related expense.`,
+      destination: 'Plan',
+    };
+  }
+
+  return {
+    eyebrow: 'BASED ON RECENT ACTIVITY',
+    title: 'Explore TD benefits and rewards',
+    description: `${categoryContext} Review available benefits and rewards that may fit this profile.`,
+    destination: 'Benefits',
+  };
 }
 
 function AccountRow({ account, last, compact }: { account: DashboardAccount; last: boolean; compact: boolean }) {
@@ -751,33 +813,8 @@ export default function DashboardScreen() {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
-  const offerEyebrow = activeProfileId === 'business'
-    ? 'BUSINESS BANKING'
-    : activeProfileId === 'family'
-      ? 'FAMILY BANKING'
-      : activeProfileId === 'olivia'
-        ? 'TEEN BANKING'
-        : activeProfileId === 'noah'
-          ? 'YOUNG SAVER'
-          : `MADE FOR ${activeProfile.name.toUpperCase()}`;
-  const offerTitle = activeProfileId === 'business'
-    ? 'More time for your business'
-    : activeProfileId === 'family'
-      ? 'Plans for the whole household'
-      : activeProfileId === 'olivia'
-        ? 'Build confidence with money'
-        : activeProfileId === 'noah'
-          ? 'Save for something awesome'
-          : 'A little more room to grow';
-  const offerDescription = activeProfileId === 'business'
-    ? 'Explore tools to streamline your everyday banking.'
-    : activeProfileId === 'family'
-      ? 'See shared balances and family goals in one view.'
-      : activeProfileId === 'olivia'
-        ? 'Take the next step toward goals that are yours.'
-        : activeProfileId === 'noah'
-          ? 'Turn allowance into a goal you can watch grow.'
-          : 'Explore ways to make your savings go further.';
+  const tediCategoryTotals = getTediCategoryTotals(activeProfileId);
+  const personalizedOffer = getDashboardRecommendation(activeProfileId, tediCategoryTotals);
   const profileHoverHandlers = Platform.OS === 'web'
     ? { onMouseEnter: () => setProfileMenuOpen(true), onMouseLeave: () => setProfileMenuOpen(false) }
     : {};
@@ -881,8 +918,8 @@ export default function DashboardScreen() {
         <RecentTransactionsSection compact={compact} view={activeProfileId} />
         <TediInsightsCard
           key={activeProfileId}
-          profileType={getTediProfileType(activeProfileId)}
-          categoryTotals={getTediCategoryTotals(activeProfileId)}
+          profileId={activeProfileId}
+          categoryTotals={tediCategoryTotals}
         />
         <View style={[styles.content, compact && styles.contentCompact]}>
           <View style={styles.offersHeading}>
@@ -890,14 +927,20 @@ export default function DashboardScreen() {
               <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
               <Text style={styles.offersTitle}>{activeProfileId === 'business' ? 'TD for your business' : activeProfileId === 'family' ? 'TD for your family' : activeProfileId === 'olivia' || activeProfileId === 'noah' ? 'TD for young people' : activeProfileId === 'jane' ? 'TD for Me' : `TD for ${activeProfile.name}`}</Text>
             </View>
-            <Text style={styles.offerCount}>3 offers</Text>
+            <Text style={styles.offerCount}>1 idea</Text>
           </View>
-          <TouchableOpacity accessibilityRole="button" style={styles.offerCard}>
-            <View style={styles.offerIcon}><Ionicons name={activeProfileId === 'olivia' ? 'compass-outline' : activeProfileId === 'noah' ? 'football-outline' : 'leaf-outline'} size={22} color={palette.green} /></View>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={`${personalizedOffer.title}. ${personalizedOffer.description}`}
+            accessibilityHint={`Opens ${personalizedOffer.destination}`}
+            onPress={() => navigation.navigate(personalizedOffer.destination)}
+            style={styles.offerCard}
+          >
+            <View style={styles.offerIcon}><Ionicons name="sparkles-outline" size={22} color={palette.green} /></View>
             <View style={styles.offerCopy}>
-              <Text style={styles.offerEyebrow}>{offerEyebrow}</Text>
-              <Text style={styles.offerTitle}>{offerTitle}</Text>
-              <Text style={styles.offerDescription}>{offerDescription}</Text>
+              <Text style={styles.offerEyebrow}>{personalizedOffer.eyebrow}</Text>
+              <Text style={styles.offerTitle}>{personalizedOffer.title}</Text>
+              <Text style={styles.offerDescription}>{personalizedOffer.description}</Text>
             </View>
             <Ionicons name="chevron-forward" size={17} color="rgba(28,28,28,0.58)" />
           </TouchableOpacity>
