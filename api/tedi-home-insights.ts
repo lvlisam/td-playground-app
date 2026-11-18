@@ -130,7 +130,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     }
 
     return res.status(200).json({ recommendation });
-  } catch {
+  } catch (error) {
+    console.error('[v0] Tedi insight generation failed', error instanceof Error ? error.name : 'UnknownError', error instanceof Error ? error.message : 'No error message');
     return res.status(502).json({ error: 'Tedi insights are temporarily unavailable. Please try again shortly.' });
   }
 }
