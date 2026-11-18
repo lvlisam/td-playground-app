@@ -18,6 +18,7 @@ import SupportBookingScreen from '../screens/SupportBookingScreen';
 import { AccountsProvider } from '../accounts';
 import { colors, font, radius } from '../theme';
 import { dashboardProfileOptions, useDashboardProfile } from '../personas';
+import { useAuth } from '../auth';
 
 const Tab = createBottomTabNavigator();
 
@@ -174,6 +175,7 @@ export default function TabNavigator() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const { authFlowVisible } = useAuth();
   const [activeTab, setActiveTab] = React.useState('Home');
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showCustomerInsights = showDeviceFrame && width >= 1100;
@@ -221,6 +223,7 @@ export default function TabNavigator() {
                   screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
+                      display: authFlowVisible ? 'none' : 'flex',
                       height: 68 + insets.bottom + (showDeviceFrame ? 18 : 0),
                       paddingBottom: showDeviceFrame ? 14 : insets.bottom || 4,
                       backgroundColor: frameColors.white,

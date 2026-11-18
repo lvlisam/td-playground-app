@@ -18,8 +18,7 @@ const createSettingsOverview = (name: string, email?: string) => [
 
 export default function AccountSettingsScreen() {
   const { activeProfile } = useDashboardProfile();
-  const { user, signOut, loading: authLoading } = useAuth();
-  const [authFlowVisible, setAuthFlowVisible] = useState(false);
+  const { user, signOut, loading: authLoading, authFlowVisible, setAuthFlowVisible } = useAuth();
   const [authStatus, setAuthStatus] = useState('');
   const [isSigningOut, setIsSigningOut] = useState(false);
   const accountName = typeof user?.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : '';
@@ -52,10 +51,16 @@ export default function AccountSettingsScreen() {
 
   async function handleSignOut() {
     setAuthStatus('');
+    if (!user) {
+      openAuthFlow();
+      return;
+    }
+
     setIsSigningOut(true);
     try {
       await signOut();
       setAuthStatus('You’re signed out.');
+      setAuthFlowVisible(true);
     } catch {
       setAuthStatus('Unable to sign out right now. Please try again.');
     } finally {
@@ -160,18 +165,14 @@ export default function AccountSettingsScreen() {
           {authStatus ? <Text accessibilityLiveRegion="polite" style={styles.authStatus}>{authStatus}</Text> : null}
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel={user ? 'Log out of your app account' : 'Sign in or create an app account'}
+            accessibilityLabel="Log out and continue to login or sign-up options"
             disabled={authLoading || isSigningOut}
-            onPress={user ? handleSignOut : openAuthFlow}
+            onPress={handleSignOut}
             style={[styles.logoutButton, (authLoading || isSigningOut) && styles.logoutButtonDisabled]}
           >
-            <Ionicons
-              name={user ? 'log-out-outline' : 'log-in-outline'}
-              size={19}
-              color={user ? colors.red : colors.greenDeep}
-            />
-            <Text style={[styles.logoutText, !user && styles.loginActionText]}>
-              {isSigningOut ? 'Signing out…' : user ? 'Log out' : 'Sign in or create account'}
+            <Ionicons name="log-out-outline" size={19} color={colors.red} />
+            <Text style={styles.logoutText}>
+              {isSigningOut ? 'Signing out…' : 'Log out'}
             </Text>
           </TouchableOpacity>
         </View>

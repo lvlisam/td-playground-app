@@ -2,6 +2,7 @@
   "expo": {
     "name": "TD Future",
     "slug": "td-future-app",
+    "scheme": "tdfuture",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

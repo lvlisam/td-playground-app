@@ -7,7 +7,8 @@ import { useFonts } from 'expo-font';
 import { colors, font } from './src/theme';
 import TabNavigator from './src/navigation/TabNavigator';
 import { DashboardProfileProvider } from './src/personas';
-import { AuthProvider } from './src/auth';
+import { AuthProvider, useAuth } from './src/auth';
+import AuthFlowModal from './src/components/AuthFlowModal';
 
 const TextWithDefaults = Text as typeof Text & { defaultProps?: TextProps };
 TextWithDefaults.defaultProps = {
@@ -17,6 +18,18 @@ TextWithDefaults.defaultProps = {
     { fontFamily: font.body.regular },
   ],
 };
+
+function PasswordRecoveryFlow() {
+  const { passwordRecovery, clearPasswordRecovery } = useAuth();
+
+  return (
+    <AuthFlowModal
+      visible={passwordRecovery}
+      initialScreen="new-password"
+      onClose={clearPasswordRecovery}
+    />
+  );
+}
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -48,6 +61,7 @@ export default function App() {
         <DashboardProfileProvider>
           <AuthProvider>
             <TabNavigator />
+            <PasswordRecoveryFlow />
           </AuthProvider>
         </DashboardProfileProvider>
       </NavigationContainer>
