@@ -1,21 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
 import ConnectedDataSection from '../components/ConnectedDataSection';
 import ScreenBackButton from '../components/ScreenBackButton';
+import AuthFlowModal from '../components/AuthFlowModal';
 import { useDashboardProfile } from '../personas';
 
 const createSettingsOverview = (name: string) => [
   { icon: 'person-outline' as const, title: 'Profile information', detail: `Account holder: ${name}` },
-  { icon: 'lock-closed-outline' as const, title: 'Security & sign-in', detail: 'Secure sign-in preferences' },
+  { icon: 'lock-closed-outline' as const, title: 'Security & sign-in', detail: 'Sign in or create an account' },
   { icon: 'notifications-outline' as const, title: 'Alerts & notifications', detail: 'Account activity and reminders' },
   { icon: 'shield-checkmark-outline' as const, title: 'Privacy & data', detail: 'Privacy preferences and permissions' },
 ];
 
 export default function AccountSettingsScreen() {
   const { activeProfile } = useDashboardProfile();
+  const [authFlowVisible, setAuthFlowVisible] = useState(false);
+  const [authStatus, setAuthStatus] = useState('');
   const settingsOverview = createSettingsOverview(activeProfile.name);
   const profileDetails = [
     { icon: 'person-outline' as const, title: 'Contact', detail: activeProfile.contactName },
@@ -75,10 +78,9 @@ export default function AccountSettingsScreen() {
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Settings overview</Text>
           <View style={styles.settingsCard}>
-            {settingsOverview.map((item, index) => (
-              <View key={item.title}>
-                {index > 0 ? <View style={styles.divider} /> : null}
-                <View accessible accessibilityRole="text" accessibilityLabel={`${item.title}. ${item.detail}`} style={styles.settingRow}>
+            {settingsOverview.map((item, index) => {
+              const row = (
+                <View style={styles.settingRow}>
                   <View style={styles.settingIcon}>
                     <Ionicons name={item.icon} size={18} color={colors.greenDeep} />
                   </View>
@@ -86,9 +88,32 @@ export default function AccountSettingsScreen() {
                     <Text style={styles.settingTitle}>{item.title}</Text>
                     <Text style={styles.settingDetail}>{item.detail}</Text>
                   </View>
+                  {item.title === 'Security & sign-in' ? <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} /> : null}
                 </View>
-              </View>
-            ))}
+              );
+
+              return (
+                <View key={item.title}>
+                  {index > 0 ? <View style={styles.divider} /> : null}
+                  {item.title === 'Security & sign-in' ? (
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel="Open sign-in and sign-up options"
+                      onPress={() => {
+                        setAuthStatus('');
+                        setAuthFlowVisible(true);
+                      }}
+                    >
+                      {row}
+                    </TouchableOpacity>
+                  ) : (
+                    <View accessible accessibilityRole="text" accessibilityLabel={`${item.title}. ${item.detail}`}>
+                      {row}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
           </View>
         </View>
 
@@ -96,13 +121,29 @@ export default function AccountSettingsScreen() {
           <Ionicons name="information-circle-outline" size={19} color={colors.greenDeep} />
           <Text style={styles.noticeText}>This screen is a preview; profile and contact details are illustrative and aren’t connected to a live bank account.</Text>
         </View>
+
+        <View style={styles.accountActions}>
+          {authStatus ? <Text accessibilityLiveRegion="polite" style={styles.authStatus}>{authStatus}</Text> : null}
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => setAuthStatus('No active session is connected to this preview, so there is nothing to log out of.')}
+            style={styles.logoutButton}
+          >
+            <Ionicons name="log-out-outline" size={19} color={colors.red} />
+            <Text style={styles.logoutText}>Log out</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+      <AuthFlowModal
+        visible={authFlowVisible}
+        onClose={() => setAuthFlowVisible(false)}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
+  container: { flex: 1, position: 'relative', backgroundColor: colors.bg },
   header: { minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   headerCompact: { paddingHorizontal: 14 },
   backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: colors.surface },
@@ -127,4 +168,8 @@ const styles = StyleSheet.create({
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderFaint },
   notice: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginHorizontal: spacing.md, marginTop: spacing.lg, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.greenDim },
   noticeText: { flex: 1, color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 17 },
+  accountActions: { marginHorizontal: spacing.md, marginTop: spacing.xl, marginBottom: spacing.md, gap: spacing.sm },
+  authStatus: { color: colors.textSecondary, fontSize: font.size.xs, lineHeight: 18 },
+  logoutButton: { minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  logoutText: { color: colors.red, fontFamily: font.body.bold, fontSize: font.size.sm },
 });
