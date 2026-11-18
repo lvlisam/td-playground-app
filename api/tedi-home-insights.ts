@@ -1,5 +1,3 @@
-import { generateText } from 'ai';
-
 type ApiRequest = {
   method?: string;
   headers: Record<string, string | string[] | undefined>;
@@ -105,6 +103,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   }
 
   try {
+    const { generateText } = await import('ai');
     const { text } = await generateText({
       model: 'openai/gpt-5.4-mini',
       instructions: [
