@@ -158,7 +158,7 @@ const desktopScreenContent: Record<string, { eyebrow: string; title: string; des
 function DesktopNavigationMenu({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
   return (
     <View style={styles.desktopMenu} accessibilityLabel="Shared screen navigation">
-      {desktopNavigationItems.map((item) => {
+      {desktopNavigationItems.slice(0, 5).map((item) => {
         const selected = activeTab === item.route;
         return (
           <TouchableOpacity
@@ -180,106 +180,181 @@ function DesktopNavigationMenu({ navigation, activeTab }: { navigation: Navigati
   );
 }
 
-function DesktopColleagueWorkspace({ activeTab }: { activeTab: string }) {
+function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = React.useState<'Home' | 'Customer' | 'Journey' | 'Top tools'>('Customer');
+  const [journeyOpen, setJourneyOpen] = React.useState(true);
+  const [journeyIdVisible, setJourneyIdVisible] = React.useState(false);
+  const [lastUpdated, setLastUpdated] = React.useState('just now');
   const screen = desktopScreenContent[activeTab] ?? desktopScreenContent.Home;
-  const activeLabel = desktopNavigationItems.find((item) => item.route === activeTab)?.label ?? activeTab;
+  const workspaceSections = {
+    Home: { eyebrow: 'STORE OVERVIEW', title: 'Customer onboarding', description: 'Welcome back. Review your active customer journey and continue where you left off.' },
+    Customer: { eyebrow: 'CUSTOMER PROFILE', title: 'Customer details', description: 'Review the selected customer and keep their journey moving.' },
+    Journey: { eyebrow: 'ONBOARDING JOURNEY', title: 'Journey progress', description: 'Follow the customer experience from identity review through account setup.' },
+    'Top tools': { eyebrow: 'QUICK ACCESS', title: 'Top tools', description: 'Open the tools used most often during a customer conversation.' },
+  } as const;
+  const section = workspaceSections[activeWorkspaceTab];
 
   return (
-    <View style={styles.colleagueWorkspace} accessibilityLabel={`Colleague desktop preview showing ${activeLabel}`}>
-      <View style={styles.workspaceChrome}>
+    <View style={styles.colleagueWorkspace} accessibilityLabel="Colleague desktop workspace">
+      <View style={styles.workspaceHeader}>
         <View style={styles.workspaceBrand}>
           <View style={styles.workspaceBrandMark}><Text style={styles.workspaceBrandText}>TD</Text></View>
-          <Text style={styles.workspaceBrandName}>Colleague workspace</Text>
+          <Text style={styles.workspaceBrandName}>TD Future</Text>
         </View>
-        <View style={styles.workspacePreviewBadge}>
-          <View style={styles.workspacePreviewDot} />
-          <Text style={styles.workspacePreviewText}>SYNCED PREVIEW</Text>
+        <View style={styles.workspaceHeaderMeta}>
+          <Text style={styles.workspaceHeaderGreeting}>Hello, Colleague</Text>
+          <View style={styles.workspaceHeaderDivider} />
+          <Text style={styles.workspaceHeaderStore}>Store: 0000</Text>
         </View>
       </View>
-      <ScrollView
-        style={styles.workspaceMain}
-        contentContainerStyle={styles.workspaceMainContent}
-        showsVerticalScrollIndicator
-      >
-        <View style={styles.workspaceHeadingRow}>
-          <View style={styles.workspaceHeadingCopy}>
-            <Text style={styles.workspaceEyebrow}>DESKTOP · {activeLabel.toUpperCase()}</Text>
-            <Text accessibilityRole="header" style={styles.workspaceTitle}>{screen.title}</Text>
-          </View>
-          <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
-        </View>
-        <Text style={styles.workspaceSectionLabel}>SELECT A CUSTOMER PROFILE</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.workspaceProfileList}
-          accessibilityLabel="Customer profiles"
+
+      <View style={styles.workspaceSubnav} accessibilityLabel="Workspace sections">
+        {(['Home', 'Customer', 'Journey', 'Top tools'] as const).map((tab) => {
+          const selected = activeWorkspaceTab === tab;
+          return (
+            <TouchableOpacity
+              key={tab}
+              accessibilityRole="tab"
+              accessibilityState={{ selected }}
+              onPress={() => setActiveWorkspaceTab(tab)}
+              style={[styles.workspaceSubnavButton, selected && styles.workspaceSubnavButtonActive]}
+            >
+              <Text style={[styles.workspaceSubnavLabel, selected && styles.workspaceSubnavLabelActive]}>{tab}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <View style={styles.journeyToolbar}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Open active journey"
+          disabled={!journeyOpen}
+          onPress={() => setActiveWorkspaceTab('Journey')}
+          style={styles.journeyStatus}
         >
-          {dashboardProfileOptions.map((profile) => {
-            const selected = activeProfileId === profile.id;
-            return (
-              <TouchableOpacity
-                key={profile.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Show ${profile.name} in both desktop and mobile experiences`}
-                accessibilityState={{ selected }}
-                onPress={() => selectProfile(profile.id)}
-                style={[styles.workspaceProfileChip, selected && styles.workspaceProfileChipSelected]}
-              >
-                <View style={[styles.workspaceProfileInitials, selected && styles.workspaceProfileInitialsSelected]}>
-                  <Text style={[styles.workspaceProfileInitialsText, selected && styles.workspaceProfileInitialsTextSelected]}>{profile.initials}</Text>
-                </View>
-                <Text numberOfLines={1} style={[styles.workspaceProfileName, selected && styles.workspaceProfileNameSelected]}>{profile.name}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-        <View style={styles.workspaceScreenCard}>
-          <View style={styles.workspaceContextHeading}>
-            <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
-            <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
-          </View>
-          <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
-          <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
-          <View style={styles.workspaceScreenDetail}>
-            <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
-            <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
-          </View>
-        </View>
-        <View style={styles.workspaceCustomerCard} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
-          <View style={styles.workspaceCustomerAvatar}>
-            <Text style={styles.workspaceCustomerInitials}>{activeProfile.initials}</Text>
-          </View>
-          <View style={styles.workspaceCustomerCopy}>
-            <View style={styles.workspaceCustomerNameRow}>
-              <Text numberOfLines={1} style={styles.workspaceCustomerName}>{activeProfile.name}</Text>
-              <View style={styles.workspaceCustomerBadge}><Text style={styles.workspaceCustomerBadgeText}>{activeProfile.badge}</Text></View>
+          <View style={[styles.journeyStatusDot, !journeyOpen && styles.journeyStatusDotClosed]} />
+          <Text style={styles.journeyStatusText}>{journeyOpen ? 'Active journey' : 'Journey closed'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Refresh journey view"
+          onPress={() => setLastUpdated(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}
+          style={styles.journeyToolbarLink}
+        >
+          <Ionicons name="refresh-outline" size={15} color={colors.greenDeep} />
+          <Text style={styles.journeyToolbarLinkText}>Refresh</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={journeyIdVisible ? 'Hide journey ID' : 'View journey ID'}
+          onPress={() => setJourneyIdVisible((visible) => !visible)}
+          style={styles.journeyToolbarLink}
+        >
+          <Ionicons name="document-text-outline" size={15} color={colors.greenDeep} />
+          <Text style={styles.journeyToolbarLinkText}>{journeyIdVisible ? 'Hide journey ID' : 'View journey ID'}</Text>
+        </TouchableOpacity>
+        {journeyIdVisible && <Text style={styles.journeyIdText}>JRN-0000-0001</Text>}
+        <Text style={styles.journeyUpdatedText}>Updated {lastUpdated}</Text>
+        <View style={styles.journeyToolbarSpacer} />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Close journey"
+          accessibilityState={{ disabled: !journeyOpen }}
+          disabled={!journeyOpen}
+          onPress={() => setJourneyOpen(false)}
+          style={[styles.journeyCloseButton, !journeyOpen && styles.journeyCloseButtonDisabled]}
+        >
+          <Text style={[styles.journeyCloseText, !journeyOpen && styles.journeyCloseTextDisabled]}>{journeyOpen ? 'Close journey' : 'Journey closed'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.desktopWorkspaceBody}>
+        <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />
+        <View style={styles.workspaceContentArea}>
+          <ScrollView
+            style={styles.workspaceMain}
+            contentContainerStyle={styles.workspaceMainContent}
+            showsVerticalScrollIndicator
+          >
+            <View style={styles.workspaceHeadingRow}>
+              <View style={styles.workspaceHeadingCopy}>
+                <Text style={styles.workspaceEyebrow}>{section.eyebrow}</Text>
+                <Text accessibilityRole="header" style={styles.workspaceTitle}>{section.title}</Text>
+                <Text style={styles.workspaceSectionDescription}>{section.description}</Text>
+              </View>
+              <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
             </View>
-            <Text style={styles.workspaceCustomerRelationship}>{activeProfile.relationship} · {activeProfile.detail}</Text>
-            <Text style={styles.workspaceCustomerMeta}>{activeProfile.tdRelationshipLength} with TD</Text>
-          </View>
+            <View style={styles.workspaceProfileTabs} accessibilityLabel="Customer profile tabs">
+              {dashboardProfileOptions.map((profile) => {
+                const selected = activeProfileId === profile.id;
+                return (
+                  <TouchableOpacity
+                    key={profile.id}
+                    accessibilityRole="tab"
+                    accessibilityLabel={`Show ${profile.name} customer profile`}
+                    accessibilityState={{ selected }}
+                    onPress={() => selectProfile(profile.id)}
+                    style={[styles.workspaceProfileTab, selected && styles.workspaceProfileTabSelected]}
+                  >
+                    <View style={[styles.workspaceProfileTabInitials, selected && styles.workspaceProfileTabInitialsSelected]}>
+                      <Text style={[styles.workspaceProfileTabInitialsText, selected && styles.workspaceProfileTabInitialsTextSelected]}>{profile.initials}</Text>
+                    </View>
+                    <Text numberOfLines={1} style={[styles.workspaceProfileTabText, selected && styles.workspaceProfileTabTextSelected]}>{profile.name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <View style={styles.workspaceScreenCard}>
+              <View style={styles.workspaceContextHeading}>
+                <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
+                <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
+              </View>
+              <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
+              <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
+              <View style={styles.workspaceScreenDetail}>
+                <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
+                <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
+              </View>
+            </View>
+            <View style={styles.workspaceSummaryRow}>
+              <View style={[styles.workspaceCustomerCard, styles.workspaceCustomerCardWide]} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
+                <View style={styles.workspaceCustomerAvatar}>
+                  <Text style={styles.workspaceCustomerInitials}>{activeProfile.initials}</Text>
+                </View>
+                <View style={styles.workspaceCustomerCopy}>
+                  <View style={styles.workspaceCustomerNameRow}>
+                    <Text numberOfLines={1} style={styles.workspaceCustomerName}>{activeProfile.name}</Text>
+                    <View style={styles.workspaceCustomerBadge}><Text style={styles.workspaceCustomerBadgeText}>{activeProfile.badge}</Text></View>
+                  </View>
+                  <Text style={styles.workspaceCustomerRelationship}>{activeProfile.relationship} · {activeProfile.detail}</Text>
+                  <Text style={styles.workspaceCustomerMeta}>{activeProfile.tdRelationshipLength} with TD</Text>
+                </View>
+              </View>
+              <View style={[styles.workspaceContextCard, styles.workspaceContextCardWide]}>
+                <View style={styles.workspaceContextHeading}>
+                  <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
+                  <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
+                </View>
+                <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
+                <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
+              </View>
+            </View>
+            <View style={styles.workspaceChannelRow} accessibilityLabel="Desktop and mobile previews showing the same screen">
+              <View style={styles.workspaceChannelItem}>
+                <Ionicons name="desktop-outline" size={15} color={colors.greenDeep} />
+                <Text style={styles.workspaceChannelText}>Desktop</Text>
+              </View>
+              <Ionicons name="sync-outline" size={14} color={colors.textTertiary} />
+              <View style={styles.workspaceChannelItem}>
+                <Ionicons name="phone-portrait-outline" size={15} color={colors.greenDeep} />
+                <Text style={styles.workspaceChannelText}>Mobile · {desktopNavigationItems.find((item) => item.route === activeTab)?.label ?? activeTab}</Text>
+              </View>
+            </View>
+          </ScrollView>
         </View>
-        <View style={styles.workspaceContextCard}>
-          <View style={styles.workspaceContextHeading}>
-            <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
-            <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
-          </View>
-          <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
-          <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
-        </View>
-        <View style={styles.workspaceChannelRow} accessibilityLabel="Desktop and mobile previews showing the same screen">
-          <View style={styles.workspaceChannelItem}>
-            <Ionicons name="desktop-outline" size={15} color={colors.greenDeep} />
-            <Text style={styles.workspaceChannelText}>Desktop</Text>
-          </View>
-          <Ionicons name="sync-outline" size={14} color={colors.textTertiary} />
-          <View style={styles.workspaceChannelItem}>
-            <Ionicons name="phone-portrait-outline" size={15} color={colors.greenDeep} />
-            <Text style={styles.workspaceChannelText}>Mobile · {activeLabel}</Text>
-          </View>
-        </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -303,8 +378,8 @@ export default function TabNavigator() {
       : deviceWidth / 0.47
     : height;
   return (
-    <View style={[styles.stage, showDeviceFrame && styles.previewStage]}>
-      {showDeviceFrame && (
+    <View style={[styles.stage, showDeviceFrame && styles.previewStage, showOmnichannelView && styles.desktopWorkspaceStage]}>
+      {showDeviceFrame && !showOmnichannelView && (
         <View style={styles.desktopPageHeader}>
           <View style={styles.desktopPageHeaderAccent} />
           <View style={styles.desktopPageHeaderCopy}>
@@ -315,12 +390,13 @@ export default function TabNavigator() {
           </View>
         </View>
       )}
-      <View style={showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
-      {showDeviceFrame && <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />}
+      <View style={showOmnichannelView ? styles.desktopFullPreview : showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
+      {showDeviceFrame && !showOmnichannelView && <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />}
       <View
         style={[
           styles.device,
           !showDeviceFrame && styles.nativeDevice,
+          showOmnichannelView && styles.hiddenDevice,
           showDeviceFrame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
         ]}
       >
@@ -461,7 +537,7 @@ export default function TabNavigator() {
           </>
         )}
       </View>
-      {showOmnichannelView ? <DesktopColleagueWorkspace activeTab={activeTab} /> : null}
+      {showOmnichannelView ? <DesktopColleagueWorkspace navigation={navigation} activeTab={activeTab} /> : null}
       </View>
     </View>
   );
@@ -470,33 +546,74 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
   stage: { flex: 1, backgroundColor: frameColors.screen },
   previewStage: { flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: 12, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: frameColors.stage },
+  desktopWorkspaceStage: { paddingHorizontal: 0, paddingVertical: 0, gap: 0, alignItems: 'stretch', backgroundColor: colors.bg },
   desktopPageHeader: { width: '100%', maxWidth: 1180, minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 4 },
   desktopPageHeaderAccent: { width: 4, height: 34, borderRadius: 2, backgroundColor: colors.green },
   desktopPageHeaderCopy: { flex: 1, gap: 2 },
   desktopPageHeaderTitle: { flexShrink: 1, color: colors.text, fontSize: 18, lineHeight: 22, fontFamily: font.headline.bold },
   desktopPageHeaderTagline: { color: colors.textSecondary, fontSize: 12, lineHeight: 16, fontFamily: font.body.medium },
   desktopPreviewBody: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
+  desktopFullPreview: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'flex-start' },
   mobilePreviewBody: { flex: 1 },
-  desktopMenu: { width: 184, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
-  desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
+  hiddenDevice: { display: 'none' },
+  desktopMenu: { width: 184, alignSelf: 'stretch', padding: 10, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
+  desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 14, padding: 14, backgroundColor: colors.bg },
+  workspaceContentArea: { flex: 1, minWidth: 0, borderRadius: 14, backgroundColor: frameColors.white, overflow: 'hidden' },
+  workspaceHeader: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, backgroundColor: frameColors.white, borderBottomWidth: 1, borderBottomColor: colors.border },
+  workspaceHeaderMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  workspaceHeaderGreeting: { color: colors.text, fontSize: 13, fontFamily: font.body.medium },
+  workspaceHeaderDivider: { width: 1, height: 19, backgroundColor: colors.border },
+  workspaceHeaderStore: { color: colors.textSecondary, fontSize: 12, fontFamily: font.body.medium },
+  workspaceSubnav: { minHeight: 46, flexDirection: 'row', alignItems: 'stretch', gap: 24, paddingHorizontal: 24, backgroundColor: frameColors.white, borderBottomWidth: 1, borderBottomColor: colors.border },
+  workspaceSubnavButton: { minWidth: 66, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 3, borderBottomColor: 'transparent' },
+  workspaceSubnavButtonActive: { borderBottomColor: colors.greenDeep },
+  workspaceSubnavLabel: { color: colors.textSecondary, fontSize: 12, fontFamily: font.body.medium },
+  workspaceSubnavLabelActive: { color: colors.greenDeep, fontFamily: font.body.bold },
+  journeyToolbar: { minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 18, paddingHorizontal: 24, backgroundColor: frameColors.white, borderBottomWidth: 1, borderBottomColor: colors.border },
+  journeyStatus: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 7 },
+  journeyStatusDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.greenDeep },
+  journeyStatusDotClosed: { backgroundColor: colors.textTertiary },
+  journeyStatusText: { color: colors.text, fontSize: 12, fontFamily: font.body.bold },
+  journeyToolbarLink: { flexDirection: 'row', alignItems: 'center', gap: 5, minHeight: 44, paddingHorizontal: 4 },
+  journeyToolbarLinkText: { color: colors.greenDeep, fontSize: 11, fontFamily: font.body.medium },
+  journeyUpdatedText: { color: colors.textTertiary, fontSize: 10 },
+  journeyIdText: { color: colors.textSecondary, fontSize: 10, fontFamily: font.body.medium },
+  journeyToolbarSpacer: { flex: 1 },
+  journeyCloseButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 13, borderRadius: radius.md, backgroundColor: colors.greenDeep },
+  journeyCloseButtonDisabled: { backgroundColor: colors.surfaceMid },
+  journeyCloseText: { color: colors.white, fontSize: 11, fontFamily: font.body.bold },
+  journeyCloseTextDisabled: { color: colors.textSecondary },
+  workspaceProfileTabs: { flexDirection: 'row', alignItems: 'stretch', borderBottomWidth: 1, borderBottomColor: colors.border },
+  workspaceProfileTab: { flex: 1, minWidth: 82, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 7, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  workspaceProfileTabSelected: { borderBottomColor: colors.greenDeep },
+  workspaceProfileTabInitials: { width: 25, height: 25, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMid },
+  workspaceProfileTabInitialsSelected: { backgroundColor: colors.greenDim },
+  workspaceProfileTabInitialsText: { color: colors.textSecondary, fontSize: 8, fontFamily: font.body.bold },
+  workspaceProfileTabInitialsTextSelected: { color: colors.greenDeep },
+  workspaceProfileTabText: { color: colors.textSecondary, fontSize: 10, fontFamily: font.body.medium },
+  workspaceProfileTabTextSelected: { color: colors.greenDeep, fontFamily: font.body.bold },
+  desktopMenuButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
   desktopMenuButtonActive: { backgroundColor: colors.greenDim },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   desktopMenuIconActive: { backgroundColor: colors.greenDeep },
   desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },
   desktopMenuLabelActive: { color: colors.greenDeep, fontFamily: font.body.bold },
-  colleagueWorkspace: { flex: 1, minWidth: 0, maxWidth: 560, maxHeight: '96%', borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, overflow: 'hidden', shadowColor: colors.text, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3 },
-  workspaceChrome: { minHeight: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: colors.surfaceMid, borderBottomWidth: 1, borderBottomColor: colors.border },
-  workspaceBrand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  workspaceBrandMark: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDeep },
-  workspaceBrandText: { color: colors.white, fontSize: 10, fontFamily: font.body.bold },
-  workspaceBrandName: { color: colors.text, fontSize: 11, fontFamily: font.body.bold },
+  colleagueWorkspace: { flex: 1, width: '100%', minWidth: 0, backgroundColor: frameColors.white, overflow: 'hidden' },
+  workspaceBrand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  workspaceBrandMark: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDeep },
+  workspaceBrandText: { color: colors.white, fontSize: 13, fontFamily: font.body.bold },
+  workspaceBrandName: { color: colors.text, fontSize: 15, fontFamily: font.headline.bold },
   workspacePreviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.full, backgroundColor: colors.greenDim },
   workspacePreviewDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.greenDeep },
   workspacePreviewText: { color: colors.greenDeep, fontSize: 8, fontFamily: font.body.bold, letterSpacing: 0.4 },
   workspaceMain: { flex: 1, minWidth: 0 },
-  workspaceMainContent: { padding: 12, gap: 10 },
+  workspaceMainContent: { padding: 18, gap: 12 },
   workspaceHeadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   workspaceHeadingCopy: { flex: 1, gap: 2 },
+  workspaceSectionDescription: { color: colors.textSecondary, fontSize: 11, lineHeight: 16, marginTop: 2 },
+  workspaceSummaryRow: { flexDirection: 'row', alignItems: 'stretch', gap: 10 },
+  workspaceCustomerCardWide: { flex: 1, minWidth: 0 },
+  workspaceContextCardWide: { flex: 1, minWidth: 0, justifyContent: 'center' },
   workspaceEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.7 },
   workspaceTitle: { color: colors.text, fontSize: 18, lineHeight: 23, fontFamily: font.headline.bold },
   workspaceSectionLabel: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
