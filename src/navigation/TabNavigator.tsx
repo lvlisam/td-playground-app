@@ -110,62 +110,123 @@ function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<Para
   );
 }
 
-function DesktopCustomerInsights() {
+const colleagueNavigationItems = [
+  { label: 'Overview', route: 'Home', icon: 'grid-outline' },
+  { label: 'Insights', route: 'Insights', icon: 'analytics-outline' },
+  { label: 'Support', route: 'Get Help', icon: 'chatbubble-ellipses-outline' },
+] as const;
+
+function DesktopColleagueWorkspace({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
 
   return (
-    <View style={styles.desktopInsightsPanel} accessibilityLabel="Household profile switcher">
-      <View style={styles.insightsEyebrowRow}>
-        <Ionicons name="people-outline" size={14} color={colors.greenDeep} />
-        <Text style={styles.insightsEyebrow}>HOUSEHOLD PROFILES</Text>
+    <View style={styles.colleagueWorkspace} accessibilityLabel="Colleague desktop workspace">
+      <View style={styles.workspaceChrome}>
+        <View style={styles.workspaceBrand}>
+          <View style={styles.workspaceBrandMark}><Text style={styles.workspaceBrandText}>TD</Text></View>
+          <Text style={styles.workspaceBrandName}>Colleague workspace</Text>
+        </View>
+        <View style={styles.workspacePreviewBadge}>
+          <View style={styles.workspacePreviewDot} />
+          <Text style={styles.workspacePreviewText}>ILLUSTRATIVE</Text>
+        </View>
       </View>
-      <Text accessibilityRole="header" style={styles.insightsTitle}>Choose a profile</Text>
-      <Text style={styles.insightsIntro}>Select a profile to update the phone dashboard with its accounts and activity.</Text>
-      <ScrollView
-        style={styles.personaScroll}
-        contentContainerStyle={styles.personaList}
-        showsVerticalScrollIndicator
-      >
-        {dashboardProfileOptions.map((persona) => {
-          const selected = activeProfileId === persona.id;
-          return (
+      <View style={styles.workspaceBody}>
+        <View style={styles.workspaceRail} accessibilityLabel="Colleague navigation">
+          {colleagueNavigationItems.map((item) => (
             <TouchableOpacity
-              key={persona.id}
+              key={item.route}
               accessibilityRole="button"
-              accessibilityLabel={`Show ${persona.name}, ${persona.relationship} dashboard. ${persona.ageLabel}. TD relationship: ${persona.tdRelationshipLength}.`}
-              accessibilityState={{ selected }}
-              onPress={() => selectProfile(persona.id)}
-              style={[styles.personaRow, selected && styles.personaRowSelected]}
+              accessibilityLabel={`Open ${item.label} on the customer phone preview`}
+              onPress={() => navigation.navigate(item.route)}
+              style={styles.workspaceRailButton}
             >
-              <View style={[styles.personaAvatar, selected && styles.personaAvatarSelected]}>
-                <Text style={styles.personaInitials}>{persona.initials}</Text>
-              </View>
-              <View style={styles.personaCopy}>
-                <Text style={styles.personaName}>{persona.name} <Text style={styles.personaRelationship}>· {persona.relationship}</Text></Text>
-                <Text style={styles.personaDetail}>{persona.detail}</Text>
-                <Text style={styles.personaNeed}>{persona.need}</Text>
-                <Text style={styles.personaMeta}>{persona.ageLabel} · {persona.tdRelationshipLength} with TD</Text>
-              </View>
-              {selected ? <Ionicons name="checkmark-circle" size={17} color={colors.greenDeep} /> : <Ionicons name="chevron-forward" size={15} color={colors.textTertiary} />}
+              <Ionicons name={item.icon} size={18} color={colors.greenDeep} />
+              <Text style={styles.workspaceRailLabel}>{item.label}</Text>
             </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-      <View style={styles.profileDetailsCard} accessibilityLabel={`${activeProfile.name} profile details`}>
-        <Text style={styles.profileDetailsTitle}>PROFILE DETAILS</Text>
-        <View style={styles.profileContactRow}>
-          <Ionicons name="person-outline" size={13} color={colors.greenDeep} />
-          <Text style={styles.profileDetailsText}>{activeProfile.contactName}</Text>
+          ))}
         </View>
-        <View style={styles.profileContactRow}>
-          <Ionicons name="mail-outline" size={13} color={colors.greenDeep} />
-          <Text style={styles.profileDetailsText}>{activeProfile.contactEmail}</Text>
-        </View>
-        <View style={styles.profileContactRow}>
-          <Ionicons name="call-outline" size={13} color={colors.greenDeep} />
-          <Text style={styles.profileDetailsText}>{activeProfile.contactPhone}</Text>
-        </View>
-        <Text style={styles.profileDisclaimer}>Illustrative contact information.</Text>
+        <ScrollView
+          style={styles.workspaceMain}
+          contentContainerStyle={styles.workspaceMainContent}
+          showsVerticalScrollIndicator
+        >
+          <View style={styles.workspaceHeadingRow}>
+            <View style={styles.workspaceHeadingCopy}>
+              <Text style={styles.workspaceEyebrow}>RELATIONSHIP VIEW</Text>
+              <Text accessibilityRole="header" style={styles.workspaceTitle}>One customer, in context</Text>
+            </View>
+            <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
+          </View>
+          <Text style={styles.workspaceSectionLabel}>SELECT A CUSTOMER PROFILE</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.workspaceProfileList}
+            accessibilityLabel="Customer profiles"
+          >
+            {dashboardProfileOptions.map((profile) => {
+              const selected = activeProfileId === profile.id;
+              return (
+                <TouchableOpacity
+                  key={profile.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Show ${profile.name} in both desktop and mobile experiences`}
+                  accessibilityState={{ selected }}
+                  onPress={() => selectProfile(profile.id)}
+                  style={[styles.workspaceProfileChip, selected && styles.workspaceProfileChipSelected]}
+                >
+                  <View style={[styles.workspaceProfileInitials, selected && styles.workspaceProfileInitialsSelected]}>
+                    <Text style={[styles.workspaceProfileInitialsText, selected && styles.workspaceProfileInitialsTextSelected]}>{profile.initials}</Text>
+                  </View>
+                  <Text numberOfLines={1} style={[styles.workspaceProfileName, selected && styles.workspaceProfileNameSelected]}>{profile.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          <View style={styles.workspaceCustomerCard} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
+            <View style={styles.workspaceCustomerAvatar}>
+              <Text style={styles.workspaceCustomerInitials}>{activeProfile.initials}</Text>
+            </View>
+            <View style={styles.workspaceCustomerCopy}>
+              <View style={styles.workspaceCustomerNameRow}>
+                <Text numberOfLines={1} style={styles.workspaceCustomerName}>{activeProfile.name}</Text>
+                <View style={styles.workspaceCustomerBadge}><Text style={styles.workspaceCustomerBadgeText}>{activeProfile.badge}</Text></View>
+              </View>
+              <Text style={styles.workspaceCustomerRelationship}>{activeProfile.relationship} · {activeProfile.detail}</Text>
+              <Text style={styles.workspaceCustomerMeta}>{activeProfile.tdRelationshipLength} with TD</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+          </View>
+          <View style={styles.workspaceContextCard}>
+            <View style={styles.workspaceContextHeading}>
+              <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
+              <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
+            </View>
+            <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
+            <Text style={styles.workspaceContextBody}>A consistent profile informs the colleague workspace and customer&apos;s mobile experience.</Text>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={`Open Insights for ${activeProfile.name} on the customer phone`}
+              onPress={() => navigation.navigate('Insights')}
+              style={styles.workspaceActionButton}
+            >
+              <Text style={styles.workspaceActionText}>Continue in mobile Insights</Text>
+              <Ionicons name="arrow-forward" size={15} color={colors.white} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.workspaceChannelRow} accessibilityLabel="Two connected channel previews">
+            <View style={styles.workspaceChannelItem}>
+              <Ionicons name="desktop-outline" size={15} color={colors.greenDeep} />
+              <Text style={styles.workspaceChannelText}>Colleague desktop</Text>
+            </View>
+            <Ionicons name="sync-outline" size={14} color={colors.textTertiary} />
+            <View style={styles.workspaceChannelItem}>
+              <Ionicons name="phone-portrait-outline" size={15} color={colors.greenDeep} />
+              <Text style={styles.workspaceChannelText}>Customer mobile</Text>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -178,24 +239,32 @@ export default function TabNavigator() {
   const { authFlowVisible } = useAuth();
   const [activeTab, setActiveTab] = React.useState('Home');
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
-  const showCustomerInsights = showDeviceFrame && width >= 1100;
-  const deviceWidth = showDeviceFrame ? Math.min(390, width - 32, Math.max(320, height - 104) * 0.47) : width;
-  const deviceHeight = showDeviceFrame ? deviceWidth / 0.47 : height;
+  const showOmnichannelView = Platform.OS === 'web' && width >= 900;
+  const deviceWidth = showDeviceFrame
+    ? showOmnichannelView
+      ? Math.min(320, width * 0.32, Math.max(300, height - 120) * 0.52)
+      : Math.min(390, width - 32, Math.max(320, height - 104) * 0.47)
+    : width;
+  const deviceHeight = showDeviceFrame
+    ? showOmnichannelView
+      ? Math.min(deviceWidth / 0.47, Math.max(320, height - 120))
+      : deviceWidth / 0.47
+    : height;
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage]}>
       {showDeviceFrame && (
         <View style={styles.desktopPageHeader}>
           <View style={styles.desktopPageHeaderAccent} />
           <View style={styles.desktopPageHeaderCopy}>
-            <Text accessibilityRole="header" style={styles.desktopPageHeaderTitle}>
-              TD Reimagined 2026 HCD Vision
+              <Text accessibilityRole="header" style={styles.desktopPageHeaderTitle}>
+              One platform, two experiences
             </Text>
-            <Text style={styles.desktopPageHeaderTagline}>More simple. More helpful. More human.</Text>
+            <Text style={styles.desktopPageHeaderTagline}>Build once. Support colleagues and customers across channels.</Text>
           </View>
         </View>
       )}
       <View style={showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
-      {showDeviceFrame && <DesktopNavigationMenu navigation={navigation} />}
+      {showDeviceFrame && !showOmnichannelView && <DesktopNavigationMenu navigation={navigation} />}
       <View
         style={[
           styles.device,
@@ -340,7 +409,7 @@ export default function TabNavigator() {
           </>
         )}
       </View>
-      {showCustomerInsights ? <DesktopCustomerInsights /> : null}
+      {showOmnichannelView ? <DesktopColleagueWorkspace navigation={navigation} /> : null}
       </View>
     </View>
   );
@@ -360,29 +429,56 @@ const styles = StyleSheet.create({
   desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },
-  desktopInsightsPanel: { width: 286, maxHeight: '92%', padding: 18, borderRadius: 20, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 12, shadowColor: colors.text, shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.06, shadowRadius: 14, elevation: 2 },
-  insightsEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  insightsEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold, letterSpacing: 0.7 },
-  insightsTitle: { color: colors.text, fontSize: 21, lineHeight: 26, fontFamily: font.headline.bold },
-  insightsIntro: { color: colors.textSecondary, fontSize: 12, lineHeight: 18 },
-  personaScroll: { maxHeight: 360, flexShrink: 1 },
-  personaList: { gap: 5, paddingVertical: 2 },
-  personaRow: { minHeight: 78, flexDirection: 'row', alignItems: 'center', gap: 8, padding: 7, borderRadius: 13, borderWidth: 1, borderColor: 'transparent' },
-  personaRowSelected: { backgroundColor: colors.greenDim, borderColor: colors.green },
-  personaAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.surfaceMid, alignItems: 'center', justifyContent: 'center' },
-  personaAvatarSelected: { backgroundColor: colors.surface },
-  personaInitials: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
-  personaCopy: { flex: 1, gap: 1 },
-  personaName: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.semibold },
-  personaRelationship: { color: colors.textSecondary, fontFamily: font.body.regular },
-  personaDetail: { color: colors.textSecondary, fontSize: 10, lineHeight: 13 },
-  personaNeed: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.medium },
-  personaMeta: { color: colors.textSecondary, fontSize: 9, lineHeight: 12, fontFamily: font.body.medium },
-  profileDetailsCard: { padding: 11, borderRadius: 14, backgroundColor: colors.greenDim, gap: 5 },
-  profileDetailsTitle: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold, letterSpacing: 0.7 },
-  profileContactRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  profileDetailsText: { flex: 1, color: colors.text, fontSize: 9, lineHeight: 13 },
-  profileDisclaimer: { color: colors.textSecondary, fontSize: 8, lineHeight: 11 },
+  colleagueWorkspace: { flex: 1, minWidth: 0, maxWidth: 560, maxHeight: '96%', borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, overflow: 'hidden', shadowColor: colors.text, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3 },
+  workspaceChrome: { minHeight: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: colors.surfaceMid, borderBottomWidth: 1, borderBottomColor: colors.border },
+  workspaceBrand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  workspaceBrandMark: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDeep },
+  workspaceBrandText: { color: colors.white, fontSize: 10, fontFamily: font.body.bold },
+  workspaceBrandName: { color: colors.text, fontSize: 11, fontFamily: font.body.bold },
+  workspacePreviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.full, backgroundColor: colors.greenDim },
+  workspacePreviewDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.greenDeep },
+  workspacePreviewText: { color: colors.greenDeep, fontSize: 8, fontFamily: font.body.bold, letterSpacing: 0.4 },
+  workspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row' },
+  workspaceRail: { width: 66, paddingVertical: 12, paddingHorizontal: 5, alignItems: 'center', gap: 8, borderRightWidth: 1, borderRightColor: colors.border, backgroundColor: colors.surfaceMid },
+  workspaceRailButton: { width: '100%', minHeight: 51, alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: 5, borderRadius: 10 },
+  workspaceRailLabel: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.medium },
+  workspaceMain: { flex: 1, minWidth: 0 },
+  workspaceMainContent: { padding: 12, gap: 10 },
+  workspaceHeadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  workspaceHeadingCopy: { flex: 1, gap: 2 },
+  workspaceEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.7 },
+  workspaceTitle: { color: colors.text, fontSize: 18, lineHeight: 23, fontFamily: font.headline.bold },
+  workspaceSectionLabel: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
+  workspaceProfileList: { flexDirection: 'row', gap: 6, paddingVertical: 1 },
+  workspaceProfileChip: { width: 66, minHeight: 60, alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 4, paddingVertical: 5, borderRadius: 11, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  workspaceProfileChipSelected: { borderColor: colors.green, backgroundColor: colors.greenDim },
+  workspaceProfileInitials: { width: 25, height: 25, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMid },
+  workspaceProfileInitialsSelected: { backgroundColor: colors.white },
+  workspaceProfileInitialsText: { color: colors.textSecondary, fontSize: 8, fontFamily: font.body.bold },
+  workspaceProfileInitialsTextSelected: { color: colors.greenDeep },
+  workspaceProfileName: { maxWidth: 58, color: colors.textSecondary, fontSize: 8, lineHeight: 10, fontFamily: font.body.medium },
+  workspaceProfileNameSelected: { color: colors.greenDeep, fontFamily: font.body.bold },
+  workspaceCustomerCard: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 10, borderRadius: 13, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  workspaceCustomerAvatar: { width: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
+  workspaceCustomerInitials: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
+  workspaceCustomerCopy: { flex: 1, minWidth: 0, gap: 2 },
+  workspaceCustomerNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  workspaceCustomerName: { flexShrink: 1, color: colors.text, fontSize: 13, lineHeight: 17, fontFamily: font.headline.bold },
+  workspaceCustomerBadge: { paddingHorizontal: 6, paddingVertical: 3, borderRadius: radius.full, backgroundColor: colors.greenDim },
+  workspaceCustomerBadgeText: { color: colors.greenDeep, fontSize: 7, fontFamily: font.body.bold },
+  workspaceCustomerRelationship: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  workspaceCustomerMeta: { color: colors.textTertiary, fontSize: 8, lineHeight: 11 },
+  workspaceContextCard: { padding: 11, borderRadius: 13, backgroundColor: colors.greenDim, gap: 6 },
+  workspaceContextHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  workspaceContextIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white },
+  workspaceContextEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
+  workspaceContextTitle: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.bold },
+  workspaceContextBody: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+  workspaceActionButton: { minHeight: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 10, borderRadius: 9, backgroundColor: colors.greenDeep },
+  workspaceActionText: { color: colors.white, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold },
+  workspaceChannelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 7, paddingVertical: 8, borderRadius: 10, backgroundColor: colors.surfaceMid },
+  workspaceChannelItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  workspaceChannelText: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.medium },
   device: { position: 'relative', flex: 1, width: '100%' },
   nativeDevice: { backgroundColor: frameColors.screen },
   deviceRim: {
