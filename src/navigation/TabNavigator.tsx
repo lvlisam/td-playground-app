@@ -425,6 +425,7 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
                 <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
               </View>
             </View>
+            <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
             <View style={styles.workspaceSummaryRow}>
               <View style={[styles.workspaceCustomerCard, styles.workspaceCustomerCardWide]} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
                 <View style={styles.workspaceCustomerAvatar}>
@@ -446,18 +447,6 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
                 </View>
                 <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
                 <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
-              </View>
-            </View>
-            <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
-            <View style={styles.workspaceChannelRow} accessibilityLabel="Desktop and mobile previews showing the same screen">
-              <View style={styles.workspaceChannelItem}>
-                <Ionicons name="desktop-outline" size={15} color={colors.greenDeep} />
-                <Text style={styles.workspaceChannelText}>Desktop</Text>
-              </View>
-              <Ionicons name="sync-outline" size={14} color={colors.textTertiary} />
-              <View style={styles.workspaceChannelItem}>
-                <Ionicons name="phone-portrait-outline" size={15} color={colors.greenDeep} />
-                <Text style={styles.workspaceChannelText}>Mobile · {desktopNavigationItems.find((item) => item.route === activeTab)?.label ?? activeTab}</Text>
               </View>
             </View>
           </ScrollView>
@@ -790,9 +779,6 @@ const styles = StyleSheet.create({
   workspaceScreenBody: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
   workspaceScreenDetail: { gap: 4, paddingTop: 7, borderTopWidth: 1, borderTopColor: colors.border },
   workspaceScreenDetailLabel: { color: colors.greenDeep, fontSize: 7, lineHeight: 10, fontFamily: font.body.bold, letterSpacing: 0.5 },
-  workspaceChannelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 7, paddingVertical: 8, borderRadius: 10, backgroundColor: colors.surfaceMid },
-  workspaceChannelItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  workspaceChannelText: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.medium },
   device: { position: 'relative', flex: 1, width: '100%' },
   nativeDevice: { backgroundColor: frameColors.screen },
   deviceRim: {
