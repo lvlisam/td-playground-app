@@ -1,5 +1,6 @@
 import React from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font, radius, spacing } from '../theme';
@@ -8,9 +9,13 @@ import AccountPlanCard from '../components/AccountPlanCard';
 import AccountMonthOverMonth from '../components/AccountMonthOverMonth';
 import ScreenBackButton from '../components/ScreenBackButton';
 import { useAccounts } from '../accounts';
+import { useDashboardProfile } from '../personas';
+import InsightsRecommendations, { type RecommendationFocus } from '../components/InsightsRecommendations';
 
 export default function PlanScreen() {
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { accounts, updatePlan } = useAccounts();
+  const { activeProfile } = useDashboardProfile();
   const plannedAccounts = accounts.filter((account) => account.plan);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -31,6 +36,17 @@ export default function PlanScreen() {
         </View>
 
         <AccountMonthOverMonth accounts={accounts} />
+        <InsightsRecommendations
+          accounts={accounts}
+          activeProfile={activeProfile}
+          onExplore={(focus: RecommendationFocus) => {
+            if (focus === 'rewards') {
+              navigation.navigate('Card Manager');
+              return;
+            }
+            navigation.navigate('Account servicing', { accountId: focus === 'savings' ? 'savings' : 'checking' });
+          }}
+        />
         <View style={styles.sectionHeading}>
           <Text style={styles.sectionTitle}>Your account plans</Text>
           <Text style={styles.sectionSubtitle}>A simple view of your savings goal and monthly spending.</Text>
