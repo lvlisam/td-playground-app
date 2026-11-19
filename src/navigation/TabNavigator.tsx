@@ -413,18 +413,20 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
                 );
               })}
             </View>
-            <View style={styles.workspaceScreenCard}>
-              <View style={styles.workspaceContextHeading}>
-                <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
-                <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
+            {activeTab !== 'Home' && (
+              <View style={styles.workspaceScreenCard}>
+                <View style={styles.workspaceContextHeading}>
+                  <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
+                  <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
+                </View>
+                <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
+                <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
+                <View style={styles.workspaceScreenDetail}>
+                  <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
+                  <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
+                </View>
               </View>
-              <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
-              <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
-              <View style={styles.workspaceScreenDetail}>
-                <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
-                <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
-              </View>
-            </View>
+            )}
             <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
             <View style={styles.workspaceSummaryRow}>
               <View style={[styles.workspaceCustomerCard, styles.workspaceCustomerCardWide]} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
