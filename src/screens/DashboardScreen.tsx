@@ -58,7 +58,7 @@ const recentTransactions = [
   },
 ] as const;
 
-type DashboardAccount = Omit<Account, 'id'> & { id: string };
+export type DashboardAccount = Omit<Account, 'id'> & { id: string };
 type DashboardTransaction = {
   id: string;
   merchant: string;
@@ -186,8 +186,17 @@ const oliviaAccounts: DashboardAccount[] = [
 
 const noahAccounts: DashboardAccount[] = [
   { id: 'noah-checking', name: 'TD Youth Checking', productLabel: 'Youth checking', detail: '•••• 7143', amount: '$168.20', amountLabel: 'Available balance', note: 'Allowance and spending', swatch: colors.green, plan: null },
-  { id: 'noah-savings', name: 'TD Youth Savings', productLabel: 'Youth savings', detail: '•••• 9480 · 4.25% APY', amount: '$980.00', amountLabel: 'Current balance', note: 'Education savings', swatch: colors.green, plan: null },
+  { id: 'noah-savings', name: 'TD Youth Savings', productLabel: 'Youth savings', detail: '•••• 9480 · 4.25% APY', amount: '$980.00', amountLabel: 'Current balance', note: 'Allowance and spending', swatch: colors.green, plan: null },
 ];
+
+export function getDashboardAccounts(view: DashboardProfileId, accounts: Account[]): DashboardAccount[] {
+  if (view === 'business') return businessAccounts;
+  if (view === 'family') return familyAccounts;
+  if (view === 'james') return jamesAccounts;
+  if (view === 'olivia') return oliviaAccounts;
+  if (view === 'noah') return noahAccounts;
+  return accounts;
+}
 
 const jamesTransactions: DashboardTransaction[] = [
   { id: 'james-payroll', merchant: 'Payroll deposit', category: 'Income · Checking', time: 'Today, 8:42 AM', amount: '+$2,860.00', logo: { mark: 'PAY', background: colors.greenDim, foreground: colors.greenDeep } },
@@ -464,17 +473,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
   const isBusiness = view === 'business';
   const isFamily = view === 'family';
   const isChildProfile = view === 'olivia' || view === 'noah';
-  const visibleAccounts: DashboardAccount[] = isBusiness
-    ? businessAccounts
-    : isFamily
-      ? familyAccounts
-      : view === 'james'
-        ? jamesAccounts
-        : view === 'olivia'
-          ? oliviaAccounts
-          : view === 'noah'
-            ? noahAccounts
-            : accounts;
+  const visibleAccounts = getDashboardAccounts(view, accounts);
   const creditAccount = visibleAccounts.find((account) => account.id.endsWith('card'));
   const checkingAccount = visibleAccounts.find((account) => account.id.endsWith('checking'));
   const savingsGoal = view === 'jane' ? accounts.find((account) => account.id === 'savings')?.plan : null;
