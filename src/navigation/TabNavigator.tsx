@@ -89,38 +89,104 @@ const desktopNavigationItems = [
   { label: 'Notifications', route: 'Notifications', icon: 'notifications-outline' },
 ] as const;
 
-function DesktopNavigationMenu({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
+const desktopScreenContent: Record<string, { eyebrow: string; title: string; description: string; detail: string; icon: keyof typeof Ionicons.glyphMap }> = {
+  Home: {
+    eyebrow: 'ACCOUNT OVERVIEW',
+    title: 'Your accounts, at a glance',
+    description: 'A clear view of balances, recent activity and what needs attention.',
+    detail: 'Review account activity and upcoming payments.',
+    icon: 'wallet-outline',
+  },
+  Insights: {
+    eyebrow: 'FINANCIAL INSIGHTS',
+    title: 'Make your money work for you',
+    description: 'Explore spending patterns and practical ways to reach your goals.',
+    detail: 'See spending trends and personalized guidance.',
+    icon: 'analytics-outline',
+  },
+  'Pay & Transfer': {
+    eyebrow: 'PAYMENTS',
+    title: 'Move money with confidence',
+    description: 'Choose a payment or transfer and review the details before continuing.',
+    detail: 'Send money, pay bills and manage transfers.',
+    icon: 'swap-horizontal',
+  },
+  Benefits: {
+    eyebrow: 'MEMBER BENEFITS',
+    title: 'More value from your banking',
+    description: 'Discover offers and benefits selected for your banking relationship.',
+    detail: 'Explore programs and eligible offers.',
+    icon: 'gift-outline',
+  },
+  'Get Help': {
+    eyebrow: 'SUPPORT',
+    title: 'How can we help?',
+    description: 'Find answers, connect with support or book time with a colleague.',
+    detail: 'Choose the support option that works for you.',
+    icon: 'help-circle-outline',
+  },
+  'Card Manager': {
+    eyebrow: 'CARD SERVICES',
+    title: 'Manage your cards',
+    description: 'Review card details and access the tools you need to stay in control.',
+    detail: 'View card controls and servicing options.',
+    icon: 'card-outline',
+  },
+  'Account servicing': {
+    eyebrow: 'ACCOUNT SERVICES',
+    title: 'Take care of your accounts',
+    description: 'Access common account requests and servicing options in one place.',
+    detail: 'Find account maintenance and service requests.',
+    icon: 'construct-outline',
+  },
+  'Account settings': {
+    eyebrow: 'PREFERENCES',
+    title: 'Make it yours',
+    description: 'Keep your profile and account preferences up to date.',
+    detail: 'Review personal and security preferences.',
+    icon: 'settings-outline',
+  },
+  Notifications: {
+    eyebrow: 'NOTIFICATIONS',
+    title: 'Stay in the know',
+    description: 'Review updates and reminders connected to your accounts.',
+    detail: 'See recent alerts and account updates.',
+    icon: 'notifications-outline',
+  },
+};
+
+function DesktopNavigationMenu({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
   return (
-    <View style={styles.desktopMenu}>
-      {desktopNavigationItems.map((item) => (
-        <TouchableOpacity
-          key={item.route}
-          accessibilityRole="button"
-          accessibilityLabel={`Go to ${item.label}`}
-          onPress={() => navigation.navigate(item.route)}
-          style={styles.desktopMenuButton}
-        >
-          <View style={styles.desktopMenuIcon}>
-            <Ionicons name={item.icon} size={17} color={colors.greenDeep} />
-          </View>
-          <Text numberOfLines={1} style={styles.desktopMenuLabel}>{item.label}</Text>
-        </TouchableOpacity>
-      ))}
+    <View style={styles.desktopMenu} accessibilityLabel="Shared screen navigation">
+      {desktopNavigationItems.map((item) => {
+        const selected = activeTab === item.route;
+        return (
+          <TouchableOpacity
+            key={item.route}
+            accessibilityRole="button"
+            accessibilityLabel={`Show ${item.label} on mobile and desktop`}
+            accessibilityState={{ selected }}
+            onPress={() => navigation.navigate(item.route)}
+            style={[styles.desktopMenuButton, selected && styles.desktopMenuButtonActive]}
+          >
+            <View style={[styles.desktopMenuIcon, selected && styles.desktopMenuIconActive]}>
+              <Ionicons name={item.icon} size={17} color={selected ? colors.white : colors.greenDeep} />
+            </View>
+            <Text numberOfLines={1} style={[styles.desktopMenuLabel, selected && styles.desktopMenuLabelActive]}>{item.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
-const colleagueNavigationItems = [
-  { label: 'Overview', route: 'Home', icon: 'grid-outline' },
-  { label: 'Insights', route: 'Insights', icon: 'analytics-outline' },
-  { label: 'Support', route: 'Get Help', icon: 'chatbubble-ellipses-outline' },
-] as const;
-
-function DesktopColleagueWorkspace({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
+function DesktopColleagueWorkspace({ activeTab }: { activeTab: string }) {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
+  const screen = desktopScreenContent[activeTab] ?? desktopScreenContent.Home;
+  const activeLabel = desktopNavigationItems.find((item) => item.route === activeTab)?.label ?? activeTab;
 
   return (
-    <View style={styles.colleagueWorkspace} accessibilityLabel="Colleague desktop workspace">
+    <View style={styles.colleagueWorkspace} accessibilityLabel={`Colleague desktop preview showing ${activeLabel}`}>
       <View style={styles.workspaceChrome}>
         <View style={styles.workspaceBrand}>
           <View style={styles.workspaceBrandMark}><Text style={styles.workspaceBrandText}>TD</Text></View>
@@ -128,106 +194,92 @@ function DesktopColleagueWorkspace({ navigation }: { navigation: NavigationProp<
         </View>
         <View style={styles.workspacePreviewBadge}>
           <View style={styles.workspacePreviewDot} />
-          <Text style={styles.workspacePreviewText}>ILLUSTRATIVE</Text>
+          <Text style={styles.workspacePreviewText}>SYNCED PREVIEW</Text>
         </View>
       </View>
-      <View style={styles.workspaceBody}>
-        <View style={styles.workspaceRail} accessibilityLabel="Colleague navigation">
-          {colleagueNavigationItems.map((item) => (
-            <TouchableOpacity
-              key={item.route}
-              accessibilityRole="button"
-              accessibilityLabel={`Open ${item.label} on the customer phone preview`}
-              onPress={() => navigation.navigate(item.route)}
-              style={styles.workspaceRailButton}
-            >
-              <Ionicons name={item.icon} size={18} color={colors.greenDeep} />
-              <Text style={styles.workspaceRailLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
+      <ScrollView
+        style={styles.workspaceMain}
+        contentContainerStyle={styles.workspaceMainContent}
+        showsVerticalScrollIndicator
+      >
+        <View style={styles.workspaceHeadingRow}>
+          <View style={styles.workspaceHeadingCopy}>
+            <Text style={styles.workspaceEyebrow}>DESKTOP · {activeLabel.toUpperCase()}</Text>
+            <Text accessibilityRole="header" style={styles.workspaceTitle}>{screen.title}</Text>
+          </View>
+          <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
         </View>
+        <Text style={styles.workspaceSectionLabel}>SELECT A CUSTOMER PROFILE</Text>
         <ScrollView
-          style={styles.workspaceMain}
-          contentContainerStyle={styles.workspaceMainContent}
-          showsVerticalScrollIndicator
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.workspaceProfileList}
+          accessibilityLabel="Customer profiles"
         >
-          <View style={styles.workspaceHeadingRow}>
-            <View style={styles.workspaceHeadingCopy}>
-              <Text style={styles.workspaceEyebrow}>RELATIONSHIP VIEW</Text>
-              <Text accessibilityRole="header" style={styles.workspaceTitle}>One customer, in context</Text>
-            </View>
-            <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
-          </View>
-          <Text style={styles.workspaceSectionLabel}>SELECT A CUSTOMER PROFILE</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.workspaceProfileList}
-            accessibilityLabel="Customer profiles"
-          >
-            {dashboardProfileOptions.map((profile) => {
-              const selected = activeProfileId === profile.id;
-              return (
-                <TouchableOpacity
-                  key={profile.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Show ${profile.name} in both desktop and mobile experiences`}
-                  accessibilityState={{ selected }}
-                  onPress={() => selectProfile(profile.id)}
-                  style={[styles.workspaceProfileChip, selected && styles.workspaceProfileChipSelected]}
-                >
-                  <View style={[styles.workspaceProfileInitials, selected && styles.workspaceProfileInitialsSelected]}>
-                    <Text style={[styles.workspaceProfileInitialsText, selected && styles.workspaceProfileInitialsTextSelected]}>{profile.initials}</Text>
-                  </View>
-                  <Text numberOfLines={1} style={[styles.workspaceProfileName, selected && styles.workspaceProfileNameSelected]}>{profile.name}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-          <View style={styles.workspaceCustomerCard} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
-            <View style={styles.workspaceCustomerAvatar}>
-              <Text style={styles.workspaceCustomerInitials}>{activeProfile.initials}</Text>
-            </View>
-            <View style={styles.workspaceCustomerCopy}>
-              <View style={styles.workspaceCustomerNameRow}>
-                <Text numberOfLines={1} style={styles.workspaceCustomerName}>{activeProfile.name}</Text>
-                <View style={styles.workspaceCustomerBadge}><Text style={styles.workspaceCustomerBadgeText}>{activeProfile.badge}</Text></View>
-              </View>
-              <Text style={styles.workspaceCustomerRelationship}>{activeProfile.relationship} · {activeProfile.detail}</Text>
-              <Text style={styles.workspaceCustomerMeta}>{activeProfile.tdRelationshipLength} with TD</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
-          </View>
-          <View style={styles.workspaceContextCard}>
-            <View style={styles.workspaceContextHeading}>
-              <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
-              <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
-            </View>
-            <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
-            <Text style={styles.workspaceContextBody}>A consistent profile informs the colleague workspace and customer&apos;s mobile experience.</Text>
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={`Open Insights for ${activeProfile.name} on the customer phone`}
-              onPress={() => navigation.navigate('Insights')}
-              style={styles.workspaceActionButton}
-            >
-              <Text style={styles.workspaceActionText}>Continue in mobile Insights</Text>
-              <Ionicons name="arrow-forward" size={15} color={colors.white} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.workspaceChannelRow} accessibilityLabel="Two connected channel previews">
-            <View style={styles.workspaceChannelItem}>
-              <Ionicons name="desktop-outline" size={15} color={colors.greenDeep} />
-              <Text style={styles.workspaceChannelText}>Colleague desktop</Text>
-            </View>
-            <Ionicons name="sync-outline" size={14} color={colors.textTertiary} />
-            <View style={styles.workspaceChannelItem}>
-              <Ionicons name="phone-portrait-outline" size={15} color={colors.greenDeep} />
-              <Text style={styles.workspaceChannelText}>Customer mobile</Text>
-            </View>
-          </View>
+          {dashboardProfileOptions.map((profile) => {
+            const selected = activeProfileId === profile.id;
+            return (
+              <TouchableOpacity
+                key={profile.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Show ${profile.name} in both desktop and mobile experiences`}
+                accessibilityState={{ selected }}
+                onPress={() => selectProfile(profile.id)}
+                style={[styles.workspaceProfileChip, selected && styles.workspaceProfileChipSelected]}
+              >
+                <View style={[styles.workspaceProfileInitials, selected && styles.workspaceProfileInitialsSelected]}>
+                  <Text style={[styles.workspaceProfileInitialsText, selected && styles.workspaceProfileInitialsTextSelected]}>{profile.initials}</Text>
+                </View>
+                <Text numberOfLines={1} style={[styles.workspaceProfileName, selected && styles.workspaceProfileNameSelected]}>{profile.name}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
-      </View>
+        <View style={styles.workspaceScreenCard}>
+          <View style={styles.workspaceContextHeading}>
+            <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
+            <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
+          </View>
+          <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
+          <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
+          <View style={styles.workspaceScreenDetail}>
+            <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
+            <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
+          </View>
+        </View>
+        <View style={styles.workspaceCustomerCard} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
+          <View style={styles.workspaceCustomerAvatar}>
+            <Text style={styles.workspaceCustomerInitials}>{activeProfile.initials}</Text>
+          </View>
+          <View style={styles.workspaceCustomerCopy}>
+            <View style={styles.workspaceCustomerNameRow}>
+              <Text numberOfLines={1} style={styles.workspaceCustomerName}>{activeProfile.name}</Text>
+              <View style={styles.workspaceCustomerBadge}><Text style={styles.workspaceCustomerBadgeText}>{activeProfile.badge}</Text></View>
+            </View>
+            <Text style={styles.workspaceCustomerRelationship}>{activeProfile.relationship} · {activeProfile.detail}</Text>
+            <Text style={styles.workspaceCustomerMeta}>{activeProfile.tdRelationshipLength} with TD</Text>
+          </View>
+        </View>
+        <View style={styles.workspaceContextCard}>
+          <View style={styles.workspaceContextHeading}>
+            <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
+            <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
+          </View>
+          <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
+          <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
+        </View>
+        <View style={styles.workspaceChannelRow} accessibilityLabel="Desktop and mobile previews showing the same screen">
+          <View style={styles.workspaceChannelItem}>
+            <Ionicons name="desktop-outline" size={15} color={colors.greenDeep} />
+            <Text style={styles.workspaceChannelText}>Desktop</Text>
+          </View>
+          <Ionicons name="sync-outline" size={14} color={colors.textTertiary} />
+          <View style={styles.workspaceChannelItem}>
+            <Ionicons name="phone-portrait-outline" size={15} color={colors.greenDeep} />
+            <Text style={styles.workspaceChannelText}>Mobile · {activeLabel}</Text>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -257,14 +309,14 @@ export default function TabNavigator() {
           <View style={styles.desktopPageHeaderAccent} />
           <View style={styles.desktopPageHeaderCopy}>
               <Text accessibilityRole="header" style={styles.desktopPageHeaderTitle}>
-              One platform, two experiences
-            </Text>
-            <Text style={styles.desktopPageHeaderTagline}>Build once. Support colleagues and customers across channels.</Text>
+            One screen, two views
+          </Text>
+          <Text style={styles.desktopPageHeaderTagline}>Use the left navigation to compare the same experience on mobile and desktop.</Text>
           </View>
         </View>
       )}
       <View style={showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
-      {showDeviceFrame && !showOmnichannelView && <DesktopNavigationMenu navigation={navigation} />}
+      {showDeviceFrame && <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />}
       <View
         style={[
           styles.device,
@@ -409,7 +461,7 @@ export default function TabNavigator() {
           </>
         )}
       </View>
-      {showOmnichannelView ? <DesktopColleagueWorkspace navigation={navigation} /> : null}
+      {showOmnichannelView ? <DesktopColleagueWorkspace activeTab={activeTab} /> : null}
       </View>
     </View>
   );
@@ -427,8 +479,11 @@ const styles = StyleSheet.create({
   mobilePreviewBody: { flex: 1 },
   desktopMenu: { width: 184, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
   desktopMenuButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
+  desktopMenuButtonActive: { backgroundColor: colors.greenDim },
   desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  desktopMenuIconActive: { backgroundColor: colors.greenDeep },
   desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },
+  desktopMenuLabelActive: { color: colors.greenDeep, fontFamily: font.body.bold },
   colleagueWorkspace: { flex: 1, minWidth: 0, maxWidth: 560, maxHeight: '96%', borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, overflow: 'hidden', shadowColor: colors.text, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3 },
   workspaceChrome: { minHeight: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: colors.surfaceMid, borderBottomWidth: 1, borderBottomColor: colors.border },
   workspaceBrand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -438,10 +493,6 @@ const styles = StyleSheet.create({
   workspacePreviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.full, backgroundColor: colors.greenDim },
   workspacePreviewDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.greenDeep },
   workspacePreviewText: { color: colors.greenDeep, fontSize: 8, fontFamily: font.body.bold, letterSpacing: 0.4 },
-  workspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row' },
-  workspaceRail: { width: 66, paddingVertical: 12, paddingHorizontal: 5, alignItems: 'center', gap: 8, borderRightWidth: 1, borderRightColor: colors.border, backgroundColor: colors.surfaceMid },
-  workspaceRailButton: { width: '100%', minHeight: 51, alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: 5, borderRadius: 10 },
-  workspaceRailLabel: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.medium },
   workspaceMain: { flex: 1, minWidth: 0 },
   workspaceMainContent: { padding: 12, gap: 10 },
   workspaceHeadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -474,8 +525,12 @@ const styles = StyleSheet.create({
   workspaceContextEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
   workspaceContextTitle: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.bold },
   workspaceContextBody: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
-  workspaceActionButton: { minHeight: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 10, borderRadius: 9, backgroundColor: colors.greenDeep },
-  workspaceActionText: { color: colors.white, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold },
+  workspaceScreenCard: { padding: 12, borderRadius: 13, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 7 },
+  workspaceScreenIcon: { width: 27, height: 27, borderRadius: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
+  workspaceScreenTitle: { color: colors.text, fontSize: 15, lineHeight: 20, fontFamily: font.headline.bold },
+  workspaceScreenBody: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+  workspaceScreenDetail: { gap: 4, paddingTop: 7, borderTopWidth: 1, borderTopColor: colors.border },
+  workspaceScreenDetailLabel: { color: colors.greenDeep, fontSize: 7, lineHeight: 10, fontFamily: font.body.bold, letterSpacing: 0.5 },
   workspaceChannelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 7, paddingVertical: 8, borderRadius: 10, backgroundColor: colors.surfaceMid },
   workspaceChannelItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   workspaceChannelText: { color: colors.textSecondary, fontSize: 8, lineHeight: 11, fontFamily: font.body.medium },
