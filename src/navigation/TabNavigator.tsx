@@ -287,6 +287,40 @@ function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: Retu
   );
 }
 
+function DesktopProfileDetails({ profile }: { profile: (typeof dashboardProfileOptions)[number] }) {
+  const details = [
+    { icon: 'person-outline', title: 'Contact', detail: profile.contactName },
+    { icon: 'calendar-outline', title: 'Age', detail: profile.ageLabel },
+    { icon: 'mail-outline', title: 'Email', detail: profile.contactEmail },
+    { icon: 'call-outline', title: 'Phone', detail: profile.contactPhone },
+    { icon: 'time-outline', title: 'TD relationship', detail: `${profile.tdRelationshipLength} with TD` },
+  ] as const;
+
+  return (
+    <View style={styles.workspaceProfileDetailsCard}>
+      <View style={styles.workspaceProfileDetailsHeading}>
+        <View style={styles.workspaceProfileDetailsHeadingIcon}>
+          <Ionicons name="person-circle-outline" size={15} color={colors.greenDeep} />
+        </View>
+        <Text style={styles.workspaceProfileDetailsEyebrow}>PROFILE DETAILS</Text>
+      </View>
+      <View style={styles.workspaceProfileDetailsGrid}>
+        {details.map((item) => (
+          <View key={item.title} style={styles.workspaceProfileDetailItem}>
+            <View style={styles.workspaceProfileDetailIcon}>
+              <Ionicons name={item.icon} size={14} color={colors.greenDeep} />
+            </View>
+            <View style={styles.workspaceProfileDetailCopy}>
+              <Text style={styles.workspaceProfileDetailLabel}>{item.title}</Text>
+              <Text style={styles.workspaceProfileDetailValue}>{item.detail}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
   const [activeWorkspaceTab, setActiveWorkspaceTab] = React.useState<'Home' | 'Customer' | 'Journey' | 'Top tools'>('Customer');
@@ -451,6 +485,7 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
                 <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
               </View>
             </View>
+            <DesktopProfileDetails profile={activeProfile} />
           </ScrollView>
         </View>
       </View>
@@ -769,6 +804,16 @@ const styles = StyleSheet.create({
   workspaceCustomerBadgeText: { color: colors.greenDeep, fontSize: 7, fontFamily: font.body.bold },
   workspaceCustomerRelationship: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
   workspaceCustomerMeta: { color: colors.textTertiary, fontSize: 8, lineHeight: 11 },
+  workspaceProfileDetailsCard: { padding: 11, borderRadius: 13, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 9 },
+  workspaceProfileDetailsHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  workspaceProfileDetailsHeadingIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
+  workspaceProfileDetailsEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
+  workspaceProfileDetailsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  workspaceProfileDetailItem: { flexGrow: 1, flexBasis: '42%', minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 10, backgroundColor: colors.surfaceMid },
+  workspaceProfileDetailIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white },
+  workspaceProfileDetailCopy: { flex: 1, minWidth: 0, gap: 2 },
+  workspaceProfileDetailLabel: { color: colors.textSecondary, fontSize: 7, lineHeight: 10, fontFamily: font.body.bold },
+  workspaceProfileDetailValue: { color: colors.text, fontSize: 9, lineHeight: 12, fontFamily: font.body.medium },
   workspaceContextCard: { padding: 11, borderRadius: 13, backgroundColor: colors.greenDim, gap: 6 },
   workspaceContextHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   workspaceContextIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white },
