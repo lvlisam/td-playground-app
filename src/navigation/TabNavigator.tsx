@@ -396,8 +396,8 @@ export default function TabNavigator() {
         style={[
           styles.device,
           !showDeviceFrame && styles.nativeDevice,
-          showOmnichannelView && styles.hiddenDevice,
           showDeviceFrame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
+          showOmnichannelView && styles.omnichannelDevice,
         ]}
       >
         {showDeviceFrame && (
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   desktopPreviewBody: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
   desktopFullPreview: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'flex-start' },
   mobilePreviewBody: { flex: 1 },
-  hiddenDevice: { display: 'none' },
+  omnichannelDevice: { alignSelf: 'center' },
   desktopMenu: { width: 184, alignSelf: 'stretch', padding: 10, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
   desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 14, padding: 14, backgroundColor: colors.bg },
   workspaceContentArea: { flex: 1, minWidth: 0, borderRadius: 14, backgroundColor: frameColors.white, overflow: 'hidden' },
