@@ -172,7 +172,6 @@ function DesktopNavigationMenu({ navigation, activeTab }: { navigation: Navigati
             <View style={[styles.desktopMenuIcon, selected && styles.desktopMenuIconActive]}>
               <Ionicons name={item.icon} size={17} color={selected ? colors.white : colors.greenDeep} />
             </View>
-            <Text numberOfLines={1} style={[styles.desktopMenuLabel, selected && styles.desktopMenuLabelActive]}>{item.label}</Text>
           </TouchableOpacity>
         );
       })}
@@ -315,12 +314,51 @@ function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: Retu
   );
 }
 
+function DesktopCustomerContactPanel({ profile }: { profile: (typeof dashboardProfileOptions)[number] }) {
+  const contactMethods = [
+    { icon: 'mail-outline', label: 'EMAIL', value: profile.contactEmail },
+    { icon: 'call-outline', label: 'PHONE', value: profile.contactPhone },
+  ] as const;
+
+  return (
+    <View style={styles.workspaceContactPanel} accessibilityLabel={`${profile.name} customer contact information`}>
+      <View style={styles.workspaceContactHeading}>
+        <View style={styles.workspaceContactHeadingIcon}>
+          <Ionicons name="person-circle-outline" size={15} color={colors.greenDeep} />
+        </View>
+        <Text style={styles.workspaceContactEyebrow}>CUSTOMER CONTACT</Text>
+      </View>
+      <View style={styles.workspaceContactIdentity}>
+        <View style={styles.workspaceContactAvatar}>
+          <Text style={styles.workspaceContactInitials}>{profile.initials}</Text>
+        </View>
+        <View style={styles.workspaceContactIdentityCopy}>
+          <Text style={styles.workspaceContactName}>{profile.contactName}</Text>
+          <Text style={styles.workspaceContactRelationship}>{profile.relationship} · {profile.detail}</Text>
+          <View style={styles.workspaceContactBadge}>
+            <Text style={styles.workspaceContactBadgeText}>{profile.badge}</Text>
+          </View>
+        </View>
+      </View>
+      <View style={styles.workspaceContactDivider} />
+      {contactMethods.map((method) => (
+        <View key={method.label} style={styles.workspaceContactMethod}>
+          <View style={styles.workspaceContactMethodIcon}>
+            <Ionicons name={method.icon} size={14} color={colors.greenDeep} />
+          </View>
+          <View style={styles.workspaceContactMethodCopy}>
+            <Text style={styles.workspaceContactMethodLabel}>{method.label}</Text>
+            <Text style={styles.workspaceContactMethodValue}>{method.value}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function DesktopProfileDetails({ profile }: { profile: (typeof dashboardProfileOptions)[number] }) {
   const details = [
-    { icon: 'person-outline', title: 'Contact', detail: profile.contactName },
     { icon: 'calendar-outline', title: 'Age', detail: profile.ageLabel },
-    { icon: 'mail-outline', title: 'Email', detail: profile.contactEmail },
-    { icon: 'call-outline', title: 'Phone', detail: profile.contactPhone },
     { icon: 'time-outline', title: 'TD relationship', detail: `${profile.tdRelationshipLength} with TD` },
   ] as const;
 
@@ -441,6 +479,7 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
 
       <View style={styles.desktopWorkspaceBody}>
         <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />
+        <DesktopCustomerContactPanel profile={activeProfile} />
         <View style={styles.workspaceContentArea}>
           <ScrollView
             style={styles.workspaceMain}
@@ -455,7 +494,13 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
               </View>
               <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
             </View>
-            <View style={styles.workspaceProfileTabs} accessibilityLabel="Customer profile tabs">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator
+              style={styles.workspaceProfileTabs}
+              contentContainerStyle={styles.workspaceProfileTabsContent}
+              accessibilityLabel="Customer profile tabs"
+            >
               {dashboardProfileOptions.map((profile) => {
                 const selected = activeProfileId === profile.id;
                 return (
@@ -474,7 +519,7 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
                   </TouchableOpacity>
                 );
               })}
-            </View>
+            </ScrollView>
             {activeTab !== 'Home' && (
               <View style={styles.workspaceScreenCard}>
                 <View style={styles.workspaceContextHeading}>
@@ -498,19 +543,6 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
               />
             ) : null}
             <View style={styles.workspaceSummaryRow}>
-              <View style={[styles.workspaceCustomerCard, styles.workspaceCustomerCardWide]} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
-                <View style={styles.workspaceCustomerAvatar}>
-                  <Text style={styles.workspaceCustomerInitials}>{activeProfile.initials}</Text>
-                </View>
-                <View style={styles.workspaceCustomerCopy}>
-                  <View style={styles.workspaceCustomerNameRow}>
-                    <Text numberOfLines={1} style={styles.workspaceCustomerName}>{activeProfile.name}</Text>
-                    <View style={styles.workspaceCustomerBadge}><Text style={styles.workspaceCustomerBadgeText}>{activeProfile.badge}</Text></View>
-                  </View>
-                  <Text style={styles.workspaceCustomerRelationship}>{activeProfile.relationship} · {activeProfile.detail}</Text>
-                  <Text style={styles.workspaceCustomerMeta}>{activeProfile.tdRelationshipLength} with TD</Text>
-                </View>
-              </View>
               <View style={[styles.workspaceContextCard, styles.workspaceContextCardWide]}>
                 <View style={styles.workspaceContextHeading}>
                   <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
@@ -725,8 +757,26 @@ const styles = StyleSheet.create({
   desktopFullPreview: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'flex-start' },
   mobilePreviewBody: { flex: 1 },
   omnichannelDevice: { alignSelf: 'center' },
-  desktopMenu: { width: 184, alignSelf: 'stretch', padding: 10, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 4 },
-  desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 14, padding: 14, backgroundColor: colors.bg },
+  desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 5 },
+  desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 10, padding: 12, backgroundColor: colors.bg },
+  workspaceContactPanel: { width: 200, flexShrink: 0, alignSelf: 'stretch', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, gap: 12 },
+  workspaceContactHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  workspaceContactHeadingIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
+  workspaceContactEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
+  workspaceContactIdentity: { flexDirection: 'column', alignItems: 'flex-start', gap: 9 },
+  workspaceContactAvatar: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
+  workspaceContactInitials: { color: colors.greenDeep, fontSize: 11, fontFamily: font.body.bold },
+  workspaceContactIdentityCopy: { alignSelf: 'stretch', minWidth: 0, gap: 4 },
+  workspaceContactName: { color: colors.text, fontSize: 13, lineHeight: 17, fontFamily: font.headline.bold },
+  workspaceContactRelationship: { color: colors.textSecondary, fontSize: 9, lineHeight: 13 },
+  workspaceContactBadge: { alignSelf: 'flex-start', paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.full, backgroundColor: colors.greenDim },
+  workspaceContactBadgeText: { color: colors.greenDeep, fontSize: 8, lineHeight: 10, fontFamily: font.body.bold },
+  workspaceContactDivider: { height: 1, backgroundColor: colors.borderFaint },
+  workspaceContactMethod: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  workspaceContactMethodIcon: { width: 25, height: 25, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMid },
+  workspaceContactMethodCopy: { flex: 1, minWidth: 0, gap: 3 },
+  workspaceContactMethodLabel: { color: colors.textTertiary, fontSize: 7, lineHeight: 10, fontFamily: font.body.bold, letterSpacing: 0.4 },
+  workspaceContactMethodValue: { color: colors.text, fontSize: 9, lineHeight: 13, fontFamily: font.body.medium },
   workspaceContentArea: { flex: 1, minWidth: 0, borderRadius: 14, backgroundColor: frameColors.white, overflow: 'hidden' },
   workspaceHeader: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, backgroundColor: frameColors.white, borderBottomWidth: 1, borderBottomColor: colors.border },
   workspaceHeaderMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
@@ -752,8 +802,9 @@ const styles = StyleSheet.create({
   journeyCloseButtonDisabled: { backgroundColor: colors.surfaceMid },
   journeyCloseText: { color: colors.white, fontSize: 11, fontFamily: font.body.bold },
   journeyCloseTextDisabled: { color: colors.textSecondary },
-  workspaceProfileTabs: { flexDirection: 'row', alignItems: 'stretch', borderBottomWidth: 1, borderBottomColor: colors.border },
-  workspaceProfileTab: { flex: 1, minWidth: 82, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 7, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  workspaceProfileTabs: { flexGrow: 0, flexShrink: 0, height: 51 },
+  workspaceProfileTabsContent: { minWidth: '100%', flexDirection: 'row', alignItems: 'stretch', borderBottomWidth: 1, borderBottomColor: colors.border },
+  workspaceProfileTab: { width: 92, minWidth: 92, flexGrow: 0, flexShrink: 0, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 7, borderBottomWidth: 2, borderBottomColor: 'transparent' },
   workspaceProfileTabSelected: { borderBottomColor: colors.greenDeep },
   workspaceProfileTabInitials: { width: 25, height: 25, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMid },
   workspaceProfileTabInitialsSelected: { backgroundColor: colors.greenDim },
@@ -761,12 +812,10 @@ const styles = StyleSheet.create({
   workspaceProfileTabInitialsTextSelected: { color: colors.greenDeep },
   workspaceProfileTabText: { color: colors.textSecondary, fontSize: 10, fontFamily: font.body.medium },
   workspaceProfileTabTextSelected: { color: colors.greenDeep, fontFamily: font.body.bold },
-  desktopMenuButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, borderRadius: 11 },
+  desktopMenuButton: { width: 40, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
   desktopMenuButtonActive: { backgroundColor: colors.greenDim },
-  desktopMenuIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
+  desktopMenuIcon: { width: 30, height: 30, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   desktopMenuIconActive: { backgroundColor: colors.greenDeep },
-  desktopMenuLabel: { flex: 1, color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.body.medium },
-  desktopMenuLabelActive: { color: colors.greenDeep, fontFamily: font.body.bold },
   colleagueWorkspace: { flex: 1, width: '100%', minWidth: 0, backgroundColor: frameColors.white, overflow: 'hidden' },
   workspaceBrand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   workspaceBrandMark: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDeep },
@@ -824,7 +873,6 @@ const styles = StyleSheet.create({
   workspaceGoalMonthlyFootnote: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
   workspaceGoalEmpty: { flex: 1, minHeight: 100, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, borderRadius: 11, backgroundColor: colors.surfaceMid },
   workspaceGoalEmptyText: { maxWidth: 190, color: colors.textSecondary, fontSize: 8, lineHeight: 12, textAlign: 'center' },
-  workspaceCustomerCardWide: { flex: 1, minWidth: 0 },
   workspaceContextCardWide: { flex: 1, minWidth: 0, justifyContent: 'center' },
   workspaceEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.7 },
   workspaceTitle: { color: colors.text, fontSize: 18, lineHeight: 23, fontFamily: font.headline.bold },
@@ -838,16 +886,6 @@ const styles = StyleSheet.create({
   workspaceProfileInitialsTextSelected: { color: colors.greenDeep },
   workspaceProfileName: { maxWidth: 58, color: colors.textSecondary, fontSize: 8, lineHeight: 10, fontFamily: font.body.medium },
   workspaceProfileNameSelected: { color: colors.greenDeep, fontFamily: font.body.bold },
-  workspaceCustomerCard: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 10, borderRadius: 13, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  workspaceCustomerAvatar: { width: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
-  workspaceCustomerInitials: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
-  workspaceCustomerCopy: { flex: 1, minWidth: 0, gap: 2 },
-  workspaceCustomerNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  workspaceCustomerName: { flexShrink: 1, color: colors.text, fontSize: 13, lineHeight: 17, fontFamily: font.headline.bold },
-  workspaceCustomerBadge: { paddingHorizontal: 6, paddingVertical: 3, borderRadius: radius.full, backgroundColor: colors.greenDim },
-  workspaceCustomerBadgeText: { color: colors.greenDeep, fontSize: 7, fontFamily: font.body.bold },
-  workspaceCustomerRelationship: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
-  workspaceCustomerMeta: { color: colors.textTertiary, fontSize: 8, lineHeight: 11 },
   workspaceProfileDetailsCard: { padding: 11, borderRadius: 13, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 9 },
   workspaceProfileDetailsHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   workspaceProfileDetailsHeadingIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
