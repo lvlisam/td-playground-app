@@ -489,8 +489,12 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
             <View style={styles.workspaceHeadingRow}>
               <View style={styles.workspaceHeadingCopy}>
                 <Text style={styles.workspaceEyebrow}>{section.eyebrow}</Text>
-                <Text accessibilityRole="header" style={styles.workspaceTitle}>{section.title}</Text>
-                <Text style={styles.workspaceSectionDescription}>{section.description}</Text>
+                {activeWorkspaceTab !== 'Customer' && (
+                  <>
+                    <Text accessibilityRole="header" style={styles.workspaceTitle}>{section.title}</Text>
+                    <Text style={styles.workspaceSectionDescription}>{section.description}</Text>
+                  </>
+                )}
               </View>
               <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
             </View>
