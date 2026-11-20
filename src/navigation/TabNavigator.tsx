@@ -155,6 +155,21 @@ const desktopScreenContent: Record<string, { eyebrow: string; title: string; des
   },
 };
 
+type WorkspaceTab = 'Home' | 'Customer' | 'Journey' | 'Top tools';
+
+const workspaceTabRoutes: Record<WorkspaceTab, string> = {
+  Home: 'Home',
+  Customer: 'Home',
+  Journey: 'Insights',
+  'Top tools': 'Get Help',
+};
+
+const mobileRouteWorkspaceTabs: Partial<Record<string, WorkspaceTab>> = {
+  Home: 'Home',
+  Insights: 'Journey',
+  'Get Help': 'Top tools',
+};
+
 function DesktopNavigationMenu({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
   return (
     <View style={styles.desktopMenu} accessibilityLabel="Shared screen navigation">
@@ -387,9 +402,18 @@ function DesktopProfileDetails({ profile }: { profile: (typeof dashboardProfileO
   );
 }
 
-function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
+function DesktopColleagueWorkspace({
+  navigation,
+  activeTab,
+  activeWorkspaceTab,
+  onSelectWorkspaceTab,
+}: {
+  navigation: NavigationProp<ParamListBase>;
+  activeTab: string;
+  activeWorkspaceTab: WorkspaceTab;
+  onSelectWorkspaceTab: (tab: WorkspaceTab) => void;
+}) {
   const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = React.useState<'Home' | 'Customer' | 'Journey' | 'Top tools'>('Customer');
   const [journeyOpen, setJourneyOpen] = React.useState(true);
   const [journeyIdVisible, setJourneyIdVisible] = React.useState(false);
   const [lastUpdated, setLastUpdated] = React.useState('just now');
@@ -424,7 +448,8 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
               key={tab}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
-              onPress={() => setActiveWorkspaceTab(tab)}
+              accessibilityLabel={`Show ${tab} view on mobile and desktop`}
+              onPress={() => onSelectWorkspaceTab(tab)}
               style={[styles.workspaceSubnavButton, selected && styles.workspaceSubnavButtonActive]}
             >
               <Text style={[styles.workspaceSubnavLabel, selected && styles.workspaceSubnavLabelActive]}>{tab}</Text>
@@ -438,7 +463,7 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
           accessibilityRole="button"
           accessibilityLabel="Open active journey"
           disabled={!journeyOpen}
-          onPress={() => setActiveWorkspaceTab('Journey')}
+          onPress={() => onSelectWorkspaceTab('Journey')}
           style={styles.journeyStatus}
         >
           <View style={[styles.journeyStatusDot, !journeyOpen && styles.journeyStatusDotClosed]} />
@@ -570,6 +595,8 @@ export default function TabNavigator() {
   const { width, height } = useWindowDimensions();
   const { authFlowVisible } = useAuth();
   const [activeTab, setActiveTab] = React.useState('Home');
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = React.useState<WorkspaceTab>('Customer');
+  const workspaceTabNavigation = React.useRef<{ route: string; tab: WorkspaceTab } | null>(null);
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showOmnichannelView = Platform.OS === 'web' && width >= 900;
   const deviceWidth = showDeviceFrame
@@ -582,6 +609,17 @@ export default function TabNavigator() {
       ? Math.min(deviceWidth / 0.47, Math.max(320, height - 120))
       : deviceWidth / 0.47
     : height;
+  const selectWorkspaceTab = (tab: WorkspaceTab) => {
+    const route = workspaceTabRoutes[tab];
+    setActiveWorkspaceTab(tab);
+    if (route === activeTab) {
+      workspaceTabNavigation.current = null;
+      return;
+    }
+    workspaceTabNavigation.current = { route, tab };
+    navigation.navigate(route);
+  };
+
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage, showOmnichannelView && styles.desktopWorkspaceStage]}>
       {showDeviceFrame && !showOmnichannelView && (
@@ -620,7 +658,20 @@ export default function TabNavigator() {
               <Tab.Navigator
                   backBehavior="history"
                   screenListeners={({ route }) => ({
-                    focus: () => setActiveTab(route.name),
+                    focus: () => {
+                      const pendingWorkspaceTab = workspaceTabNavigation.current;
+                      if (pendingWorkspaceTab?.route === route.name) {
+                        setActiveWorkspaceTab(pendingWorkspaceTab.tab);
+                        workspaceTabNavigation.current = null;
+                      } else {
+                        workspaceTabNavigation.current = null;
+                        if (activeTab !== route.name) {
+                          const matchingWorkspaceTab = mobileRouteWorkspaceTabs[route.name];
+                          if (matchingWorkspaceTab) setActiveWorkspaceTab(matchingWorkspaceTab);
+                        }
+                      }
+                      setActiveTab(route.name);
+                    },
                   })}
                   screenOptions={{
                     headerShown: false,
@@ -741,7 +792,14 @@ export default function TabNavigator() {
           </>
         )}
       </View>
-      {showOmnichannelView ? <DesktopColleagueWorkspace navigation={navigation} activeTab={activeTab} /> : null}
+      {showOmnichannelView ? (
+        <DesktopColleagueWorkspace
+          navigation={navigation}
+          activeTab={activeTab}
+          activeWorkspaceTab={activeWorkspaceTab}
+          onSelectWorkspaceTab={selectWorkspaceTab}
+        />
+      ) : null}
       </AccountsProvider>
       </View>
     </View>
