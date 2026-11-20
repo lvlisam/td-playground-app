@@ -77,7 +77,7 @@ function formatDashboardCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value);
 }
 
-function getSavingsThisMonth(view: DashboardProfileId) {
+export function getSavingsThisMonth(view: DashboardProfileId) {
   return view === 'business' ? 1200 : view === 'family' ? 450 : view === 'james' ? 310 : view === 'olivia' ? 50 : view === 'noah' ? 35 : 240;
 }
 
@@ -794,6 +794,80 @@ function DashboardProfileMenu({ view, onChange, compact }: {
   );
 }
 
+export function ColleagueHomeDetails({ profileId, onOpenPlans, onNavigate }: {
+  profileId: DashboardProfileId;
+  onOpenPlans: () => void;
+  onNavigate: (destination: DashboardRecommendation['destination']) => void;
+}) {
+  const { accounts } = useAccounts();
+  const profileAccounts = getDashboardAccounts(profileId, accounts);
+  const checkingBalance = parseDashboardAmount(profileAccounts.find((account) => account.id.endsWith('checking'))?.amount ?? '0');
+  const creditBalance = Math.abs(parseDashboardAmount(profileAccounts.find((account) => account.id.endsWith('card'))?.amount ?? '0'));
+  const savingsPlan = profileAccounts.find((account) => account.id === 'savings')?.plan;
+  const plannedGoalContribution = savingsPlan?.kind === 'savings-goal' ? savingsPlan.monthlyContribution : 0;
+  const upcomingBillsTotal = profileId === 'jane'
+    ? upcomingBillPayments.reduce((total, bill) => total + parseDashboardAmount(bill.amount), 0)
+    : 0;
+  const amountBeforePayday = Math.max(0, checkingBalance - creditBalance - plannedGoalContribution - upcomingBillsTotal);
+  const categoryTotals = getTediCategoryTotals(profileId);
+  const personalizedOffer = getDashboardRecommendation(profileId, categoryTotals);
+  const isFamily = profileId === 'family';
+  const isChild = profileId === 'olivia' || profileId === 'noah';
+
+  return (
+    <View style={styles.colleagueHomeDetails}>
+      <View style={styles.colleagueHomeHeading}>
+        <View style={styles.colleagueHomeHeadingCopy}>
+          <Text style={styles.colleagueHomeEyebrow}>MOBILE HOME VIEW</Text>
+          <Text style={styles.colleagueHomeTitle}>Everyday overview</Text>
+          <Text style={styles.colleagueHomeSubtitle}>Home information and activity for the selected customer.</Text>
+        </View>
+        <View accessible accessibilityRole="text" accessibilityLabel="3 unread notifications" style={styles.colleagueHomeUnread}>
+          <Ionicons name="notifications-outline" size={13} color={colors.greenDeep} />
+          <Text style={styles.colleagueHomeUnreadText}>3 unread</Text>
+        </View>
+      </View>
+
+      {isFamily ? <FamilyMoneyHub profileId={profileId} /> : null}
+      {profileId === 'jane' ? (
+        <View style={styles.paydaySection}>
+          <PaydayCountdownMeter compact={false} amount={amountBeforePayday} />
+        </View>
+      ) : (
+        <FinancialHealthCard compact={false} view={profileId} />
+      )}
+      {!isFamily && isChild ? <FamilyMoneyHub profileId={profileId} /> : null}
+
+      <RecentTransactionsSection compact={false} view={profileId} />
+      <TediInsightsCard profileId={profileId} categoryTotals={categoryTotals} />
+      <View style={styles.content}>
+        <View style={styles.offersHeading}>
+          <View style={styles.offersTitleGroup}>
+            <View style={styles.smallTdLogo}><Text style={styles.smallTdLogoText}>TD</Text></View>
+            <Text style={styles.offersTitle}>{profileId === 'business' ? 'TD for your business' : profileId === 'family' ? 'TD for your family' : isChild ? 'TD for young people' : profileId === 'jane' ? 'TD for Me' : `TD for ${dashboardProfileOptions.find((profile) => profile.id === profileId)?.name ?? 'you'}`}</Text>
+          </View>
+          <Text style={styles.offerCount}>1 idea</Text>
+        </View>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={`${personalizedOffer.title}. ${personalizedOffer.description}`}
+          accessibilityHint={`Opens ${personalizedOffer.destination}`}
+          onPress={() => onNavigate(personalizedOffer.destination)}
+          style={styles.offerCard}
+        >
+          <View style={styles.offerIcon}><Ionicons name="sparkles-outline" size={22} color={palette.green} /></View>
+          <View style={styles.offerCopy}>
+            <Text style={styles.offerEyebrow}>{personalizedOffer.eyebrow}</Text>
+            <Text style={styles.offerTitle}>{personalizedOffer.title}</Text>
+            <Text style={styles.offerDescription}>{personalizedOffer.description}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={17} color="rgba(28,28,28,0.58)" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
@@ -952,6 +1026,14 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
+  colleagueHomeDetails: { gap: 4, paddingTop: 2, paddingBottom: 8 },
+  colleagueHomeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingHorizontal: 16, paddingBottom: 8 },
+  colleagueHomeHeadingCopy: { flex: 1, gap: 2 },
+  colleagueHomeEyebrow: { color: colors.greenDeep, fontSize: 9, lineHeight: 13, fontFamily: font.body.bold, letterSpacing: 0.7 },
+  colleagueHomeTitle: { color: palette.ink, fontSize: 16, lineHeight: 21, fontFamily: font.headline.bold },
+  colleagueHomeSubtitle: { color: colors.textSecondary, fontSize: 11, lineHeight: 15 },
+  colleagueHomeUnread: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 12, backgroundColor: colors.greenDim },
+  colleagueHomeUnreadText: { color: colors.greenDeep, fontSize: 10, fontFamily: font.body.bold },
   hero: { minHeight: 136, position: 'relative', overflow: 'visible', zIndex: 0, backgroundColor: palette.background },
   heroMenuOpen: { zIndex: 20, elevation: 20 },
   heroForeground: { zIndex: 2, paddingBottom: 12 },

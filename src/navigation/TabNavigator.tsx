@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import DashboardScreen, { getDashboardAccounts } from '../screens/DashboardScreen';
+import DashboardScreen, { ColleagueHomeDetails, getDashboardAccounts, getSavingsThisMonth } from '../screens/DashboardScreen';
 import PlanScreen from '../screens/PlanScreen';
 import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
@@ -189,6 +189,10 @@ function formatColleagueCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value);
 }
 
+function formatColleagueMonthlySavings(value: number) {
+  return `${value < 0 ? '−' : '+'}${formatColleagueCurrency(Math.abs(value))}`;
+}
+
 function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: ReturnType<typeof useDashboardProfile>['activeProfileId']; onOpenPlans: () => void }) {
   const { accounts } = useAccounts();
   const customerAccounts = getDashboardAccounts(profileId, accounts);
@@ -196,6 +200,10 @@ function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: Retu
   const savingsGoalPlan = savingsGoalAccount?.plan?.kind === 'savings-goal' ? savingsGoalAccount.plan : null;
   const goalProgress = savingsGoalPlan
     ? Math.max(0, Math.min(100, Math.round((savingsGoalPlan.savedAmount / savingsGoalPlan.targetAmount) * 100)))
+    : 0;
+  const savingsThisMonth = getSavingsThisMonth(profileId);
+  const monthlyContributionProgress = savingsGoalPlan
+    ? Math.max(0, Math.min(100, Math.round((savingsThisMonth / savingsGoalPlan.monthlyContribution) * 100)))
     : 0;
   const totalBalance = customerAccounts.reduce((total, account) => {
     const amount = parseColleagueAmount(account.amount);
@@ -230,9 +238,13 @@ function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: Retu
               </View>
               <View style={styles.workspaceFinancialAccountCopy}>
                 <Text numberOfLines={1} style={styles.workspaceFinancialAccountName}>{account.name}</Text>
-                <Text numberOfLines={1} style={styles.workspaceFinancialAccountDetail}>{account.detail}</Text>
+                <Text numberOfLines={1} style={styles.workspaceFinancialAccountDetail}>{account.productLabel} · {account.detail}</Text>
+                {account.note ? <Text numberOfLines={1} style={styles.workspaceFinancialAccountNote}>{account.note}</Text> : null}
               </View>
-              <Text numberOfLines={1} style={styles.workspaceFinancialAccountAmount}>{account.amount}</Text>
+              <View style={styles.workspaceFinancialAccountValues}>
+                <Text style={styles.workspaceFinancialAccountLabel}>{account.amountLabel}</Text>
+                <Text numberOfLines={1} style={styles.workspaceFinancialAccountAmount}>{account.amount}</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -271,10 +283,26 @@ function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: Retu
               <Text style={styles.workspaceGoalAmount}>{formatColleagueCurrency(savingsGoalPlan.savedAmount)} saved</Text>
               <Text style={styles.workspaceGoalAmount}>{formatColleagueCurrency(savingsGoalPlan.targetAmount)} goal</Text>
             </View>
-            <View style={styles.workspaceGoalContribution}>
-              <Ionicons name="repeat-outline" size={13} color={colors.greenDeep} />
-              <Text style={styles.workspaceGoalContributionText}>{formatColleagueCurrency(savingsGoalPlan.monthlyContribution)} monthly contribution</Text>
+            <View style={styles.workspaceGoalMonthlyHeading}>
+              <View style={styles.workspaceGoalMonthlyCopy}>
+                <Text style={styles.workspaceGoalMonthlyLabel}>Saved this month</Text>
+                <Text style={styles.workspaceGoalMonthlyValue}>{formatColleagueMonthlySavings(savingsThisMonth)}</Text>
+              </View>
+              <View style={[styles.workspaceGoalMonthlyCopy, styles.workspaceGoalMonthlyTarget]}>
+                <Text style={styles.workspaceGoalMonthlyLabel}>Monthly contribution</Text>
+                <Text style={styles.workspaceGoalMonthlyValue}>{formatColleagueCurrency(savingsGoalPlan.monthlyContribution)}</Text>
+              </View>
             </View>
+            <View
+              accessible
+              accessibilityRole="progressbar"
+              accessibilityLabel="Monthly savings contribution progress"
+              accessibilityValue={{ min: 0, max: 100, now: monthlyContributionProgress }}
+              style={styles.workspaceGoalMonthlyTrack}
+            >
+              <View style={[styles.workspaceGoalMonthlyFill, { width: `${monthlyContributionProgress}%` }]} />
+            </View>
+            <Text style={styles.workspaceGoalMonthlyFootnote}>{monthlyContributionProgress}% of the monthly contribution goal</Text>
           </View>
         ) : (
           <View style={styles.workspaceGoalEmpty}>
@@ -462,6 +490,13 @@ function DesktopColleagueWorkspace({ navigation, activeTab }: { navigation: Navi
               </View>
             )}
             <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
+            {activeWorkspaceTab === 'Customer' ? (
+              <ColleagueHomeDetails
+                profileId={activeProfileId}
+                onOpenPlans={() => navigation.navigate('Insights')}
+                onNavigate={(destination) => navigation.navigate(destination)}
+              />
+            ) : null}
             <View style={styles.workspaceSummaryRow}>
               <View style={[styles.workspaceCustomerCard, styles.workspaceCustomerCardWide]} accessibilityLabel={`${activeProfile.name}, ${activeProfile.relationship}`}>
                 <View style={styles.workspaceCustomerAvatar}>
@@ -751,19 +786,22 @@ const styles = StyleSheet.create({
   workspaceFinancialPanelHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
   workspaceFinancialTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, minWidth: 0 },
   workspaceFinancialIcon: { width: 25, height: 25, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
-  workspaceFinancialTitle: { color: colors.text, fontSize: 11, lineHeight: 15, fontFamily: font.headline.bold },
+  workspaceFinancialTitle: { color: colors.text, fontSize: 12, lineHeight: 16, fontFamily: font.headline.bold },
   workspaceFinancialMeta: { color: colors.textSecondary, fontSize: 8, fontFamily: font.body.medium },
   workspaceBalanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5, paddingVertical: 3 },
-  workspaceBalanceLabel: { color: colors.textSecondary, fontSize: 8, lineHeight: 11 },
-  workspaceBalanceAmount: { color: colors.text, fontSize: 9, lineHeight: 12, fontFamily: font.body.bold },
+  workspaceBalanceLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  workspaceBalanceAmount: { color: colors.text, fontSize: 10, lineHeight: 13, fontFamily: font.body.bold },
   workspaceFinancialAccountList: { gap: 0 },
   workspaceFinancialAccount: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7 },
   workspaceFinancialAccountDivider: { borderBottomWidth: 1, borderBottomColor: colors.borderFaint },
   workspaceFinancialAccountIcon: { width: 23, height: 23, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   workspaceFinancialAccountCopy: { flex: 1, minWidth: 0, gap: 2 },
-  workspaceFinancialAccountName: { color: colors.text, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold },
-  workspaceFinancialAccountDetail: { color: colors.textSecondary, fontSize: 7, lineHeight: 10 },
-  workspaceFinancialAccountAmount: { maxWidth: 82, color: colors.text, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, textAlign: 'right' },
+  workspaceFinancialAccountName: { color: colors.text, fontSize: 10, lineHeight: 13, fontFamily: font.body.bold },
+  workspaceFinancialAccountDetail: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  workspaceFinancialAccountNote: { color: colors.greenDeep, fontSize: 9, lineHeight: 12, fontFamily: font.body.medium },
+  workspaceFinancialAccountValues: { maxWidth: 92, alignItems: 'flex-end', gap: 1 },
+  workspaceFinancialAccountLabel: { color: colors.textTertiary, fontSize: 8, lineHeight: 10, textAlign: 'right' },
+  workspaceFinancialAccountAmount: { color: colors.text, fontSize: 10, lineHeight: 13, fontFamily: font.body.bold, textAlign: 'right' },
   workspacePlanLink: { minHeight: 30, flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 2 },
   workspacePlanLinkText: { color: colors.greenDeep, fontSize: 8, fontFamily: font.body.bold },
   workspaceGoalCard: { flex: 1, justifyContent: 'center', gap: 9, padding: 10, borderRadius: 11, backgroundColor: colors.greenDim },
@@ -775,9 +813,15 @@ const styles = StyleSheet.create({
   workspaceGoalTrack: { height: 6, borderRadius: 3, backgroundColor: colors.white, overflow: 'hidden' },
   workspaceGoalFill: { height: '100%', borderRadius: 3, backgroundColor: colors.greenDeep },
   workspaceGoalAmounts: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
-  workspaceGoalAmount: { color: colors.textSecondary, fontSize: 7, lineHeight: 10 },
-  workspaceGoalContribution: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingTop: 6, borderTopWidth: 1, borderTopColor: colors.border },
-  workspaceGoalContributionText: { color: colors.textSecondary, fontSize: 7, lineHeight: 10 },
+  workspaceGoalAmount: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  workspaceGoalMonthlyHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingTop: 6, borderTopWidth: 1, borderTopColor: colors.border },
+  workspaceGoalMonthlyCopy: { flex: 1, gap: 2 },
+  workspaceGoalMonthlyTarget: { alignItems: 'flex-end' },
+  workspaceGoalMonthlyLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
+  workspaceGoalMonthlyValue: { color: colors.text, fontSize: 10, lineHeight: 13, fontFamily: font.body.bold },
+  workspaceGoalMonthlyTrack: { height: 5, borderRadius: 3, backgroundColor: colors.white, overflow: 'hidden' },
+  workspaceGoalMonthlyFill: { height: '100%', borderRadius: 3, backgroundColor: colors.greenDeep },
+  workspaceGoalMonthlyFootnote: { color: colors.textSecondary, fontSize: 9, lineHeight: 12 },
   workspaceGoalEmpty: { flex: 1, minHeight: 100, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, borderRadius: 11, backgroundColor: colors.surfaceMid },
   workspaceGoalEmptyText: { maxWidth: 190, color: colors.textSecondary, fontSize: 8, lineHeight: 12, textAlign: 'center' },
   workspaceCustomerCardWide: { flex: 1, minWidth: 0 },
