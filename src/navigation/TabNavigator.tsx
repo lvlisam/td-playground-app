@@ -88,18 +88,7 @@ const desktopNavigationItems = [
   { label: 'Notifications', route: 'Notifications', icon: 'notifications-outline' },
 ] as const;
 
-const desktopScreenComponents: Record<string, React.ComponentType> = {
-  Home: DashboardScreen,
-  Insights: PlanScreen,
-  'Pay & Transfer': SendPayScreen,
-  Benefits: BenefitsScreen,
-  'Get Help': GetHelpScreen,
-  'Account servicing': AccountServicingScreen,
-  'Account settings': AccountSettingsScreen,
-  Notifications: NotificationsScreen,
-  'Card Manager': CardsScreen,
-  'Support & booking': SupportBookingScreen,
-};
+import ColleagueConsole from '../components/ColleagueConsole';
 
 function DesktopNavigationMenu({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
   return (
@@ -341,55 +330,6 @@ function DesktopProfileDetails({ profile }: { profile: (typeof dashboardProfileO
   );
 }
 
-function DesktopColleagueWorkspace({
-  navigation,
-  activeTab,
-}: {
-  navigation: NavigationProp<ParamListBase>;
-  activeTab: string;
-}) {
-  const ActiveScreen = desktopScreenComponents[activeTab] ?? DashboardScreen;
-
-  return (
-    <View style={styles.colleagueWorkspace} accessibilityLabel="Colleague desktop workspace">
-      <View style={styles.workspaceHeader}>
-        <View style={styles.workspaceBrand}>
-          <View style={styles.workspaceBrandMark}><Text style={styles.workspaceBrandText}>TD</Text></View>
-          <Text style={styles.workspaceBrandName}>TD Future</Text>
-        </View>
-        <View style={styles.workspaceHeaderMeta}>
-          <Text style={styles.workspaceHeaderGreeting}>Hello, Colleague</Text>
-          <View style={styles.workspaceHeaderDivider} />
-          <Text style={styles.workspaceHeaderStore}>Store: 0000</Text>
-        </View>
-      </View>
-
-      <View style={styles.workspaceSubnav} accessibilityLabel="Customer mobile tabs">
-        {desktopNavigationItems.slice(0, 5).map((item) => {
-          const selected = activeTab === item.route;
-          return (
-            <TouchableOpacity
-              key={item.route}
-              accessibilityRole="tab"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`Show ${item.label} on customer mobile and desktop`}
-              onPress={() => navigation.navigate(item.route)}
-              style={[styles.workspaceSubnavButton, selected && styles.workspaceSubnavButtonActive]}
-            >
-              <Text style={[styles.workspaceSubnavLabel, selected && styles.workspaceSubnavLabelActive]}>{item.label}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      <View style={styles.desktopWorkspaceBody}>
-        <View style={styles.workspaceContentArea}>
-          <ActiveScreen />
-        </View>
-      </View>
-    </View>
-  );
-}
 
 export default function TabNavigator() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
@@ -397,6 +337,7 @@ export default function TabNavigator() {
   const { width, height } = useWindowDimensions();
   const { authFlowVisible } = useAuth();
   const [activeTab, setActiveTab] = React.useState('Home');
+  const [showCompanion, setShowCompanion] = React.useState(false);
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showOmnichannelView = Platform.OS === 'web' && width >= 900;
   const deviceWidth = showDeviceFrame
@@ -431,6 +372,7 @@ export default function TabNavigator() {
           !showDeviceFrame && styles.nativeDevice,
           showDeviceFrame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
           showOmnichannelView && styles.omnichannelDevice,
+          showOmnichannelView && !showCompanion && { display: 'none' },
         ]}
       >
         {showDeviceFrame && (
@@ -569,18 +511,7 @@ export default function TabNavigator() {
         )}
       </View>
       {showOmnichannelView ? (
-        <View style={styles.desktopMonitorAssembly} accessibilityLabel="Desktop monitor">
-          <View style={styles.desktopMonitorFrame}>
-            <View style={styles.desktopMonitorScreen}>
-              <DesktopColleagueWorkspace
-                navigation={navigation}
-                activeTab={activeTab}
-              />
-            </View>
-          </View>
-          <View style={styles.desktopMonitorStand} />
-          <View style={styles.desktopMonitorBase} />
-        </View>
+        <ColleagueConsole activeTab={activeTab} navigate={(route) => navigation.navigate(route)} companion={showCompanion} toggleCompanion={() => setShowCompanion(value => !value)} />
       ) : null}
       </AccountsProvider>
       </View>
