@@ -373,6 +373,7 @@ function DesktopCustomerContactPanel({ profile }: { profile: (typeof dashboardPr
             </View>
           </View>
         ))}
+        <DesktopProfileDetails profile={profile} />
       </ScrollView>
     </View>
   );
@@ -588,7 +589,6 @@ function DesktopColleagueWorkspace({
                 <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
               </View>
             </View>
-            <DesktopProfileDetails profile={activeProfile} />
           </ScrollView>
         </View>
       </View>
@@ -974,8 +974,8 @@ const styles = StyleSheet.create({
   workspaceProfileDetailsHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   workspaceProfileDetailsHeadingIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
   workspaceProfileDetailsEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
-  workspaceProfileDetailsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  workspaceProfileDetailItem: { flexGrow: 1, flexBasis: '42%', minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 10, backgroundColor: colors.surfaceMid },
+  workspaceProfileDetailsGrid: { flexDirection: 'column', flexWrap: 'nowrap', gap: 8 },
+  workspaceProfileDetailItem: { flexGrow: 0, flexBasis: 'auto', minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 10, backgroundColor: colors.surfaceMid },
   workspaceProfileDetailIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white },
   workspaceProfileDetailCopy: { flex: 1, minWidth: 0, gap: 2 },
   workspaceProfileDetailLabel: { color: colors.textSecondary, fontSize: 7, lineHeight: 10, fontFamily: font.body.bold },
