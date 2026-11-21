@@ -337,36 +337,43 @@ function DesktopCustomerContactPanel({ profile }: { profile: (typeof dashboardPr
 
   return (
     <View style={styles.workspaceContactPanel} accessibilityLabel={`${profile.name} customer contact information`}>
-      <View style={styles.workspaceContactHeading}>
-        <View style={styles.workspaceContactHeadingIcon}>
-          <Ionicons name="person-circle-outline" size={15} color={colors.greenDeep} />
+      <ScrollView
+        style={styles.workspaceContactPanelScroll}
+        contentContainerStyle={styles.workspaceContactPanelContent}
+        showsVerticalScrollIndicator
+        nestedScrollEnabled
+      >
+        <View style={styles.workspaceContactHeading}>
+          <View style={styles.workspaceContactHeadingIcon}>
+            <Ionicons name="person-circle-outline" size={15} color={colors.greenDeep} />
+          </View>
+          <Text style={styles.workspaceContactEyebrow}>CUSTOMER CONTACT</Text>
         </View>
-        <Text style={styles.workspaceContactEyebrow}>CUSTOMER CONTACT</Text>
-      </View>
-      <View style={styles.workspaceContactIdentity}>
-        <View style={styles.workspaceContactAvatar}>
-          <Text style={styles.workspaceContactInitials}>{profile.initials}</Text>
-        </View>
-        <View style={styles.workspaceContactIdentityCopy}>
-          <Text style={styles.workspaceContactName}>{profile.contactName}</Text>
-          <Text style={styles.workspaceContactRelationship}>{profile.relationship} · {profile.detail}</Text>
-          <View style={styles.workspaceContactBadge}>
-            <Text style={styles.workspaceContactBadgeText}>{profile.badge}</Text>
+        <View style={styles.workspaceContactIdentity}>
+          <View style={styles.workspaceContactAvatar}>
+            <Text style={styles.workspaceContactInitials}>{profile.initials}</Text>
+          </View>
+          <View style={styles.workspaceContactIdentityCopy}>
+            <Text style={styles.workspaceContactName}>{profile.contactName}</Text>
+            <Text style={styles.workspaceContactRelationship}>{profile.relationship} · {profile.detail}</Text>
+            <View style={styles.workspaceContactBadge}>
+              <Text style={styles.workspaceContactBadgeText}>{profile.badge}</Text>
+            </View>
           </View>
         </View>
-      </View>
-      <View style={styles.workspaceContactDivider} />
-      {contactMethods.map((method) => (
-        <View key={method.label} style={styles.workspaceContactMethod}>
-          <View style={styles.workspaceContactMethodIcon}>
-            <Ionicons name={method.icon} size={14} color={colors.greenDeep} />
+        <View style={styles.workspaceContactDivider} />
+        {contactMethods.map((method) => (
+          <View key={method.label} style={styles.workspaceContactMethod}>
+            <View style={styles.workspaceContactMethodIcon}>
+              <Ionicons name={method.icon} size={14} color={colors.greenDeep} />
+            </View>
+            <View style={styles.workspaceContactMethodCopy}>
+              <Text style={styles.workspaceContactMethodLabel}>{method.label}</Text>
+              <Text style={styles.workspaceContactMethodValue}>{method.value}</Text>
+            </View>
           </View>
-          <View style={styles.workspaceContactMethodCopy}>
-            <Text style={styles.workspaceContactMethodLabel}>{method.label}</Text>
-            <Text style={styles.workspaceContactMethodValue}>{method.value}</Text>
-          </View>
-        </View>
-      ))}
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -827,14 +834,16 @@ const styles = StyleSheet.create({
   desktopFullPreview: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'flex-start' },
   mobilePreviewBody: { flex: 1 },
   omnichannelDevice: { alignSelf: 'center' },
-  desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 5 },
+  desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 3 },
   desktopMonitorAssembly: { flex: 1, minWidth: 0, minHeight: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10 },
   desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 10, maxHeight: '100%', minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
   desktopMonitorScreen: { flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', borderRadius: 10, backgroundColor: frameColors.white },
   desktopMonitorStand: { width: 56, height: 24, backgroundColor: frameColors.bezel },
   desktopMonitorBase: { width: 142, height: 8, borderRadius: radius.full, backgroundColor: frameColors.bezel },
   desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 10, padding: 12, backgroundColor: colors.bg },
-  workspaceContactPanel: { width: 200, flexShrink: 0, alignSelf: 'stretch', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, gap: 12 },
+  workspaceContactPanel: { width: 200, minHeight: 0, flexShrink: 0, alignSelf: 'stretch', borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, overflow: 'hidden' },
+  workspaceContactPanelScroll: { flex: 1, minHeight: 0 },
+  workspaceContactPanelContent: { padding: 12, gap: 12 },
   workspaceContactHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   workspaceContactHeadingIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenDim },
   workspaceContactEyebrow: { color: colors.greenDeep, fontSize: 8, lineHeight: 11, fontFamily: font.body.bold, letterSpacing: 0.5 },
@@ -852,7 +861,7 @@ const styles = StyleSheet.create({
   workspaceContactMethodCopy: { flex: 1, minWidth: 0, gap: 3 },
   workspaceContactMethodLabel: { color: colors.textTertiary, fontSize: 7, lineHeight: 10, fontFamily: font.body.bold, letterSpacing: 0.4 },
   workspaceContactMethodValue: { color: colors.text, fontSize: 9, lineHeight: 13, fontFamily: font.body.medium },
-  workspaceContentArea: { flex: 1, minWidth: 0, borderRadius: 14, backgroundColor: frameColors.white, overflow: 'hidden' },
+  workspaceContentArea: { flex: 1, minWidth: 0, minHeight: 0, borderRadius: 14, backgroundColor: frameColors.white, overflow: 'hidden' },
   workspaceHeader: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, backgroundColor: frameColors.white, borderBottomWidth: 1, borderBottomColor: colors.border },
   workspaceHeaderMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   workspaceHeaderGreeting: { color: colors.text, fontSize: 13, fontFamily: font.body.medium },
@@ -887,7 +896,7 @@ const styles = StyleSheet.create({
   workspaceProfileTabInitialsTextSelected: { color: colors.greenDeep },
   workspaceProfileTabText: { color: colors.textSecondary, fontSize: 10, fontFamily: font.body.medium },
   workspaceProfileTabTextSelected: { color: colors.greenDeep, fontFamily: font.body.bold },
-  desktopMenuButton: { width: 40, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
+  desktopMenuButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
   desktopMenuButtonActive: { backgroundColor: colors.greenDim },
   desktopMenuIcon: { width: 30, height: 30, borderRadius: 9, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   desktopMenuIconActive: { backgroundColor: colors.greenDeep },
@@ -899,8 +908,8 @@ const styles = StyleSheet.create({
   workspacePreviewBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 7, paddingVertical: 4, borderRadius: radius.full, backgroundColor: colors.greenDim },
   workspacePreviewDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.greenDeep },
   workspacePreviewText: { color: colors.greenDeep, fontSize: 8, fontFamily: font.body.bold, letterSpacing: 0.4 },
-  workspaceMain: { flex: 1, minWidth: 0 },
-  workspaceMainContent: { padding: 18, gap: 12 },
+  workspaceMain: { flex: 1, minWidth: 0, minHeight: 0 },
+  workspaceMainContent: { padding: 14, gap: 14 },
   workspaceHeadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   workspaceHeadingCopy: { flex: 1, gap: 2 },
   workspaceSectionDescription: { color: colors.textSecondary, fontSize: 11, lineHeight: 16, marginTop: 2 },
