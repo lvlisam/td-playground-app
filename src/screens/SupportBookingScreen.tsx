@@ -18,6 +18,8 @@ const specialties = ['Everyday banking', 'Home lending', 'Small business', 'Fina
 const languages = ['English', 'Spanish', 'Mandarin'];
 const prepItems = ['Review my accounts', 'Talk through a savings goal', 'Ask about a recent transaction'];
 
+export { stores, specialties, languages };
+
 export default function SupportBookingScreen() {
   const route = useRoute<SupportBookingRoute>();
   const insets = useSafeAreaInsets();

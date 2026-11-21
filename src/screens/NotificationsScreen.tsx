@@ -25,7 +25,7 @@ type BankNotification = {
   unread: boolean;
 };
 
-const notifications: BankNotification[] = [
+export const notifications: BankNotification[] = [
   {
     id: 'card-purchase',
     title: 'Card purchase approved',

@@ -321,6 +321,12 @@ function ChildMoneyView({
 
 type ChoreStatus = Record<ChildId, string[]>;
 const HouseholdActivity = React.createContext<readonly [ChoreStatus, React.Dispatch<React.SetStateAction<ChoreStatus>>] | null>(null);
+export { children as youthProfiles, sharedFamilyGoals };
+export function useHouseholdChores() {
+  const activity = React.useContext(HouseholdActivity);
+  if (!activity) throw new Error('Household activity provider is required');
+  return activity[0];
+}
 export function HouseholdActivityProvider({ children }: { children: React.ReactNode }) {
   const state = useState<ChoreStatus>({ olivia: ['room', 'pet'], noah: ['table', 'sports'] });
   return <HouseholdActivity.Provider value={state}>{children}</HouseholdActivity.Provider>;

@@ -112,15 +112,8 @@ export default function CardsScreen() {
   const { width } = useWindowDimensions();
   const compact = width < 360;
   const previewTopInset = Platform.OS === 'web' ? (width < 650 ? 24 : 48) : insets.top;
-  const [frozen, setFrozen] = useState(false);
-  const [contactless, setContactless] = useState(true);
-  const [onlinePayments, setOnlinePayments] = useState(true);
-  const [notifications, setNotifications] = useState(true);
-  const [biometric, setBiometric] = useState(true);
-  const [streetSafe, setStreetSafe] = useState(false);
-  const [singleUseCardCreated, setSingleUseCardCreated] = useState(false);
-  const [dailyLimit, setDailyLimit] = useState('5000');
-  const [atmLimit, setAtmLimit] = useState('1000');
+  const { cardControls, updateCard } = useAccounts();
+  const { frozen, contactless, onlinePayments, notifications, biometric, streetSafe, singleUseCardCreated, dailyLimit, atmLimit } = cardControls;
   const [editingLimit, setEditingLimit] = useState<'daily' | 'atm' | null>(null);
   const [limitDraft, setLimitDraft] = useState('');
   const [limitError, setLimitError] = useState('');
@@ -138,9 +131,8 @@ export default function CardsScreen() {
       setLimitError('Enter a limit between $1 and $100,000.');
       return;
     }
-    if (editingLimit === 'daily') setDailyLimit(String(value));
-    if (editingLimit === 'atm') setAtmLimit(String(value));
-    setCardNotice('Settings are saved on this screen only. No active card was changed.');
+    updateCard(editingLimit === 'daily' ? { dailyLimit: String(value) } : { atmLimit: String(value) });
+    setCardNotice('Settings updated for this example profile. No active card was changed.');
     setEditingLimit(null);
   };
 
@@ -255,7 +247,7 @@ export default function CardsScreen() {
               accessibilityRole="button"
               accessibilityLabel={singleUseCardCreated ? 'Show another example single-use card' : 'Show example single-use card'}
               onPress={() => {
-                setSingleUseCardCreated(true);
+                updateCard({singleUseCardCreated: true});
                 setCardNotice('This example card cannot be used to make purchases.');
               }}
               style={styles.singleUseButton}
@@ -278,7 +270,7 @@ export default function CardsScreen() {
               label="Freeze Card"
               description={frozen ? 'Freeze setting is on for this screen only' : 'Review a card-freeze setting'}
               value={frozen}
-              onToggle={() => setFrozen(v => !v)}
+              onToggle={() => updateCard({frozen: !frozen})}
             />
             <View style={styles.divider} />
             <ToggleRow
@@ -288,7 +280,7 @@ export default function CardsScreen() {
               label="Street Safe"
               description={streetSafe ? 'Spending cap shown on this screen only' : 'Review a lower-risk spending profile'}
               value={streetSafe}
-              onToggle={() => setStreetSafe((value) => !value)}
+              onToggle={() => updateCard({streetSafe: !streetSafe})}
             />
             <View style={styles.divider} />
             <ToggleRow
@@ -298,7 +290,7 @@ export default function CardsScreen() {
               label="Contactless Payments"
               description="Preference shown on this screen only"
               value={contactless}
-              onToggle={() => setContactless(v => !v)}
+              onToggle={() => updateCard({contactless: !contactless})}
             />
             <View style={styles.divider} />
             <ToggleRow
@@ -308,7 +300,7 @@ export default function CardsScreen() {
               label="Online Payments"
               description="Preference shown on this screen only"
               value={onlinePayments}
-              onToggle={() => setOnlinePayments(v => !v)}
+              onToggle={() => updateCard({onlinePayments: !onlinePayments})}
             />
           </View>
         </View>
@@ -335,7 +327,7 @@ export default function CardsScreen() {
               iconBg={colors.orangeDim}
               label="Transaction Alerts"
               value={notifications}
-              onToggle={() => setNotifications(v => !v)}
+              onToggle={() => updateCard({notifications: !notifications})}
             />
           </View>
         </View>
@@ -350,7 +342,7 @@ export default function CardsScreen() {
               iconBg={colors.greenDim}
               label="Face ID / Touch ID"
               value={biometric}
-              onToggle={() => setBiometric(v => !v)}
+              onToggle={() => updateCard({biometric: !biometric})}
             />
             <View style={styles.divider} />
             <NavRow icon="key-outline" iconColor={colors.red} iconBg={colors.redDim} label="Change PIN" />

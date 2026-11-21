@@ -53,7 +53,12 @@ const accountCatalog: Omit<Account, 'name'>[] = [
   },
 ];
 
+const initialCardControls = { frozen: false, streetSafe: false, contactless: true, onlinePayments: true, notifications: true, biometric: true, singleUseCardCreated: false, dailyLimit: '5000', atmLimit: '1000' };
+type CardControls = typeof initialCardControls;
+
 type AccountContextValue = {
+  cardControls: CardControls;
+  updateCard: (changes: Partial<CardControls>) => void;
   accounts: Account[];
   edits: Record<string, Partial<Pick<Account, 'name' | 'plan'>>>;
   renameAccount: (accountId: string, name: string) => void;
@@ -64,6 +69,7 @@ const AccountContext = createContext<AccountContextValue | null>(null);
 
 export function AccountsProvider({ children }: { children: ReactNode }) {
   const { activeProfileId } = useDashboardProfile();
+  const [cards, setCards] = useState<Partial<Record<DashboardProfileId, CardControls>>>({});
   const [byProfile, setByProfile] = useState<Partial<Record<DashboardProfileId, AccountContextValue['edits']>>>({});
   const value = useMemo<AccountContextValue>(() => {
     const edits = byProfile[activeProfileId] ?? {};
@@ -71,9 +77,10 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     function patch(id: string, changes: Partial<Pick<Account, 'name' | 'plan'>>) {
       setByProfile(current => ({ ...current, [activeProfileId]: { ...current[activeProfileId], [id]: { ...current[activeProfileId]?.[id], ...changes } } }));
     }
-    return { edits, accounts: accountCatalog.map(a => ({ ...a, name: names[a.id], ...edits[a.id] })),
+    return { edits, cardControls: cards[activeProfileId] ?? initialCardControls,
+      updateCard: changes => setCards(current => ({...current, [activeProfileId]: {...initialCardControls, ...current[activeProfileId], ...changes}})), accounts: accountCatalog.map(a => ({ ...a, name: names[a.id], ...edits[a.id] })),
       renameAccount: (id, name) => patch(id, { name }), updatePlan: (id, plan) => patch(id, { plan }) };
-  }, [activeProfileId, byProfile]);
+  }, [activeProfileId, byProfile, cards]);
 
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;
 }

@@ -784,6 +784,8 @@ function DashboardProfileMenu({ view, onChange, compact }: {
   );
 }
 
+export { getDashboardRecommendation, getTediCategoryTotals, FinancialHealthCard, PaydayCountdownMeter, parseDashboardAmount };
+
 export function ColleagueHomeDetails({ profileId, onOpenPlans, onNavigate }: {
   profileId: DashboardProfileId;
   onOpenPlans: () => void;

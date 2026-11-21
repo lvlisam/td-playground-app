@@ -131,6 +131,8 @@ const offers = [
   },
 ];
 
+export { relationshipExamples, pointsByProfile, offers };
+
 function SectionHeading({ eyebrow, title, detail }: { eyebrow?: string; title: string; detail?: string }) {
   return (
     <View style={styles.sectionHeading}>

@@ -4,6 +4,8 @@ import { dashboardProfileOptions, useDashboardProfile } from "../personas";
 import { useAccounts } from "../accounts";
 import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
 import CustomerRecord from './CustomerRecord';
+import BranchReview from './BranchReview';
+import { pointsByProfile } from '../screens/BenefitsScreen';
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import AccountDetails from './AccountDetails';
 import ServiceCases from './ServiceCases';
@@ -41,6 +43,15 @@ const headings: Record<string, string> = {
   "Account settings": "Customer record settings",
   "Ask Tedi": "Colleague guidance",
 };
+const conversationStarters = {
+  jane: 'Would it help to look at the bills due before payday or the next getaway contribution?',
+  james: 'Which recent payment or account balance would you like to check together?',
+  ava: 'What would you like to set aside from your next paycheck?',
+  olivia: 'How much of your allowance would you like to put toward your headphones?',
+  noah: 'Would you like to see how much more you need for your soccer cleats?',
+  family: 'Should we look at the home savings goal or the getaway first?',
+  business: 'Which upcoming expense do you want to make sure the business can cover?',
+};
 function ChannelArt() {
   return (
     <div className="channel-art" aria-hidden="true">
@@ -73,7 +84,7 @@ export default function ColleagueConsole({
   const openService = (record: string) => setService({profile: p.id, record});
   const [detail, setDetail] = useState<"profile" | null>(null);
   const goal = linked.find((a) => a.plan?.kind === "savings-goal")?.plan;
-  const history = p.id === 'ava' ? [] : getTransactionsForProfile(p.id).slice(0, 3);
+  const history = getTransactionsForProfile(p.id);
   const title = headings[activeTab] ?? activeTab;
   const go = (r: string) => {
     setDetail(null);
@@ -104,8 +115,8 @@ export default function ColleagueConsole({
           ]
         : [
             [
-              "No goal on file",
-              "Discuss a first savings milestone with the customer.",
+              "No account-linked savings target",
+              ['family','olivia','noah'].includes(p.id) ? 'Review the household and allowance goals on the overview.' : 'Ask whether the customer would like to set a savings milestone.',
               "flag-outline",
             ],
           ]
@@ -119,8 +130,7 @@ export default function ColleagueConsole({
               ["Relationship tier", p.badge, "ribbon-outline"],
               [
                 "Rewards on file",
-                linked.find((a) => a.note)?.note ??
-                  "No rewards balance shown on this profile.",
+                `${pointsByProfile[p.id]} points shown in the customer’s illustrative rewards balance.`,
                 "gift-outline",
               ],
               [
@@ -144,7 +154,7 @@ export default function ColleagueConsole({
                 ],
               ]
             : activeTab === 'Card Manager' ? [[card?.name ?? 'No credit card on file', card ? `${card.detail} · Balance ${card.amount}` : 'Check linked deposit accounts for debit card inquiries.', 'card-outline']]
-            : activeTab === 'Notifications' ? (history.length ? history.map((t): [string,string,IconName] => [t.merchant, `${t.time} · ${t.amount}`, 'receipt-outline']) : [['No recent activity', 'There are no transactions on file for this profile.', 'receipt-outline']])
+            : activeTab === 'Notifications' ? (history.length ? history.map((t): [string,string,IconName] => [t.merchant, `${t.category} · ${t.time} · ${t.amount}`, 'receipt-outline']) : [['No recent activity', 'There are no transactions on file for this profile.', 'receipt-outline']])
             : [['Email on file', p.contactEmail, 'mail-outline'], ['Phone on file', p.contactPhone, 'call-outline']];
   const [selection,setSelection] = useState<{profile:string; id:string} | null>(null);
   const selected = selection?.profile === p.id ? linked.find(a=>a.id === selection.id) : undefined;
@@ -173,7 +183,7 @@ export default function ColleagueConsole({
   return (
     <div className="cc">
       <style>{consoleStyles}</style>
-      {selected && <AccountDetails account={selected} activity={p.id === 'ava' ? [] : getTransactionsForProfile(p.id)} onClose={()=>setSelection(null)}/>}
+      {selected && <AccountDetails account={selected} activity={history} onClose={()=>setSelection(null)}/>}
       {service?.profile === p.id && <ServicingDialog accounts={linked} initialRecord={service.record} onClose={() => setService(null)} />}
       <header>
         <div className="cc-brand">
@@ -248,7 +258,7 @@ export default function ColleagueConsole({
             <div className="cc-profile-picker"><label htmlFor="cc-persona">Customer profile</label><select id="cc-persona" value={p.id} onChange={e => selectProfile(dashboardProfileOptions.find(option => option.id === e.target.value)!.id)}>{dashboardProfileOptions.map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div>
             </div>
             <div className="cc-brief">
-              <div className="cc-priority"><span className="cc-eyebrow">CUSTOMER PRIORITY</span><p>{p.need}</p></div>
+              <div className="cc-priority"><span className="cc-eyebrow">CUSTOMER PRIORITY</span><p>{p.need}</p><div className="visit-opener"><span className="cc-eyebrow">ASK DURING THE VISIT</span><p>“{conversationStarters[p.id]}”</p></div></div>
               <div className="cc-history"><h3>Recent activity</h3>
                 {history.length ? <ul>{history.map(item => <li key={item.id}>
                   <div><b>{item.merchant}</b><small>{item.time}</small></div>
@@ -337,6 +347,7 @@ export default function ColleagueConsole({
               {['Pay & Transfer','Benefits'].includes(activeTab) && <button className="quick" onClick={()=>go('Home')}>Review account portfolio</button>}
             </section>
           )}
+          <BranchReview key={p.id} tab={activeTab} profile={p} accounts={linked} navigate={go} />
         </main>
       </div>
     </div>
