@@ -601,7 +601,7 @@ export default function TabNavigator() {
   const showOmnichannelView = Platform.OS === 'web' && width >= 900;
   const deviceWidth = showDeviceFrame
     ? showOmnichannelView
-      ? Math.min(320, width * 0.32, Math.max(300, height - 120) * 0.52)
+      ? Math.min(270, width * 0.28, Math.max(300, height - 120) * 0.46)
       : Math.min(390, width - 32, Math.max(320, height - 104) * 0.47)
     : width;
   const deviceHeight = showDeviceFrame
@@ -829,7 +829,7 @@ const styles = StyleSheet.create({
   omnichannelDevice: { alignSelf: 'center' },
   desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 5 },
   desktopMonitorAssembly: { flex: 1, minWidth: 0, minHeight: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10 },
-  desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 9, maxHeight: '100%', minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
+  desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 10, maxHeight: '100%', minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
   desktopMonitorScreen: { flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', borderRadius: 10, backgroundColor: frameColors.white },
   desktopMonitorStand: { width: 56, height: 24, backgroundColor: frameColors.bezel },
   desktopMonitorBase: { width: 142, height: 8, borderRadius: radius.full, backgroundColor: frameColors.bezel },
