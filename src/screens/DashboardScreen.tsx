@@ -677,7 +677,7 @@ function SavingsGoalsSection({ compact, view, onOpenPlans }: {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.savingsGoalCard}>
+      <View style={[styles.savingsGoalCard, compact && styles.savingsGoalCardCompact]}>
         <View style={styles.savingsGoalHeader}>
           <View style={styles.savingsGoalIcon}>
             <Ionicons name="airplane-outline" size={17} color={colors.greenDeep} />
@@ -875,7 +875,7 @@ export default function DashboardScreen() {
   const previewDeviceWidth = Platform.OS === 'web' && width >= 650
     ? Math.min(390, width - 32, (height - 32) * 0.47)
     : width;
-  const compact = previewDeviceWidth < 360;
+  const compact = previewDeviceWidth < 420;
   const { accounts: dashboardAccounts } = useAccounts();
   const checkingBalance = parseDashboardAmount(dashboardAccounts.find((account) => account.id.endsWith('checking'))?.amount ?? '0');
   const creditBalance = Math.abs(parseDashboardAmount(dashboardAccounts.find((account) => account.id.endsWith('card'))?.amount ?? '0'));
@@ -897,7 +897,7 @@ export default function DashboardScreen() {
       <StatusBar barStyle="dark-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 128 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + (compact ? 88 : 128) }}
       >
         <View style={[styles.hero, compact && styles.heroCompact, profileMenuOpen && styles.heroMenuOpen]}>
           <View style={[styles.heroForeground, compact && styles.heroForegroundCompact, { paddingTop: previewTopInset + (compact ? 2 : 8) }]}>
@@ -1080,6 +1080,7 @@ const styles = StyleSheet.create({
   savingsGoalsAction: { minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 5 },
   savingsGoalsActionText: { color: colors.greenDeep, fontSize: 11, lineHeight: 16, fontFamily: font.headline.semibold },
   savingsGoalCard: { padding: 14, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderFaint, gap: 9 },
+  savingsGoalCardCompact: { padding: 12, gap: 7 },
   savingsGoalHeader: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   savingsGoalIcon: { width: 34, height: 34, borderRadius: 11, backgroundColor: colors.greenDim, alignItems: 'center', justifyContent: 'center' },
   savingsGoalCopy: { flex: 1, minWidth: 0, gap: 2 },
@@ -1206,7 +1207,7 @@ const styles = StyleSheet.create({
   offerTitle: { color: palette.ink, fontSize: 13, fontFamily: font.headline.bold, marginTop: 2 },
   offerDescription: { color: 'rgba(28,28,28,0.62)', fontSize: 11, lineHeight: 15, marginTop: 1 },
 
-  heroCompact: { minHeight: 112 },
+  heroCompact: { minHeight: 96 },
   heroForegroundCompact: { paddingBottom: 8 },
   topBarCompact: { paddingHorizontal: 14 },
   identityCompact: { gap: 6 },
@@ -1215,7 +1216,7 @@ const styles = StyleSheet.create({
   customerAvatarCompact: { width: 40, height: 40, borderRadius: 20 },
   customerNameCompact: { fontSize: 15, lineHeight: 19 },
   topActionsCompact: { gap: 4 },
-  notificationButtonCompact: { width: 34, height: 34 },
+  notificationButtonCompact: { width: 44, height: 44 },
   financialHealthCardCompact: { marginHorizontal: 12, marginTop: -22, marginBottom: 12, padding: 12, gap: 8 },
   healthScoreCompact: { fontSize: 12, lineHeight: 15 },
   totalBalanceValueCompact: { fontSize: 20, lineHeight: 24 },
