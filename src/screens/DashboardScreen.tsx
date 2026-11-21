@@ -809,7 +809,7 @@ export function ColleagueHomeDetails({ profileId, onOpenPlans, onNavigate }: {
     <View style={styles.colleagueHomeDetails}>
       <View style={styles.colleagueHomeHeading}>
         <View style={styles.colleagueHomeHeadingCopy}>
-          <Text style={styles.colleagueHomeEyebrow}>MOBILE HOME VIEW</Text>
+          <Text style={styles.colleagueHomeEyebrow}>CUSTOMER ACTIVITY</Text>
           <Text style={styles.colleagueHomeTitle}>Everyday overview</Text>
           <Text style={styles.colleagueHomeSubtitle}>Home information and activity for the selected customer.</Text>
         </View>

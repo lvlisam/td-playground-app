@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { dashboardProfileOptions, useDashboardProfile } from "../personas";
 import { useAccounts } from "../accounts";
-import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
+import { ColleagueHomeDetails, getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
+import CustomerRecord from './CustomerRecord';
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import AccountDetails from './AccountDetails';
 import ServiceCases from './ServiceCases';
@@ -23,6 +24,10 @@ const destinations: [string, string, IconName][] = [
   ["Pay & Transfer", "Move money", "swap-horizontal"],
   ["Benefits", "Benefits", "gift-outline"],
   ["Get Help", "Service & support", "headset-outline"],
+  ["Card Manager", "Cards", "card-outline"],
+  ["Notifications", "Notifications", "notifications-outline"],
+  ["Support & booking", "Appointments", "calendar-outline"],
+  ["Account settings", "Account settings", "settings-outline"],
 ];
 const headings: Record<string, string> = {
   Home: "Relationship overview",
@@ -233,7 +238,7 @@ export default function ColleagueConsole({
             <h1>{title}</h1>
             <label>
               <span className="cc-dot" />
-              Linked channels
+              {activeTab === 'Home' ? 'Linked channels' : `${p.name} · ${p.badge}`}
             </label>
           </div>
           {activeTab === 'Get Help' && <ServiceCases rep />}
@@ -256,7 +261,7 @@ export default function ColleagueConsole({
                 <Icon name="arrow-forward" size={15} />
               </button>
             </div>
-            <ChannelArt />
+            <div className="cc-profile-picker"><label htmlFor="cc-persona">Customer profile</label><select id="cc-persona" value={p.id} onChange={e => selectProfile(dashboardProfileOptions.find(option => option.id === e.target.value)!.id)}>{dashboardProfileOptions.map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div>
             </div>
             <div className="cc-brief">
               <div className="cc-priority"><span className="cc-eyebrow">CUSTOMER PRIORITY</span><p>{p.need}</p></div>
@@ -268,32 +273,11 @@ export default function ColleagueConsole({
               </div>
             </div>
           </section>}
+          {activeTab === 'Home' && <CustomerRecord profile={p} accounts={linked} />}
           {activeTab === 'Home' && detail === "profile" && (
             <section className="cc-panel profile">
               <h3>Customer profile</h3>
-              <label>
-                Selected profile{" "}
-                <select
-                  value={p.id}
-                  onChange={(e) =>
-                    selectProfile(
-                      dashboardProfileOptions.find(
-                        (x) => x.id === e.target.value,
-                      )!.id,
-                    )
-                  }
-                >
-                  {dashboardProfileOptions.map((x) => (
-                    <option key={x.id} value={x.id}>
-                      {x.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <p>
-                {p.contactEmail} · {p.contactPhone}
-              </p>
-              <p>{p.need}</p>
+              <dl className="cc-contact-fields">{[['Email',p.contactEmail],['Phone',p.contactPhone],['Relationship',p.relationship],['Age',p.ageLabel],['Relationship length',`${p.tdRelationshipLength} with TD`],['Relationship tier',p.badge]].map(([key,value])=><div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>
               <button className="quick" onClick={() => openService('contact')}><Icon name="pencil-outline"/>Edit contact details</button>
             </section>
           )}
@@ -332,8 +316,9 @@ export default function ColleagueConsole({
                   ))}
                 </section>
               </div>
+              <section className="cc-panel work-detail"><ColleagueHomeDetails key={p.id} profileId={p.id} onOpenPlans={()=>go('Insights')} onNavigate={go}/></section>
             </>
-          ) : (
+          ) : (!companion && activeTab !== 'Get Help') ? null : (
             <section className="cc-panel work-detail">
               <div className="cc-section-title">
                 <div className="cc-eyebrow">COLLEAGUE BRIEF</div>

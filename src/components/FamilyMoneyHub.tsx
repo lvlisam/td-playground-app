@@ -319,15 +319,21 @@ function ChildMoneyView({
   );
 }
 
+type ChoreStatus = Record<ChildId, string[]>;
+const HouseholdActivity = React.createContext<readonly [ChoreStatus, React.Dispatch<React.SetStateAction<ChoreStatus>>] | null>(null);
+export function HouseholdActivityProvider({ children }: { children: React.ReactNode }) {
+  const state = useState<ChoreStatus>({ olivia: ['room', 'pet'], noah: ['table', 'sports'] });
+  return <HouseholdActivity.Provider value={state}>{children}</HouseholdActivity.Provider>;
+}
+
 export default function FamilyMoneyHub({ profileId }: { profileId: DashboardProfileId }) {
   const isFamilyProfile = profileId === 'family';
   const isChildProfile = profileId === 'olivia' || profileId === 'noah';
   const [familyView, setFamilyView] = useState<'parent' | 'kids'>('parent');
   const [selectedKid, setSelectedKid] = useState<ChildId>('olivia');
-  const [completedChores, setCompletedChores] = useState<Record<ChildId, string[]>>({
-    olivia: ['room', 'pet'],
-    noah: ['table', 'sports'],
-  });
+  const activity = React.useContext(HouseholdActivity);
+  if (!activity) throw new Error('FamilyMoneyHub requires HouseholdActivityProvider');
+  const [completedChores, setCompletedChores] = activity;
 
   if (!isFamilyProfile && !isChildProfile) return null;
 

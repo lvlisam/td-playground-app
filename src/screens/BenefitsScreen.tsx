@@ -222,7 +222,7 @@ export default function BenefitsScreen() {
             detail="Current examples selected for this customer profile."
           />
           <View style={styles.offerList}>
-            {offers.map((offer) => <RewardOfferCard key={offer.eyebrow} offer={offer} />)}
+            {offers.map((offer) => <RewardOfferCard key={offer.eyebrow} offer={offer.eyebrow === 'TD REWARDS' ? { ...offer, badge: `${pointBalance} pts` } : offer} />)}
           </View>
         </View>
 

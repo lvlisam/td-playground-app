@@ -333,6 +333,8 @@ function DesktopProfileDetails({ profile }: { profile: (typeof dashboardProfileO
 }
 
 
+import { HouseholdActivityProvider } from '../components/FamilyMoneyHub';
+
 export default function TabNavigator() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const insets = useSafeAreaInsets();
@@ -342,6 +344,8 @@ export default function TabNavigator() {
   const [showCompanion, setShowCompanion] = React.useState(false);
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showOmnichannelView = Platform.OS === 'web' && width >= 900;
+  const desktopDetails = showOmnichannelView && !showCompanion && !['Home', 'Get Help', 'Ask Tedi'].includes(activeTab);
+  const frame = showDeviceFrame && !desktopDetails;
   const deviceWidth = showDeviceFrame
     ? showOmnichannelView
       ? Math.min(270, width * 0.28, Math.max(300, height - 120) * 0.46)
@@ -365,19 +369,19 @@ export default function TabNavigator() {
           </View>
         </View>
       )}
-      <View style={showOmnichannelView ? styles.desktopFullPreview : showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
-      <AccountsProvider>
+      <View nativeID={desktopDetails ? 'cc-detail-layout' : undefined} style={showOmnichannelView ? styles.desktopFullPreview : showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
+      <AccountsProvider><HouseholdActivityProvider>
       {showDeviceFrame && !showOmnichannelView && <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />}
       <View
         style={[
           styles.device,
-          !showDeviceFrame && styles.nativeDevice,
-          showDeviceFrame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
-          showOmnichannelView && styles.omnichannelDevice,
-          showOmnichannelView && !showCompanion && { display: 'none' },
+          !frame && styles.nativeDevice,
+          frame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
+          frame && showOmnichannelView && styles.omnichannelDevice,
+          showOmnichannelView && !showCompanion && !desktopDetails && { display: 'none' },
         ]}
       >
-        {showDeviceFrame && (
+        {frame && (
           <>
             <View pointerEvents="none" style={[styles.hardwareButton, styles.leftButtonTop]} />
             <View pointerEvents="none" style={[styles.hardwareButton, styles.leftButtonMiddle]} />
@@ -385,9 +389,9 @@ export default function TabNavigator() {
             <View pointerEvents="none" style={[styles.hardwareButton, styles.rightButton]} />
           </>
         )}
-        <View style={[styles.deviceRim, !showDeviceFrame && styles.nativeRim]}>
-          <View style={[styles.deviceBezel, !showDeviceFrame && styles.nativeBezel]}>
-            <View style={[styles.deviceScreen, !showDeviceFrame && styles.nativeScreen]}>
+        <View style={[styles.deviceRim, !frame && styles.nativeRim]}>
+          <View style={[styles.deviceBezel, !frame && styles.nativeBezel]}>
+            <View style={[styles.deviceScreen, !frame && styles.nativeScreen]}>
               <Tab.Navigator
                   backBehavior="history"
                   screenListeners={({ route }) => ({
@@ -396,7 +400,7 @@ export default function TabNavigator() {
                   screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
-                      display: authFlowVisible ? 'none' : 'flex',
+                      display: authFlowVisible || desktopDetails ? 'none' : 'flex',
                       height: 68 + insets.bottom + (showDeviceFrame ? 18 : 0),
                       paddingBottom: showDeviceFrame ? 14 : insets.bottom || 4,
                       backgroundColor: frameColors.white,
@@ -498,11 +502,11 @@ export default function TabNavigator() {
                     options={{ tabBarButton: () => null }}
                   />
               </Tab.Navigator>
-              {Platform.OS === 'web' && <PhoneStatusBar light={activeTab === 'Home'} />}
+              {Platform.OS === 'web' && !desktopDetails && <PhoneStatusBar light={activeTab === 'Home'} />}
             </View>
           </View>
         </View>
-        {showDeviceFrame && (
+        {frame && (
           <>
             <View pointerEvents="none" accessible={false} style={styles.dynamicIsland}>
               <View style={styles.cameraLens}>
@@ -516,7 +520,7 @@ export default function TabNavigator() {
       {showOmnichannelView ? (
         <ColleagueConsole activeTab={activeTab} navigate={(route, params) => navigation.navigate(route, params)} companion={showCompanion} toggleCompanion={() => setShowCompanion(value => !value)} />
       ) : null}
-      </AccountsProvider>
+      </HouseholdActivityProvider></AccountsProvider>
       </View>
     </View>
   );
