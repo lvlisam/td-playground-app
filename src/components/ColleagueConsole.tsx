@@ -4,6 +4,7 @@ import { dashboardProfileOptions, useDashboardProfile } from "../personas";
 import { useAccounts } from "../accounts";
 import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
 import TediMoveMoneyChat from './TediMoveMoneyChat';
+import AccountDetails from './AccountDetails';
 import ServicingDialog from './ServicingDialog';
 import { consoleStyles } from "./colleagueConsoleStyles";
 
@@ -152,10 +153,13 @@ export default function ColleagueConsole({
                   "phone-portrait-outline",
                 ],
               ];
+  const [selection,setSelection] = useState<{profile:string; id:string} | null>(null);
+  const selected = selection?.profile === p.id ? linked.find(a=>a.id === selection.id) : undefined;
   const accountList = (
     <div>
       {linked.map((a) => (
         <div key={a.id} className="cc-row">
+          <button className="cc-account-link" aria-label={`View ${a.name} details`} onClick={()=>setSelection({profile:p.id,id:a.id})}>
           <i>
             <Icon
               name={a.id.endsWith("card") ? "card-outline" : "wallet-outline"}
@@ -167,7 +171,7 @@ export default function ColleagueConsole({
               {a.productLabel} · {a.detail}
             </small>
           </div>
-          <strong>{a.amount}</strong>
+          <strong>{a.amount}</strong><Icon name="chevron-forward" size={15}/></button>
           <button aria-label={`Edit ${a.name}`} title={`Edit ${a.name}`} onClick={() => openService(a.id)}><Icon name="pencil-outline" size={16}/></button>
         </div>
       ))}
@@ -176,6 +180,7 @@ export default function ColleagueConsole({
   return (
     <div className={`cc ${companion ? "paired" : ""}`}>
       <style>{consoleStyles}</style>
+      {selected && <AccountDetails account={selected} activity={p.id === 'ava' ? [] : getTransactionsForProfile(p.id)} onClose={()=>setSelection(null)}/>}
       {service?.profile === p.id && <ServicingDialog accounts={linked} initialRecord={service.record} onClose={() => setService(null)} />}
       <header>
         <div className="cc-brand">

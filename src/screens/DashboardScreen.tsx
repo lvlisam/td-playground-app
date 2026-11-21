@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, font } from '../theme';
 import ConnectedDataSection from '../components/ConnectedDataSection';
+import AccountDetails from '../components/AccountDetails';
 import TediInsightsCard, { type TediCategoryTotal } from '../components/TediInsightsCard';
 import FamilyMoneyHub from '../components/FamilyMoneyHub';
 import { useAccounts } from '../accounts';
@@ -38,7 +39,7 @@ const recentTransactions = [
     category: 'Groceries · TD Debit',
     time: 'Today, 10:42 AM',
     amount: '−$42.18',
-    logo: { mark: 'GW', background: colors.greenDim, foreground: colors.greenDeep },
+    accountId: 'checking', logo: { mark: 'GW', background: colors.greenDim, foreground: colors.greenDeep },
   },
   {
     id: 'transit',
@@ -46,7 +47,7 @@ const recentTransactions = [
     category: 'Transportation · TD Debit',
     time: 'Today, 8:15 AM',
     amount: '−$2.90',
-    logo: { mark: 'CT', background: colors.blueDim, foreground: colors.teal },
+    accountId: 'checking', logo: { mark: 'CT', background: colors.blueDim, foreground: colors.teal },
   },
   {
     id: 'payroll',
@@ -54,12 +55,13 @@ const recentTransactions = [
     category: 'Income · Checking',
     time: 'Yesterday, 9:05 AM',
     amount: '+$2,450.00',
-    logo: { mark: 'PAY', background: colors.greenDim, foreground: colors.greenDeep },
+    accountId: 'checking', logo: { mark: 'PAY', background: colors.greenDim, foreground: colors.greenDeep },
   },
 ] as const;
 
 export type DashboardAccount = Omit<Account, 'id'> & { id: string };
 type DashboardTransaction = {
+  accountId: string;
   id: string;
   merchant: string;
   category: string;
@@ -153,9 +155,9 @@ const businessAccounts: DashboardAccount[] = [
 ];
 
 const businessTransactions: DashboardTransaction[] = [
-  { id: 'payout', merchant: 'Card sales payout', category: 'Sales · Checking', time: 'Today, 8:42 AM', amount: '+$3,842.50', logo: { mark: 'CS', background: colors.greenDim, foreground: colors.greenDeep } },
-  { id: 'supplies', merchant: 'Office supplies', category: 'Supplies · Business card', time: 'Yesterday, 2:10 PM', amount: '−$246.18', logo: { mark: 'OS', background: colors.orangeDim, foreground: colors.orange } },
-  { id: 'software', merchant: 'Business software', category: 'Software · Business card', time: 'Nov 18, 10:15 AM', amount: '−$59.99', logo: { mark: 'BS', background: colors.purpleDim, foreground: colors.purple } },
+  { accountId: 'business-checking', id: 'payout', merchant: 'Card sales payout', category: 'Sales · Checking', time: 'Today, 8:42 AM', amount: '+$3,842.50', logo: { mark: 'CS', background: colors.greenDim, foreground: colors.greenDeep } },
+  { id: 'supplies', merchant: 'Office supplies', category: 'Supplies · Business card', accountId: 'business-card', time: 'Yesterday, 2:10 PM', amount: '−$246.18', logo: { mark: 'OS', background: colors.orangeDim, foreground: colors.orange } },
+  { id: 'software', merchant: 'Business software', category: 'Software · Business card', accountId: 'business-card', time: 'Nov 18, 10:15 AM', amount: '−$59.99', logo: { mark: 'BS', background: colors.purpleDim, foreground: colors.purple } },
 ];
 
 const familyAccounts: DashboardAccount[] = [
@@ -168,9 +170,9 @@ const familyAccounts: DashboardAccount[] = [
 ];
 
 const familyTransactions: DashboardTransaction[] = [
-  { id: 'family-groceries', merchant: 'Greenway Market', category: 'Groceries · Shared checking', time: 'Today, 10:42 AM', amount: '−$126.40', logo: { mark: 'GW', background: colors.greenDim, foreground: colors.greenDeep } },
-  { id: 'family-utilities', merchant: 'City utilities', category: 'Home · Household account', time: 'Yesterday, 4:20 PM', amount: '−$184.00', logo: { mark: 'CU', background: colors.yellowDim, foreground: colors.text } },
-  { id: 'family-transfer', merchant: 'Monthly contribution', category: 'Savings · Family goals', time: 'Nov 18, 9:00 AM', amount: '+$450.00', logo: { mark: 'FG', background: colors.greenDim, foreground: colors.greenDeep } },
+  { accountId: 'family-checking', id: 'family-groceries', merchant: 'Greenway Market', category: 'Groceries · Shared checking', time: 'Today, 10:42 AM', amount: '−$126.40', logo: { mark: 'GW', background: colors.greenDim, foreground: colors.greenDeep } },
+  { accountId: 'family-checking', id: 'family-utilities', merchant: 'City utilities', category: 'Home · Household account', time: 'Yesterday, 4:20 PM', amount: '−$184.00', logo: { mark: 'CU', background: colors.yellowDim, foreground: colors.text } },
+  { accountId: 'family-savings', id: 'family-transfer', merchant: 'Monthly contribution', category: 'Savings · Family goals', time: 'Nov 18, 9:00 AM', amount: '+$450.00', logo: { mark: 'FG', background: colors.greenDim, foreground: colors.greenDeep } },
 ];
 
 const jamesAccounts: DashboardAccount[] = [
@@ -199,21 +201,21 @@ export function getDashboardAccounts(view: DashboardProfileId, accounts: Account
 }
 
 const jamesTransactions: DashboardTransaction[] = [
-  { id: 'james-payroll', merchant: 'Payroll deposit', category: 'Income · Checking', time: 'Today, 8:42 AM', amount: '+$2,860.00', logo: { mark: 'PAY', background: colors.greenDim, foreground: colors.greenDeep } },
-  { id: 'james-coffee', merchant: 'Northside Coffee', category: 'Dining · TD Debit', time: 'Today, 7:58 AM', amount: '−$6.75', logo: { mark: 'NC', background: colors.orangeDim, foreground: colors.orange } },
-  { id: 'james-card-payment', merchant: 'Card payment', category: 'Credit · Checking', time: 'Yesterday, 3:10 PM', amount: '−$125.00', logo: { mark: 'TD', background: colors.blueDim, foreground: colors.teal } },
+  { accountId: 'james-checking', id: 'james-payroll', merchant: 'Payroll deposit', category: 'Income · Checking', time: 'Today, 8:42 AM', amount: '+$2,860.00', logo: { mark: 'PAY', background: colors.greenDim, foreground: colors.greenDeep } },
+  { accountId: 'james-checking', id: 'james-coffee', merchant: 'Northside Coffee', category: 'Dining · TD Debit', time: 'Today, 7:58 AM', amount: '−$6.75', logo: { mark: 'NC', background: colors.orangeDim, foreground: colors.orange } },
+  { accountId: 'james-checking', id: 'james-card-payment', merchant: 'Card payment', category: 'Credit · Checking', time: 'Yesterday, 3:10 PM', amount: '−$125.00', logo: { mark: 'TD', background: colors.blueDim, foreground: colors.teal } },
 ];
 
 const oliviaTransactions: DashboardTransaction[] = [
-  { id: 'olivia-bookstore', merchant: 'Campus Bookstore', category: 'School · Youth Checking', time: 'Today, 11:20 AM', amount: '−$18.50', logo: { mark: 'CB', background: colors.purpleDim, foreground: colors.purple } },
-  { id: 'olivia-allowance', merchant: 'Weekly allowance', category: 'Transfer · Youth Checking', time: 'Today, 8:00 AM', amount: '+$25.00', logo: { mark: 'AL', background: colors.greenDim, foreground: colors.greenDeep } },
-  { id: 'olivia-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$10.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
+  { accountId: 'olivia-checking', id: 'olivia-bookstore', merchant: 'Campus Bookstore', category: 'School · Youth Checking', time: 'Today, 11:20 AM', amount: '−$18.50', logo: { mark: 'CB', background: colors.purpleDim, foreground: colors.purple } },
+  { accountId: 'olivia-checking', id: 'olivia-allowance', merchant: 'Weekly allowance', category: 'Transfer · Youth Checking', time: 'Today, 8:00 AM', amount: '+$25.00', logo: { mark: 'AL', background: colors.greenDim, foreground: colors.greenDeep } },
+  { accountId: 'olivia-savings', id: 'olivia-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$10.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
 ];
 
 const noahTransactions: DashboardTransaction[] = [
-  { id: 'noah-sports', merchant: 'Sports club', category: 'Activities · Youth Checking', time: 'Today, 9:30 AM', amount: '−$12.00', logo: { mark: 'SC', background: colors.orangeDim, foreground: colors.orange } },
-  { id: 'noah-allowance', merchant: 'Weekly allowance', category: 'Transfer · Youth Checking', time: 'Today, 8:00 AM', amount: '+$20.00', logo: { mark: 'AL', background: colors.greenDim, foreground: colors.greenDeep } },
-  { id: 'noah-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$5.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
+  { accountId: 'noah-checking', id: 'noah-sports', merchant: 'Sports club', category: 'Activities · Youth Checking', time: 'Today, 9:30 AM', amount: '−$12.00', logo: { mark: 'SC', background: colors.orangeDim, foreground: colors.orange } },
+  { accountId: 'noah-checking', id: 'noah-allowance', merchant: 'Weekly allowance', category: 'Transfer · Youth Checking', time: 'Today, 8:00 AM', amount: '+$20.00', logo: { mark: 'AL', background: colors.greenDim, foreground: colors.greenDeep } },
+  { accountId: 'noah-savings', id: 'noah-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$5.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
 ];
 
 export function getTransactionsForProfile(view: DashboardProfileId): readonly DashboardTransaction[] {
@@ -316,14 +318,11 @@ function getDashboardRecommendation(
 }
 
 function AccountRow({ account, last, compact }: { account: DashboardAccount; last: boolean; compact: boolean }) {
-  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const [open, setOpen] = useState(false);
+  const {activeProfileId} = useDashboardProfile();
   const accessibilityLabel = `${account.name}, ${account.amount}. ${account.detail}${account.note ? `. ${account.note}` : ''}`;
   const rowStyle = [styles.accountRow, compact && styles.accountRowCompact, !last && styles.accountDivider];
-  const isBusinessAccount = account.id.startsWith('business-');
-  const isFamilyAccount = account.id.startsWith('family-');
-  const isHouseholdMemberAccount = ['james-', 'olivia-', 'noah-'].some((prefix) => account.id.startsWith(prefix));
-  const isStaticAccount = isBusinessAccount || isFamilyAccount || isHouseholdMemberAccount;
-  const isCreditAccount = account.id.endsWith('card');
+
   const content = (
     <>
       <View style={[styles.accountMark, compact && styles.accountMarkCompact, { backgroundColor: account.swatch }]}>
@@ -335,26 +334,14 @@ function AccountRow({ account, last, compact }: { account: DashboardAccount; las
         {account.note ? <Text numberOfLines={1} style={[styles.accountNote, compact && styles.accountNoteCompact]}>{account.note}</Text> : null}
       </View>
       <Text numberOfLines={1} style={[styles.accountAmount, compact && styles.accountAmountCompact]}>{account.amount}</Text>
-      {!isStaticAccount ? <Ionicons name="chevron-forward" size={15} color={colors.textSecondary} /> : null}
+      <Ionicons name="chevron-forward" size={15} color={colors.textSecondary} />
     </>
   );
 
-  if (isStaticAccount) {
-    return <View accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel} style={rowStyle}>{content}</View>;
-  }
-
-  return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint="Opens account servicing details"
-      onPress={() => isCreditAccount
-        ? navigation.navigate('Card Manager')
-        : navigation.navigate('Account servicing', { accountId: account.id })}
-      style={rowStyle}
-    >
-      {content}
-    </TouchableOpacity>
+  return (<>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityHint="Opens account details" onPress={() => setOpen(true)} style={rowStyle}>{content}</TouchableOpacity>
+    {open && <AccountDetails account={account} activity={activeProfileId === 'ava' ? [] : getTransactionsForProfile(activeProfileId)} onClose={()=>setOpen(false)}/>}
+  </>
   );
 }
 
@@ -379,7 +366,7 @@ function AccountShowcaseCard({ account, compact, isFront, stackIndex, stackOffse
     <TouchableOpacity
       accessibilityRole="button"
       accessibilityLabel={`${account.name}, ${account.amountLabel.toLowerCase()} ${account.amount}, ${account.detail}`}
-      accessibilityHint={isFront ? 'This card is already at the top' : 'Brings this account card to the top'}
+      accessibilityHint="Opens account details"
       accessibilityState={{ selected: isFront }}
       onPress={() => onBringForward(account.id)}
       style={[styles.accountShowcaseTouchable, { top: stackIndex * stackOffset, zIndex: stackIndex }]}
@@ -595,6 +582,7 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
 
 function AccountCardsSection({ compact, view }: { compact: boolean; view: DashboardProfileId }) {
   const { accounts } = useAccounts();
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [frontAccountId, setFrontAccountId] = useState<Account['id']>('checking');
   const frontAccount = accounts.find((account) => account.id === frontAccountId) ?? accounts[0];
   const totalAvailableBalance = accounts.reduce((total, account) => {
@@ -613,6 +601,7 @@ function AccountCardsSection({ compact, view }: { compact: boolean; view: Dashbo
 
   return (
     <View style={[styles.accountShowcaseSection, compact && styles.accountShowcaseSectionCompact]}>
+      {detailsOpen && <AccountDetails account={frontAccount} activity={getTransactionsForProfile(view)} onClose={()=>setDetailsOpen(false)}/>}
       <View style={styles.accountShowcaseHeading}>
         <Text accessibilityRole="header" style={styles.accountShowcaseTitle}>My accounts</Text>
         <Text style={styles.accountShowcaseCount}>{accounts.length} accounts</Text>
@@ -635,7 +624,7 @@ function AccountCardsSection({ compact, view }: { compact: boolean; view: Dashbo
             isFront={account.id === frontAccount.id}
             stackIndex={index}
             stackOffset={stackOffset}
-            onBringForward={setFrontAccountId}
+            onBringForward={id => { setFrontAccountId(id); setDetailsOpen(true); }}
           />
         ))}
       </View>
