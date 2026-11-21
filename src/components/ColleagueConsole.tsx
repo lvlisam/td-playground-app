@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { dashboardProfileOptions, useDashboardProfile } from "../personas";
 import { useAccounts } from "../accounts";
-import { ColleagueHomeDetails, getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
+import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
 import CustomerRecord from './CustomerRecord';
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import AccountDetails from './AccountDetails';
@@ -25,7 +25,7 @@ const destinations: [string, string, IconName][] = [
   ["Benefits", "Benefits", "gift-outline"],
   ["Get Help", "Service & support", "headset-outline"],
   ["Card Manager", "Cards", "card-outline"],
-  ["Notifications", "Notifications", "notifications-outline"],
+  ["Notifications", "Activity review", "notifications-outline"],
   ["Support & booking", "Appointments", "calendar-outline"],
   ["Account settings", "Account settings", "settings-outline"],
 ];
@@ -34,7 +34,12 @@ const headings: Record<string, string> = {
   Insights: "Planning insights",
   "Pay & Transfer": "Money movement",
   Benefits: "Customer benefits",
-  "Get Help": "Service & support",
+  "Get Help": "Service case review",
+  "Card Manager": "Card portfolio",
+  Notifications: "Activity review",
+  "Support & booking": "Appointment preparation",
+  "Account settings": "Customer record settings",
+  "Ask Tedi": "Colleague guidance",
 };
 function ChannelArt() {
   return (
@@ -57,13 +62,9 @@ function ChannelArt() {
 export default function ColleagueConsole({
   activeTab,
   navigate,
-  companion,
-  toggleCompanion,
 }: {
   activeTab: string;
-  navigate: (route: string, params?: {action: string}) => void;
-  companion: boolean;
-  toggleCompanion: () => void;
+  navigate: (route: string) => void;
 }) {
   const { activeProfile: p, selectProfile } = useDashboardProfile();
   const { accounts, edits } = useAccounts();
@@ -78,6 +79,9 @@ export default function ColleagueConsole({
     setDetail(null);
     navigate(r);
   };
+  const [paymentTopic, setPaymentTopic] = useState('move');
+  const card = linked.find(a => a.id.endsWith('card'));
+  const topics = [ ['move', 'Between accounts', 'Confirm the source, destination, and amount with the customer.'], ['send', 'Send or request', 'Verify the recipient, payment method, and amount with the customer.'], ['bills', 'Bill payment', 'Confirm the payee, bill amount, and due date with the customer.'] ];
   const rows: [string, string, IconName][] =
     activeTab === "Insights"
       ? goal?.kind === "savings-goal"
@@ -107,21 +111,8 @@ export default function ColleagueConsole({
           ]
       : activeTab === "Pay & Transfer"
         ? [
-            [
-              "Send or request",
-              "Review the recipient and payment method together.",
-              "people-outline",
-            ],
-            [
-              "Pay a bill",
-              "Confirm the payee, amount and due date.",
-              "receipt-outline",
-            ],
-            [
-              "Move between accounts",
-              "Check the source and destination before the customer confirms.",
-              "swap-horizontal",
-            ],
+            ['Review details', topics.find(t => t[0] === paymentTopic)?.[2] ?? topics[0][2], 'receipt-outline'],
+            ['Customer authorization', 'Explain the next step. The customer authorizes the payment in their own banking channel; this workspace does not move funds.', 'people-outline'],
           ]
         : activeTab === "Benefits"
           ? [
@@ -134,7 +125,7 @@ export default function ColleagueConsole({
               ],
               [
                 "Offer eligibility",
-                "Review the terms in the customer view before discussing an offer.",
+                "Confirm current terms and eligibility before discussing an offer. A relationship tier alone does not establish eligibility.",
                 "pricetag-outline",
               ],
             ]
@@ -143,7 +134,7 @@ export default function ColleagueConsole({
                 ["Phone", p.contactPhone, "call-outline"],
                 [
                   "Virtual appointment",
-                  "Use the booking view to explore virtual appointments.",
+                  "Confirm the meeting topic and preferred callback number before arranging a virtual appointment.",
                   "videocam-outline",
                 ],
                 [
@@ -152,13 +143,9 @@ export default function ColleagueConsole({
                   "business-outline",
                 ],
               ]
-            : [
-                [
-                  activeTab,
-                  `Review ${activeTab.toLowerCase()} alongside the customer in the linked mobile view.`,
-                  "phone-portrait-outline",
-                ],
-              ];
+            : activeTab === 'Card Manager' ? [[card?.name ?? 'No credit card on file', card ? `${card.detail} · Balance ${card.amount}` : 'Check linked deposit accounts for debit card inquiries.', 'card-outline']]
+            : activeTab === 'Notifications' ? (history.length ? history.map((t): [string,string,IconName] => [t.merchant, `${t.time} · ${t.amount}`, 'receipt-outline']) : [['No recent activity', 'There are no transactions on file for this profile.', 'receipt-outline']])
+            : [['Email on file', p.contactEmail, 'mail-outline'], ['Phone on file', p.contactPhone, 'call-outline']];
   const [selection,setSelection] = useState<{profile:string; id:string} | null>(null);
   const selected = selection?.profile === p.id ? linked.find(a=>a.id === selection.id) : undefined;
   const accountList = (
@@ -184,7 +171,7 @@ export default function ColleagueConsole({
     </div>
   );
   return (
-    <div className={`cc ${companion ? "paired" : ""}`}>
+    <div className="cc">
       <style>{consoleStyles}</style>
       {selected && <AccountDetails account={selected} activity={p.id === 'ava' ? [] : getTransactionsForProfile(p.id)} onClose={()=>setSelection(null)}/>}
       {service?.profile === p.id && <ServicingDialog accounts={linked} initialRecord={service.record} onClose={() => setService(null)} />}
@@ -194,10 +181,7 @@ export default function ColleagueConsole({
         </div>
         <div className="cc-tools">
           <button onClick={() => go('Ask Tedi')}><Icon name="sparkles-outline" size={15}/>Ask Tedi</button>
-          <button onClick={toggleCompanion} aria-pressed={companion}>
-            <Icon name="phone-portrait-outline" size={15} />
-            {companion ? "Hide customer view" : "Customer view"}
-          </button>
+
           <span className="cc-agent" aria-label="Colleague">
             <Icon name="person-outline" size={17} />
           </span>
@@ -238,7 +222,7 @@ export default function ColleagueConsole({
             <h1>{title}</h1>
             <label>
               <span className="cc-dot" />
-              {activeTab === 'Home' ? 'Linked channels' : `${p.name} · ${p.badge}`}
+              {activeTab === 'Home' ? 'Colleague session' : `${p.name} · ${p.badge}`}
             </label>
           </div>
           {activeTab === 'Get Help' && <ServiceCases rep />}
@@ -282,7 +266,7 @@ export default function ColleagueConsole({
             </section>
           )}
           {(activeTab === 'Home' || activeTab === 'Ask Tedi') && <section className="cc-panel" style={{marginTop:16}}><div className="cc-eyebrow">TEDI · NEXT BEST ACTION</div><h3>{goal?.kind === 'savings-goal' ? 'Review the savings contribution' : 'Confirm contact details'}</h3><p>{goal?.kind === 'savings-goal' ? `Check whether the $${goal.monthlyContribution.toLocaleString()} monthly contribution still fits ${p.contactName}’s goal.` : `Confirm how ${p.contactName} prefers to be reached before following up.`}</p><button className="quick" onClick={()=>openService(linked.find(a=>a.plan?.kind==='savings-goal')?.id ?? 'contact')}>Review {goal ? 'savings plan' : 'contact details'}<Icon name="arrow-forward" size={15}/></button></section>}
-          {activeTab === 'Ask Tedi' ? <section className="cc-panel" style={{marginTop:16}}><TediMoveMoneyChat key={p.id} onSelectAction={action=>{if(!companion) toggleCompanion(); navigate('Pay & Transfer',{action});}}/></section> : activeTab === "Home" ? (
+          {activeTab === 'Ask Tedi' ? <section className="cc-panel" style={{marginTop:16}}><TediMoveMoneyChat key={p.id} colleague onSelectAction={action=>{setPaymentTopic(action); go('Pay & Transfer');}}/></section> : activeTab === "Home" ? (
             <>
               <div className="cc-grid">
                 <section className="cc-panel">
@@ -316,9 +300,9 @@ export default function ColleagueConsole({
                   ))}
                 </section>
               </div>
-              <section className="cc-panel work-detail"><ColleagueHomeDetails key={p.id} profileId={p.id} onOpenPlans={()=>go('Insights')} onNavigate={go}/></section>
+
             </>
-          ) : (!companion && activeTab !== 'Get Help') ? null : (
+          ) : (
             <section className="cc-panel work-detail">
               <div className="cc-section-title">
                 <div className="cc-eyebrow">COLLEAGUE BRIEF</div>
@@ -334,6 +318,7 @@ export default function ColleagueConsole({
                           : title}
                 </h3>
               </div>
+              {activeTab === 'Pay & Transfer' && <label>Guidance topic <select value={paymentTopic} onChange={e=>setPaymentTopic(e.target.value)}>{topics.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label>}
               {rows.map(([name, text, icon]) => (
                 <div className="cc-row" key={name}>
                   <i>
@@ -345,6 +330,11 @@ export default function ColleagueConsole({
                   </div>
                 </div>
               ))}
+              {activeTab === 'Insights' && goal && <button className="quick" onClick={()=>openService(linked.find(a=>a.plan === goal)!.id)}>Review savings plan</button>}
+              {activeTab === 'Card Manager' && card && <button className="quick" onClick={()=>setSelection({profile:p.id,id:card.id})}>Inspect card activity</button>}
+              {['Account settings','Support & booking'].includes(activeTab) && <button className="quick" onClick={()=>openService('contact')}>Review contact details</button>}
+              {['Card Manager','Notifications'].includes(activeTab) && <button className="quick" onClick={()=>go('Get Help')}>Review customer cases</button>}
+              {['Pay & Transfer','Benefits'].includes(activeTab) && <button className="quick" onClick={()=>go('Home')}>Review account portfolio</button>}
             </section>
           )}
         </main>

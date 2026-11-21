@@ -46,7 +46,7 @@ function getFallbackReply(message: string): Pick<ChatMessage, 'text' | 'action'>
   };
 }
 
-export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: (action: TransferAction) => void }) {
+export default function TediMoveMoneyChat({ onSelectAction, colleague = false }: { onSelectAction: (action: TransferAction) => void; colleague?: boolean }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -68,7 +68,7 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
       const response = await fetch('/api/tedi-money-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: conversation.slice(-12).map(({ role, text: messageText }) => ({ role, text: messageText })) }),
+        body: JSON.stringify({ audience: colleague ? 'colleague' : 'customer', messages: conversation.slice(-12).map(({ role, text: messageText }) => ({ role, text: messageText })) }),
       });
       if (!response.ok) throw new Error('Tedi is unavailable');
       const result = await response.json() as { reply?: unknown; action?: unknown };
@@ -86,6 +86,8 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
       setNextId((current) => current + 1);
     } catch {
       const fallback = getFallbackReply(text);
+      if (colleague) fallback.text = 'Live guidance is unavailable. Use the payment review checklist to confirm the details with the customer. No funds will move.';
+      if (colleague && !fallback.action) fallback.action = 'move';
       setMessages((current) => [...current, {
         id: nextId + 1,
         role: 'assistant',
@@ -103,7 +105,7 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
         <View style={styles.assistantIcon} accessible={false}>
           <Ionicons name="sparkles-outline" size={19} color={colors.greenDeep} />
         </View>
-        <Text accessibilityRole="header" style={styles.question}>Ask Tedi, your TD assistant</Text>
+        <Text accessibilityRole="header" style={styles.question}>{colleague ? 'Payment guidance for colleagues' : 'Ask Tedi, your TD assistant'}</Text>
       </View>
 
       {(messages.length > 0 || isSending) && (
@@ -150,7 +152,7 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
           maxLength={320}
           multiline
           onChangeText={setDraft}
-          placeholder="Ask Tedi what you need"
+          placeholder={colleague ? 'Ask about a payment procedure' : 'Ask Tedi what you need'}
           placeholderTextColor={colors.textTertiary}
           style={styles.input}
           value={draft}
@@ -170,7 +172,7 @@ export default function TediMoveMoneyChat({ onSelectAction }: { onSelectAction: 
 
       {messages.length === 0 ? (
         <View style={styles.quickPrompts}>
-          {quickPrompts.map((prompt) => (
+          {(colleague ? ['How should I guide a transfer?', 'What should I confirm for a bill payment?'] : quickPrompts).map((prompt) => (
             <TouchableOpacity key={prompt} accessibilityRole="button" disabled={isSending} onPress={() => sendMessage(prompt)} style={styles.promptChip}>
               <Text style={styles.promptText}>{prompt}</Text>
             </TouchableOpacity>
