@@ -235,13 +235,14 @@ export default function ColleagueConsole({
               Linked channels
             </label>
           </div>
-          <section className="cc-snapshot" aria-label="Customer snapshot">
+          {activeTab === 'Home' && <section className="cc-snapshot" aria-label="Customer snapshot">
             <div className="cc-hero">
             <div className="cc-hero-copy">
               <div className="cc-eyebrow">CUSTOMER SNAPSHOT</div>
               <h2>{p.contactName}</h2>
               <p>
-                {p.detail} <span>·</span> {p.tdRelationshipLength} with TD
+                {p.detail} <span>·</span> {p.tdRelationshipLength} with TD<br />
+                {p.badge} <span>·</span> {linked.length} linked {linked.length === 1 ? 'account' : 'accounts'}
               </p>
               <button
                 onClick={() =>
@@ -264,8 +265,8 @@ export default function ColleagueConsole({
                 </li>)}</ul> : <p>No recent transactions on file.</p>}
               </div>
             </div>
-          </section>
-          {detail === "profile" && (
+          </section>}
+          {activeTab === 'Home' && detail === "profile" && (
             <section className="cc-panel profile">
               <h3>Customer profile</h3>
               <label>
@@ -297,29 +298,6 @@ export default function ColleagueConsole({
           {(activeTab === 'Home' || activeTab === 'Ask Tedi') && <section className="cc-panel" style={{marginTop:16}}><div className="cc-eyebrow">TEDI · NEXT BEST ACTION</div><h3>{goal?.kind === 'savings-goal' ? 'Review the savings contribution' : 'Confirm contact details'}</h3><p>{goal?.kind === 'savings-goal' ? `Check whether the $${goal.monthlyContribution.toLocaleString()} monthly contribution still fits ${p.contactName}’s goal.` : `Confirm how ${p.contactName} prefers to be reached before following up.`}</p><button className="quick" onClick={()=>openService(linked.find(a=>a.plan?.kind==='savings-goal')?.id ?? 'contact')}>Review {goal ? 'savings plan' : 'contact details'}<Icon name="arrow-forward" size={15}/></button></section>}
           {activeTab === 'Ask Tedi' ? <section className="cc-panel" style={{marginTop:16}}><TediMoveMoneyChat key={p.id} onSelectAction={action=>{if(!companion) toggleCompanion(); navigate('Pay & Transfer',{action});}}/></section> : activeTab === "Home" ? (
             <>
-              <div className="cc-metrics">
-                {(
-                  [
-                    [
-                      "wallet-outline",
-                      "Linked accounts",
-                      String(linked.length).padStart(2, "0"),
-                    ],
-                    ["ribbon-outline", "Relationship tier", p.badge],
-                    ["time-outline", "Customer tenure", p.tdRelationshipLength],
-                  ] as [IconName, string, string][]
-                ).map(([icon, label, value]) => (
-                  <div className="metric" key={label}>
-                    <i>
-                      <Icon name={icon} />
-                    </i>
-                    <div>
-                      <small>{label}</small>
-                      <b>{value}</b>
-                    </div>
-                  </div>
-                ))}
-              </div>
               <div className="cc-grid">
                 <section className="cc-panel">
                   <div className="cc-section-title">
