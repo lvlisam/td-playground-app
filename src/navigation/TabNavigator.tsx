@@ -512,84 +512,88 @@ function DesktopColleagueWorkspace({
 
       <View style={styles.desktopWorkspaceBody}>
         <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />
-        <DesktopCustomerContactPanel profile={activeProfile} />
-        <View style={styles.workspaceContentArea}>
+        <View style={styles.workspaceCustomerLayout}>
           <ScrollView
-            style={styles.workspaceMain}
-            contentContainerStyle={styles.workspaceMainContent}
-            showsVerticalScrollIndicator
+            horizontal
+            showsHorizontalScrollIndicator
+            style={styles.workspaceProfileTabs}
+            contentContainerStyle={styles.workspaceProfileTabsContent}
+            accessibilityLabel="Customer profile tabs"
           >
-            <View style={styles.workspaceHeadingRow}>
-              <View style={styles.workspaceHeadingCopy}>
-                <Text style={styles.workspaceEyebrow}>{section.eyebrow}</Text>
-                {activeWorkspaceTab !== 'Customer' && (
-                  <>
-                    <Text accessibilityRole="header" style={styles.workspaceTitle}>{section.title}</Text>
-                    <Text style={styles.workspaceSectionDescription}>{section.description}</Text>
-                  </>
-                )}
-              </View>
-              <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator
-              style={styles.workspaceProfileTabs}
-              contentContainerStyle={styles.workspaceProfileTabsContent}
-              accessibilityLabel="Customer profile tabs"
-            >
-              {dashboardProfileOptions.map((profile) => {
-                const selected = activeProfileId === profile.id;
-                return (
-                  <TouchableOpacity
-                    key={profile.id}
-                    accessibilityRole="tab"
-                    accessibilityLabel={`Show ${profile.name} customer profile`}
-                    accessibilityState={{ selected }}
-                    onPress={() => selectProfile(profile.id)}
-                    style={[styles.workspaceProfileTab, selected && styles.workspaceProfileTabSelected]}
-                  >
-                    <View style={[styles.workspaceProfileTabInitials, selected && styles.workspaceProfileTabInitialsSelected]}>
-                      <Text style={[styles.workspaceProfileTabInitialsText, selected && styles.workspaceProfileTabInitialsTextSelected]}>{profile.initials}</Text>
-                    </View>
-                    <Text numberOfLines={1} style={[styles.workspaceProfileTabText, selected && styles.workspaceProfileTabTextSelected]}>{profile.name}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-            {activeTab !== 'Home' && (
-              <View style={styles.workspaceScreenCard}>
-                <View style={styles.workspaceContextHeading}>
-                  <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
-                  <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
-                </View>
-                <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
-                <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
-                <View style={styles.workspaceScreenDetail}>
-                  <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
-                  <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
-                </View>
-              </View>
-            )}
-            <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
-            {activeWorkspaceTab === 'Customer' ? (
-              <ColleagueHomeDetails
-                profileId={activeProfileId}
-                onOpenPlans={() => navigation.navigate('Insights')}
-                onNavigate={(destination) => navigation.navigate(destination)}
-              />
-            ) : null}
-            <View style={styles.workspaceSummaryRow}>
-              <View style={[styles.workspaceContextCard, styles.workspaceContextCardWide]}>
-                <View style={styles.workspaceContextHeading}>
-                  <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
-                  <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
-                </View>
-                <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
-                <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
-              </View>
-            </View>
+            {dashboardProfileOptions.map((profile) => {
+              const selected = activeProfileId === profile.id;
+              return (
+                <TouchableOpacity
+                  key={profile.id}
+                  accessibilityRole="tab"
+                  accessibilityLabel={`Show ${profile.name} customer profile`}
+                  accessibilityState={{ selected }}
+                  onPress={() => selectProfile(profile.id)}
+                  style={[styles.workspaceProfileTab, selected && styles.workspaceProfileTabSelected]}
+                >
+                  <View style={[styles.workspaceProfileTabInitials, selected && styles.workspaceProfileTabInitialsSelected]}>
+                    <Text style={[styles.workspaceProfileTabInitialsText, selected && styles.workspaceProfileTabInitialsTextSelected]}>{profile.initials}</Text>
+                  </View>
+                  <Text numberOfLines={1} style={[styles.workspaceProfileTabText, selected && styles.workspaceProfileTabTextSelected]}>{profile.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
+          <View style={styles.workspaceCustomerOverview}>
+            <DesktopCustomerContactPanel profile={activeProfile} />
+            <View style={styles.workspaceContentArea}>
+              <ScrollView
+                style={styles.workspaceMain}
+                contentContainerStyle={styles.workspaceMainContent}
+                showsVerticalScrollIndicator
+              >
+                <View style={styles.workspaceHeadingRow}>
+                  <View style={styles.workspaceHeadingCopy}>
+                    <Text style={styles.workspaceEyebrow}>{section.eyebrow}</Text>
+                    {activeWorkspaceTab !== 'Customer' && (
+                      <>
+                        <Text accessibilityRole="header" style={styles.workspaceTitle}>{section.title}</Text>
+                        <Text style={styles.workspaceSectionDescription}>{section.description}</Text>
+                      </>
+                    )}
+                  </View>
+                  <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
+                </View>
+                {activeTab !== 'Home' && (
+                  <View style={styles.workspaceScreenCard}>
+                    <View style={styles.workspaceContextHeading}>
+                      <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
+                      <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
+                    </View>
+                    <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
+                    <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
+                    <View style={styles.workspaceScreenDetail}>
+                      <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
+                      <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
+                    </View>
+                  </View>
+                )}
+                <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
+                {activeWorkspaceTab === 'Customer' ? (
+                  <ColleagueHomeDetails
+                    profileId={activeProfileId}
+                    onOpenPlans={() => navigation.navigate('Insights')}
+                    onNavigate={(destination) => navigation.navigate(destination)}
+                  />
+                ) : null}
+                <View style={styles.workspaceSummaryRow}>
+                  <View style={[styles.workspaceContextCard, styles.workspaceContextCardWide]}>
+                    <View style={styles.workspaceContextHeading}>
+                      <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
+                      <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
+                    </View>
+                    <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
+                    <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
         </View>
       </View>
     </View>
@@ -841,6 +845,8 @@ const styles = StyleSheet.create({
   desktopMonitorStand: { width: 56, height: 24, backgroundColor: frameColors.bezel },
   desktopMonitorBase: { width: 142, height: 8, borderRadius: radius.full, backgroundColor: frameColors.bezel },
   desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 10, padding: 12, backgroundColor: colors.bg },
+  workspaceCustomerLayout: { flex: 1, minWidth: 0, minHeight: 0, gap: 10 },
+  workspaceCustomerOverview: { flex: 1, minWidth: 0, minHeight: 0, flexDirection: 'row', gap: 10 },
   workspaceContactPanel: { width: 200, minHeight: 0, flexShrink: 0, alignSelf: 'stretch', borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, overflow: 'hidden' },
   workspaceContactPanelScroll: { flex: 1, minHeight: 0 },
   workspaceContactPanelContent: { padding: 12, gap: 12 },
