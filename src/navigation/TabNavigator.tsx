@@ -4,12 +4,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import DashboardScreen, { ColleagueHomeDetails, getDashboardAccounts, getSavingsThisMonth } from '../screens/DashboardScreen';
+import DashboardScreen, { getDashboardAccounts, getSavingsThisMonth } from '../screens/DashboardScreen';
 import PlanScreen from '../screens/PlanScreen';
 import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
-import TediScreen from '../screens/TediScreen';
 import GetHelpScreen from '../screens/GetHelpScreen';
 import AccountServicingScreen from '../screens/AccountServicingScreen';
 import AccountSettingsScreen from '../screens/AccountSettingsScreen';
@@ -89,85 +88,17 @@ const desktopNavigationItems = [
   { label: 'Notifications', route: 'Notifications', icon: 'notifications-outline' },
 ] as const;
 
-const desktopScreenContent: Record<string, { eyebrow: string; title: string; description: string; detail: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  Home: {
-    eyebrow: 'ACCOUNT OVERVIEW',
-    title: 'Your accounts, at a glance',
-    description: 'A clear view of balances, recent activity and what needs attention.',
-    detail: 'Review account activity and upcoming payments.',
-    icon: 'wallet-outline',
-  },
-  Insights: {
-    eyebrow: 'FINANCIAL INSIGHTS',
-    title: 'Make your money work for you',
-    description: 'Explore spending patterns and practical ways to reach your goals.',
-    detail: 'See spending trends and personalized guidance.',
-    icon: 'analytics-outline',
-  },
-  'Pay & Transfer': {
-    eyebrow: 'PAYMENTS',
-    title: 'Move money with confidence',
-    description: 'Choose a payment or transfer and review the details before continuing.',
-    detail: 'Send money, pay bills and manage transfers.',
-    icon: 'swap-horizontal',
-  },
-  Benefits: {
-    eyebrow: 'MEMBER BENEFITS',
-    title: 'More value from your banking',
-    description: 'Discover offers and benefits selected for your banking relationship.',
-    detail: 'Explore programs and eligible offers.',
-    icon: 'gift-outline',
-  },
-  'Get Help': {
-    eyebrow: 'SUPPORT',
-    title: 'How can we help?',
-    description: 'Find answers, connect with support or book time with a colleague.',
-    detail: 'Choose the support option that works for you.',
-    icon: 'help-circle-outline',
-  },
-  'Card Manager': {
-    eyebrow: 'CARD SERVICES',
-    title: 'Manage your cards',
-    description: 'Review card details and access the tools you need to stay in control.',
-    detail: 'View card controls and servicing options.',
-    icon: 'card-outline',
-  },
-  'Account servicing': {
-    eyebrow: 'ACCOUNT SERVICES',
-    title: 'Take care of your accounts',
-    description: 'Access common account requests and servicing options in one place.',
-    detail: 'Find account maintenance and service requests.',
-    icon: 'construct-outline',
-  },
-  'Account settings': {
-    eyebrow: 'PREFERENCES',
-    title: 'Make it yours',
-    description: 'Keep your profile and account preferences up to date.',
-    detail: 'Review personal and security preferences.',
-    icon: 'settings-outline',
-  },
-  Notifications: {
-    eyebrow: 'NOTIFICATIONS',
-    title: 'Stay in the know',
-    description: 'Review updates and reminders connected to your accounts.',
-    detail: 'See recent alerts and account updates.',
-    icon: 'notifications-outline',
-  },
-};
-
-type WorkspaceTab = 'Home' | 'Customer' | 'Journey' | 'Top tools';
-
-const workspaceTabRoutes: Record<WorkspaceTab, string> = {
-  Home: 'Home',
-  Customer: 'Home',
-  Journey: 'Insights',
-  'Top tools': 'Get Help',
-};
-
-const mobileRouteWorkspaceTabs: Partial<Record<string, WorkspaceTab>> = {
-  Home: 'Home',
-  Insights: 'Journey',
-  'Get Help': 'Top tools',
+const desktopScreenComponents: Record<string, React.ComponentType> = {
+  Home: DashboardScreen,
+  Insights: PlanScreen,
+  'Pay & Transfer': SendPayScreen,
+  Benefits: BenefitsScreen,
+  'Get Help': GetHelpScreen,
+  'Account servicing': AccountServicingScreen,
+  'Account settings': AccountSettingsScreen,
+  Notifications: NotificationsScreen,
+  'Card Manager': CardsScreen,
+  'Support & booking': SupportBookingScreen,
 };
 
 function DesktopNavigationMenu({ navigation, activeTab }: { navigation: NavigationProp<ParamListBase>; activeTab: string }) {
@@ -413,26 +344,11 @@ function DesktopProfileDetails({ profile }: { profile: (typeof dashboardProfileO
 function DesktopColleagueWorkspace({
   navigation,
   activeTab,
-  activeWorkspaceTab,
-  onSelectWorkspaceTab,
 }: {
   navigation: NavigationProp<ParamListBase>;
   activeTab: string;
-  activeWorkspaceTab: WorkspaceTab;
-  onSelectWorkspaceTab: (tab: WorkspaceTab) => void;
 }) {
-  const { activeProfileId, activeProfile, selectProfile } = useDashboardProfile();
-  const [journeyOpen, setJourneyOpen] = React.useState(true);
-  const [journeyIdVisible, setJourneyIdVisible] = React.useState(false);
-  const [lastUpdated, setLastUpdated] = React.useState('just now');
-  const screen = desktopScreenContent[activeTab] ?? desktopScreenContent.Home;
-  const workspaceSections = {
-    Home: { eyebrow: 'STORE OVERVIEW', title: 'Customer onboarding', description: 'Welcome back. Review your active customer journey and continue where you left off.' },
-    Customer: { eyebrow: 'CUSTOMER PROFILE', title: 'Customer details', description: 'Review the selected customer and keep their journey moving.' },
-    Journey: { eyebrow: 'ONBOARDING JOURNEY', title: 'Journey progress', description: 'Follow the customer experience from identity review through account setup.' },
-    'Top tools': { eyebrow: 'QUICK ACCESS', title: 'Top tools', description: 'Open the tools used most often during a customer conversation.' },
-  } as const;
-  const section = workspaceSections[activeWorkspaceTab];
+  const ActiveScreen = desktopScreenComponents[activeTab] ?? DashboardScreen;
 
   return (
     <View style={styles.colleagueWorkspace} accessibilityLabel="Colleague desktop workspace">
@@ -448,152 +364,27 @@ function DesktopColleagueWorkspace({
         </View>
       </View>
 
-      <View style={styles.workspaceSubnav} accessibilityLabel="Workspace sections">
-        {(['Home', 'Customer', 'Journey', 'Top tools'] as const).map((tab) => {
-          const selected = activeWorkspaceTab === tab;
+      <View style={styles.workspaceSubnav} accessibilityLabel="Customer mobile tabs">
+        {desktopNavigationItems.slice(0, 5).map((item) => {
+          const selected = activeTab === item.route;
           return (
             <TouchableOpacity
-              key={tab}
+              key={item.route}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
-              accessibilityLabel={`Show ${tab} view on mobile and desktop`}
-              onPress={() => onSelectWorkspaceTab(tab)}
+              accessibilityLabel={`Show ${item.label} on customer mobile and desktop`}
+              onPress={() => navigation.navigate(item.route)}
               style={[styles.workspaceSubnavButton, selected && styles.workspaceSubnavButtonActive]}
             >
-              <Text style={[styles.workspaceSubnavLabel, selected && styles.workspaceSubnavLabelActive]}>{tab}</Text>
+              <Text style={[styles.workspaceSubnavLabel, selected && styles.workspaceSubnavLabelActive]}>{item.label}</Text>
             </TouchableOpacity>
           );
         })}
       </View>
 
-      <View style={styles.journeyToolbar}>
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Open active journey"
-          disabled={!journeyOpen}
-          onPress={() => onSelectWorkspaceTab('Journey')}
-          style={styles.journeyStatus}
-        >
-          <View style={[styles.journeyStatusDot, !journeyOpen && styles.journeyStatusDotClosed]} />
-          <Text style={styles.journeyStatusText}>{journeyOpen ? 'Active journey' : 'Journey closed'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Refresh journey view"
-          onPress={() => setLastUpdated(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}
-          style={styles.journeyToolbarLink}
-        >
-          <Ionicons name="refresh-outline" size={15} color={colors.greenDeep} />
-          <Text style={styles.journeyToolbarLinkText}>Refresh</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={journeyIdVisible ? 'Hide journey ID' : 'View journey ID'}
-          onPress={() => setJourneyIdVisible((visible) => !visible)}
-          style={styles.journeyToolbarLink}
-        >
-          <Ionicons name="document-text-outline" size={15} color={colors.greenDeep} />
-          <Text style={styles.journeyToolbarLinkText}>{journeyIdVisible ? 'Hide journey ID' : 'View journey ID'}</Text>
-        </TouchableOpacity>
-        {journeyIdVisible && <Text style={styles.journeyIdText}>JRN-0000-0001</Text>}
-        <Text style={styles.journeyUpdatedText}>Updated {lastUpdated}</Text>
-        <View style={styles.journeyToolbarSpacer} />
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Close journey"
-          accessibilityState={{ disabled: !journeyOpen }}
-          disabled={!journeyOpen}
-          onPress={() => setJourneyOpen(false)}
-          style={[styles.journeyCloseButton, !journeyOpen && styles.journeyCloseButtonDisabled]}
-        >
-          <Text style={[styles.journeyCloseText, !journeyOpen && styles.journeyCloseTextDisabled]}>{journeyOpen ? 'Close journey' : 'Journey closed'}</Text>
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.desktopWorkspaceBody}>
-        <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />
-        <View style={styles.workspaceCustomerLayout}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator
-            style={styles.workspaceProfileTabs}
-            contentContainerStyle={styles.workspaceProfileTabsContent}
-            accessibilityLabel="Customer profile tabs"
-          >
-            {dashboardProfileOptions.map((profile) => {
-              const selected = activeProfileId === profile.id;
-              return (
-                <TouchableOpacity
-                  key={profile.id}
-                  accessibilityRole="tab"
-                  accessibilityLabel={`Show ${profile.name} customer profile`}
-                  accessibilityState={{ selected }}
-                  onPress={() => selectProfile(profile.id)}
-                  style={[styles.workspaceProfileTab, selected && styles.workspaceProfileTabSelected]}
-                >
-                  <View style={[styles.workspaceProfileTabInitials, selected && styles.workspaceProfileTabInitialsSelected]}>
-                    <Text style={[styles.workspaceProfileTabInitialsText, selected && styles.workspaceProfileTabInitialsTextSelected]}>{profile.initials}</Text>
-                  </View>
-                  <Text numberOfLines={1} style={[styles.workspaceProfileTabText, selected && styles.workspaceProfileTabTextSelected]}>{profile.name}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-          <View style={styles.workspaceCustomerOverview}>
-            <DesktopCustomerContactPanel profile={activeProfile} />
-            <View style={styles.workspaceContentArea}>
-              <ScrollView
-                style={styles.workspaceMain}
-                contentContainerStyle={styles.workspaceMainContent}
-                showsVerticalScrollIndicator
-              >
-                <View style={styles.workspaceHeadingRow}>
-                  <View style={styles.workspaceHeadingCopy}>
-                    <Text style={styles.workspaceEyebrow}>{section.eyebrow}</Text>
-                    {activeWorkspaceTab !== 'Customer' && (
-                      <>
-                        <Text accessibilityRole="header" style={styles.workspaceTitle}>{section.title}</Text>
-                        <Text style={styles.workspaceSectionDescription}>{section.description}</Text>
-                      </>
-                    )}
-                  </View>
-                  <Ionicons name="ellipsis-horizontal" size={19} color={colors.textSecondary} />
-                </View>
-                {activeTab !== 'Home' && (
-                  <View style={styles.workspaceScreenCard}>
-                    <View style={styles.workspaceContextHeading}>
-                      <View style={styles.workspaceScreenIcon}><Ionicons name={screen.icon} size={17} color={colors.greenDeep} /></View>
-                      <Text style={styles.workspaceContextEyebrow}>{screen.eyebrow}</Text>
-                    </View>
-                    <Text style={styles.workspaceScreenTitle}>{screen.title}</Text>
-                    <Text style={styles.workspaceScreenBody}>{screen.description}</Text>
-                    <View style={styles.workspaceScreenDetail}>
-                      <Text style={styles.workspaceScreenDetailLabel}>ON THIS SCREEN</Text>
-                      <Text style={styles.workspaceScreenBody}>{screen.detail}</Text>
-                    </View>
-                  </View>
-                )}
-                <ColleagueFinancialDetails profileId={activeProfileId} onOpenPlans={() => navigation.navigate('Insights')} />
-                {activeWorkspaceTab === 'Customer' ? (
-                  <ColleagueHomeDetails
-                    profileId={activeProfileId}
-                    onOpenPlans={() => navigation.navigate('Insights')}
-                    onNavigate={(destination) => navigation.navigate(destination)}
-                  />
-                ) : null}
-                <View style={styles.workspaceSummaryRow}>
-                  <View style={[styles.workspaceContextCard, styles.workspaceContextCardWide]}>
-                    <View style={styles.workspaceContextHeading}>
-                      <View style={styles.workspaceContextIcon}><Ionicons name="sparkles-outline" size={15} color={colors.greenDeep} /></View>
-                      <Text style={styles.workspaceContextEyebrow}>SHARED CUSTOMER CONTEXT</Text>
-                    </View>
-                    <Text style={styles.workspaceContextTitle}>{activeProfile.need}</Text>
-                    <Text style={styles.workspaceContextBody}>This profile and selected screen stay in sync with the mobile preview.</Text>
-                  </View>
-                </View>
-              </ScrollView>
-            </View>
-          </View>
+        <View style={styles.workspaceContentArea}>
+          <ActiveScreen />
         </View>
       </View>
     </View>
@@ -606,8 +397,6 @@ export default function TabNavigator() {
   const { width, height } = useWindowDimensions();
   const { authFlowVisible } = useAuth();
   const [activeTab, setActiveTab] = React.useState('Home');
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = React.useState<WorkspaceTab>('Customer');
-  const workspaceTabNavigation = React.useRef<{ route: string; tab: WorkspaceTab } | null>(null);
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showOmnichannelView = Platform.OS === 'web' && width >= 900;
   const deviceWidth = showDeviceFrame
@@ -620,17 +409,6 @@ export default function TabNavigator() {
       ? Math.min(deviceWidth / 0.47, Math.max(320, height - 120))
       : deviceWidth / 0.47
     : height;
-  const selectWorkspaceTab = (tab: WorkspaceTab) => {
-    const route = workspaceTabRoutes[tab];
-    setActiveWorkspaceTab(tab);
-    if (route === activeTab) {
-      workspaceTabNavigation.current = null;
-      return;
-    }
-    workspaceTabNavigation.current = { route, tab };
-    navigation.navigate(route);
-  };
-
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage, showOmnichannelView && styles.desktopWorkspaceStage]}>
       {showDeviceFrame && !showOmnichannelView && (
@@ -669,20 +447,7 @@ export default function TabNavigator() {
               <Tab.Navigator
                   backBehavior="history"
                   screenListeners={({ route }) => ({
-                    focus: () => {
-                      const pendingWorkspaceTab = workspaceTabNavigation.current;
-                      if (pendingWorkspaceTab?.route === route.name) {
-                        setActiveWorkspaceTab(pendingWorkspaceTab.tab);
-                        workspaceTabNavigation.current = null;
-                      } else {
-                        workspaceTabNavigation.current = null;
-                        if (activeTab !== route.name) {
-                          const matchingWorkspaceTab = mobileRouteWorkspaceTabs[route.name];
-                          if (matchingWorkspaceTab) setActiveWorkspaceTab(matchingWorkspaceTab);
-                        }
-                      }
-                      setActiveTab(route.name);
-                    },
+                    focus: () => setActiveTab(route.name),
                   })}
                   screenOptions={{
                     headerShown: false,
@@ -810,8 +575,6 @@ export default function TabNavigator() {
               <DesktopColleagueWorkspace
                 navigation={navigation}
                 activeTab={activeTab}
-                activeWorkspaceTab={activeWorkspaceTab}
-                onSelectWorkspaceTab={selectWorkspaceTab}
               />
             </View>
           </View>

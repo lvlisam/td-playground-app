@@ -108,11 +108,13 @@ const TediScreen = React.forwardRef<TediScreenHandle, TediScreenProps>(function 
   const scrollRef = useRef<ScrollView>(null);
   const nextMessageId = useRef(1);
   const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState<TediChatMessage[]>(() => embedded ? [] : [
+  const [messages, setMessages] = useState<TediChatMessage[]>(() => [
     {
       id: 0,
       role: 'assistant',
-      text: 'Good afternoon, Ava. I can help you find spending insights, send money, explore benefits, or manage your card.',
+      text: embedded
+        ? 'Hi, I’m Tedi. I can help with spending insights, moving money, benefits, or card controls. What would you like to do?'
+        : 'Good afternoon, Ava. I can help you find spending insights, send money, explore benefits, or manage your card.',
     },
   ]);
   const isEmptyEmbedded = embedded && messages.length === 0;
@@ -293,7 +295,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   embeddedContainer: { flex: 0, flexGrow: 0, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, backgroundColor: colors.surface },
   embeddedEmptyContainer: { height: 0, borderWidth: 0 },
-  embeddedFixedContainer: { height: 560, minHeight: 560 },
+  embeddedFixedContainer: { height: 320, minHeight: 320 },
   embeddedFooter: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: colors.surface },
   embeddedEmptyFooter: { borderTopWidth: 0 },
   chatLayout: { flex: 1, paddingHorizontal: spacing.lg, gap: spacing.md },
