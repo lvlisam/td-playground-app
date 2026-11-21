@@ -216,7 +216,7 @@ const noahTransactions: DashboardTransaction[] = [
   { id: 'noah-savings', merchant: 'Savings transfer', category: 'Savings · Youth Savings', time: 'Yesterday, 4:15 PM', amount: '−$5.00', logo: { mark: 'SV', background: colors.blueDim, foreground: colors.teal } },
 ];
 
-function getTransactionsForProfile(view: DashboardProfileId): readonly DashboardTransaction[] {
+export function getTransactionsForProfile(view: DashboardProfileId): readonly DashboardTransaction[] {
   return view === 'business'
     ? businessTransactions
     : view === 'family'

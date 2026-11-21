@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { dashboardProfileOptions, useDashboardProfile } from "../personas";
 import { useAccounts } from "../accounts";
-import { getDashboardAccounts } from "../screens/DashboardScreen";
+import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import ServicingDialog from './ServicingDialog';
 import { consoleStyles } from "./colleagueConsoleStyles";
@@ -65,6 +65,7 @@ export default function ColleagueConsole({
   const openService = (record: string) => setService({profile: p.id, record});
   const [detail, setDetail] = useState<"profile" | null>(null);
   const goal = linked.find((a) => a.plan?.kind === "savings-goal")?.plan;
+  const history = p.id === 'ava' ? [] : getTransactionsForProfile(p.id).slice(0, 3);
   const title = headings[activeTab] ?? activeTab;
   const go = (r: string) => {
     setDetail(null);
@@ -229,7 +230,8 @@ export default function ColleagueConsole({
               Linked channels
             </label>
           </div>
-          <section className="cc-hero">
+          <section className="cc-snapshot" aria-label="Customer snapshot">
+            <div className="cc-hero">
             <div className="cc-hero-copy">
               <div className="cc-eyebrow">CUSTOMER SNAPSHOT</div>
               <h2>{p.contactName}</h2>
@@ -247,6 +249,16 @@ export default function ColleagueConsole({
               </button>
             </div>
             <ChannelArt />
+            </div>
+            <div className="cc-brief">
+              <div className="cc-priority"><span className="cc-eyebrow">CUSTOMER PRIORITY</span><p>{p.need}</p></div>
+              <div className="cc-history"><h3>Recent activity</h3>
+                {history.length ? <ul>{history.map(item => <li key={item.id}>
+                  <div><b>{item.merchant}</b><small>{item.time}</small></div>
+                  <strong className={item.amount.startsWith('+') ? 'credit' : undefined}>{item.amount}</strong>
+                </li>)}</ul> : <p>No recent transactions on file.</p>}
+              </div>
+            </div>
           </section>
           {detail === "profile" && (
             <section className="cc-panel profile">
