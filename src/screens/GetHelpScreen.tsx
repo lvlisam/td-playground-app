@@ -7,6 +7,8 @@ import TediScreen, { type TediScreenHandle } from './TediScreen';
 import { colors, font, radius, spacing } from '../theme';
 import ScreenBackButton from '../components/ScreenBackButton';
 
+import ServiceCases from '../components/ServiceCases';
+
 type VisitMode = 'In store' | 'Video' | 'Phone';
 
 type AdviceNeed = {
@@ -100,6 +102,7 @@ export default function GetHelpScreen() {
           <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>Get help</Text>
         </View>
 
+        <ServiceCases />
         <TediScreen ref={tediRef} embedded hideComposer />
 
         <View style={styles.adviceCard}>

@@ -5,6 +5,7 @@ import { useAccounts } from "../accounts";
 import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
 import TediMoveMoneyChat from './TediMoveMoneyChat';
 import AccountDetails from './AccountDetails';
+import ServiceCases from './ServiceCases';
 import ServicingDialog from './ServicingDialog';
 import { consoleStyles } from "./colleagueConsoleStyles";
 
@@ -235,6 +236,7 @@ export default function ColleagueConsole({
               Linked channels
             </label>
           </div>
+          {activeTab === 'Get Help' && <ServiceCases rep />}
           {activeTab === 'Home' && <section className="cc-snapshot" aria-label="Customer snapshot">
             <div className="cc-hero">
             <div className="cc-hero-copy">
@@ -315,7 +317,7 @@ export default function ColleagueConsole({
                     [
                       ["Insights", "Review savings plan", "flag-outline"],
                       ["Pay & Transfer", "Guide a transfer", "swap-horizontal"],
-                      ["Get Help", "Explore support", "headset-outline"],
+                      ["Get Help", "Review service cases", "headset-outline"],
                     ] as [string, string, IconName][]
                   ).map(([route, label, icon]) => (
                     <button
