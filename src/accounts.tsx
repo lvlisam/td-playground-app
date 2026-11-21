@@ -55,33 +55,25 @@ const accountCatalog: Omit<Account, 'name'>[] = [
 
 type AccountContextValue = {
   accounts: Account[];
-  renameAccount: (accountId: AccountId, name: string) => void;
-  updatePlan: (accountId: AccountId, plan: AccountPlan) => void;
+  edits: Record<string, Partial<Pick<Account, 'name' | 'plan'>>>;
+  renameAccount: (accountId: string, name: string) => void;
+  updatePlan: (accountId: string, plan: AccountPlan) => void;
 };
 
 const AccountContext = createContext<AccountContextValue | null>(null);
 
 export function AccountsProvider({ children }: { children: ReactNode }) {
-  const [nicknames, setNicknames] = useState<Record<AccountId, string>>({
-    checking: 'Everyday spending',
-    savings: 'Family getaway',
-    card: 'Travel & rewards',
-  });
-  const [plans, setPlans] = useState<Record<AccountId, AccountPlan | null>>(() => ({
-    checking: accountCatalog[0].plan,
-    savings: accountCatalog[1].plan,
-    card: accountCatalog[2].plan,
-  }));
-
-  const value = useMemo<AccountContextValue>(() => ({
-    accounts: accountCatalog.map((account) => ({ ...account, name: nicknames[account.id], plan: plans[account.id] })),
-    renameAccount: (accountId, name) => {
-      setNicknames((current) => ({ ...current, [accountId]: name }));
-    },
-    updatePlan: (accountId, plan) => {
-      setPlans((current) => ({ ...current, [accountId]: plan }));
-    },
-  }), [nicknames, plans]);
+  const { activeProfileId } = useDashboardProfile();
+  const [byProfile, setByProfile] = useState<Partial<Record<DashboardProfileId, AccountContextValue['edits']>>>({});
+  const value = useMemo<AccountContextValue>(() => {
+    const edits = byProfile[activeProfileId] ?? {};
+    const names = { checking: 'Everyday spending', savings: 'Family getaway', card: 'Travel & rewards' };
+    function patch(id: string, changes: Partial<Pick<Account, 'name' | 'plan'>>) {
+      setByProfile(current => ({ ...current, [activeProfileId]: { ...current[activeProfileId], [id]: { ...current[activeProfileId]?.[id], ...changes } } }));
+    }
+    return { edits, accounts: accountCatalog.map(a => ({ ...a, name: names[a.id], ...edits[a.id] })),
+      renameAccount: (id, name) => patch(id, { name }), updatePlan: (id, plan) => patch(id, { plan }) };
+  }, [activeProfileId, byProfile]);
 
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;
 }

@@ -10,6 +10,7 @@ import SendPayScreen from '../screens/SendPayScreen';
 import BenefitsScreen from '../screens/BenefitsScreen';
 import CardsScreen from '../screens/CardsScreen';
 import GetHelpScreen from '../screens/GetHelpScreen';
+import AskTediScreen from '../screens/AskTediScreen';
 import AccountServicingScreen from '../screens/AccountServicingScreen';
 import AccountSettingsScreen from '../screens/AccountSettingsScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
@@ -129,7 +130,8 @@ function formatColleagueMonthlySavings(value: number) {
 
 function ColleagueFinancialDetails({ profileId, onOpenPlans }: { profileId: ReturnType<typeof useDashboardProfile>['activeProfileId']; onOpenPlans: () => void }) {
   const { accounts } = useAccounts();
-  const customerAccounts = getDashboardAccounts(profileId, accounts);
+  const { edits } = useAccounts();
+  const customerAccounts = getDashboardAccounts(profileId, accounts).map(a => ({...a, ...edits[a.id]}));
   const savingsGoalAccount = customerAccounts.find((account) => account.plan?.kind === 'savings-goal');
   const savingsGoalPlan = savingsGoalAccount?.plan?.kind === 'savings-goal' ? savingsGoalAccount.plan : null;
   const goalProgress = savingsGoalPlan
@@ -469,6 +471,7 @@ export default function TabNavigator() {
                       tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'help-circle' : 'help-circle-outline'} focused={focused} />,
                     }}
                   />
+                  <Tab.Screen name="Ask Tedi" component={AskTediScreen} options={{tabBarButton: () => null}} />
                   <Tab.Screen
                     name="Account servicing"
                     component={AccountServicingScreen}
@@ -511,7 +514,7 @@ export default function TabNavigator() {
         )}
       </View>
       {showOmnichannelView ? (
-        <ColleagueConsole activeTab={activeTab} navigate={(route) => navigation.navigate(route)} companion={showCompanion} toggleCompanion={() => setShowCompanion(value => !value)} />
+        <ColleagueConsole activeTab={activeTab} navigate={(route, params) => navigation.navigate(route, params)} companion={showCompanion} toggleCompanion={() => setShowCompanion(value => !value)} />
       ) : null}
       </AccountsProvider>
       </View>

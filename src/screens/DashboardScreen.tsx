@@ -473,7 +473,8 @@ function FinancialHealthCard({ compact, view }: { compact: boolean; view: Dashbo
   const isBusiness = view === 'business';
   const isFamily = view === 'family';
   const isChildProfile = view === 'olivia' || view === 'noah';
-  const visibleAccounts = getDashboardAccounts(view, accounts);
+  const { edits } = useAccounts();
+  const visibleAccounts = getDashboardAccounts(view, accounts).map(a => ({ ...a, ...edits[a.id] }));
   const creditAccount = visibleAccounts.find((account) => account.id.endsWith('card'));
   const checkingAccount = visibleAccounts.find((account) => account.id.endsWith('checking'));
   const savingsGoal = view === 'jane' ? accounts.find((account) => account.id === 'savings')?.plan : null;
@@ -800,7 +801,8 @@ export function ColleagueHomeDetails({ profileId, onOpenPlans, onNavigate }: {
   onNavigate: (destination: DashboardRecommendation['destination']) => void;
 }) {
   const { accounts } = useAccounts();
-  const profileAccounts = getDashboardAccounts(profileId, accounts);
+  const { edits } = useAccounts();
+  const profileAccounts = getDashboardAccounts(profileId, accounts).map(a => ({ ...a, ...edits[a.id] }));
   const checkingBalance = parseDashboardAmount(profileAccounts.find((account) => account.id.endsWith('checking'))?.amount ?? '0');
   const creditBalance = Math.abs(parseDashboardAmount(profileAccounts.find((account) => account.id.endsWith('card'))?.amount ?? '0'));
   const savingsPlan = profileAccounts.find((account) => account.id === 'savings')?.plan;
@@ -959,6 +961,7 @@ export default function DashboardScreen() {
                 </View>
               </View>
               <View style={[styles.topActions, compact && styles.topActionsCompact]}>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Ask Tedi" onPress={() => navigation.navigate('Ask Tedi')} style={[styles.notificationButton, compact && styles.notificationButtonCompact]}><Ionicons name="sparkles-outline" size={19} color={colors.greenDeep}/></TouchableOpacity>
                 <TouchableOpacity
                   accessibilityRole="button"
                   accessibilityLabel="Notifications, 3 unread"

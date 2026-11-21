@@ -3,6 +3,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { dashboardProfileOptions, useDashboardProfile } from "../personas";
 import { useAccounts } from "../accounts";
 import { getDashboardAccounts } from "../screens/DashboardScreen";
+import TediMoveMoneyChat from './TediMoveMoneyChat';
+import ServicingDialog from './ServicingDialog';
 import { consoleStyles } from "./colleagueConsoleStyles";
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -52,13 +54,15 @@ export default function ColleagueConsole({
   toggleCompanion,
 }: {
   activeTab: string;
-  navigate: (route: string) => void;
+  navigate: (route: string, params?: {action: string}) => void;
   companion: boolean;
   toggleCompanion: () => void;
 }) {
   const { activeProfile: p, selectProfile } = useDashboardProfile();
-  const { accounts } = useAccounts();
-  const linked = getDashboardAccounts(p.id, accounts);
+  const { accounts, edits } = useAccounts();
+  const linked = getDashboardAccounts(p.id, accounts).map(a => ({ ...a, ...edits[a.id] }));
+  const [service, setService] = useState<{ profile: string; record: string } | null>(null);
+  const openService = (record: string) => setService({profile: p.id, record});
   const [detail, setDetail] = useState<"profile" | null>(null);
   const goal = linked.find((a) => a.plan?.kind === "savings-goal")?.plan;
   const title = headings[activeTab] ?? activeTab;
@@ -163,6 +167,7 @@ export default function ColleagueConsole({
             </small>
           </div>
           <strong>{a.amount}</strong>
+          <button aria-label={`Edit ${a.name}`} title={`Edit ${a.name}`} onClick={() => openService(a.id)}><Icon name="pencil-outline" size={16}/></button>
         </div>
       ))}
     </div>
@@ -170,11 +175,13 @@ export default function ColleagueConsole({
   return (
     <div className={`cc ${companion ? "paired" : ""}`}>
       <style>{consoleStyles}</style>
+      {service?.profile === p.id && <ServicingDialog accounts={linked} initialRecord={service.record} onClose={() => setService(null)} />}
       <header>
         <div className="cc-brand">
           <span>TD</span> Colleague <em>Workspace</em>
         </div>
         <div className="cc-tools">
+          <button onClick={() => go('Ask Tedi')}><Icon name="sparkles-outline" size={15}/>Ask Tedi</button>
           <button onClick={toggleCompanion} aria-pressed={companion}>
             <Icon name="phone-portrait-outline" size={15} />
             {companion ? "Hide customer view" : "Customer view"}
@@ -198,6 +205,7 @@ export default function ColleagueConsole({
                 {label}
               </button>
             ))}
+            <button onClick={() => openService('contact')}><Icon name="construct-outline" />Servicing</button>
           </nav>
           <div className="cc-foot">
             <Icon name="business-outline" />
@@ -266,9 +274,11 @@ export default function ColleagueConsole({
                 {p.contactEmail} · {p.contactPhone}
               </p>
               <p>{p.need}</p>
+              <button className="quick" onClick={() => openService('contact')}><Icon name="pencil-outline"/>Edit contact details</button>
             </section>
           )}
-          {activeTab === "Home" ? (
+          {(activeTab === 'Home' || activeTab === 'Ask Tedi') && <section className="cc-panel" style={{marginTop:16}}><div className="cc-eyebrow">TEDI · NEXT BEST ACTION</div><h3>{goal?.kind === 'savings-goal' ? 'Review the savings contribution' : 'Confirm contact details'}</h3><p>{goal?.kind === 'savings-goal' ? `Check whether the $${goal.monthlyContribution.toLocaleString()} monthly contribution still fits ${p.contactName}’s goal.` : `Confirm how ${p.contactName} prefers to be reached before following up.`}</p><button className="quick" onClick={()=>openService(linked.find(a=>a.plan?.kind==='savings-goal')?.id ?? 'contact')}>Review {goal ? 'savings plan' : 'contact details'}<Icon name="arrow-forward" size={15}/></button></section>}
+          {activeTab === 'Ask Tedi' ? <section className="cc-panel" style={{marginTop:16}}><TediMoveMoneyChat key={p.id} onSelectAction={action=>{if(!companion) toggleCompanion(); navigate('Pay & Transfer',{action});}}/></section> : activeTab === "Home" ? (
             <>
               <div className="cc-metrics">
                 {(

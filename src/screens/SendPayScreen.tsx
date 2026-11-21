@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigation, useRoute, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import {
   Alert, View, Text, TouchableOpacity, StyleSheet,
   ScrollView, StatusBar, TextInput, Platform, useWindowDimensions, Modal,
@@ -47,6 +48,14 @@ export default function SendPayScreen() {
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [actionStatus, setActionStatus] = useState('');
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const requested = (useRoute().params as {action?: string} | undefined)?.action;
+  useEffect(() => {
+    if (requested !== 'move' && requested !== 'bills' && requested !== 'send') return;
+    setActiveTab(requested === 'move' ? 'Move' : requested === 'bills' ? 'Pay Bill' : 'Send');
+    setSelectedContact(null); setAmount(''); setNote(''); setActionStatus(''); setShowConfirmation(false); setShowForm(true);
+    navigation.setParams({action: undefined});
+  }, [requested, navigation]);
   const visibleContacts = activeTab === 'Pay Bill' ? PAYEES : CONTACTS;
 
   const handleNumpad = (key: string) => {
@@ -63,7 +72,7 @@ export default function SendPayScreen() {
 
   const handleOverviewAction = (action: TransferAction) => {
     if (action === 'help') {
-      Alert.alert('Ask Tedi', 'Use the Ask Tedi field at the top to get help choosing the right money movement option.');
+      navigation.navigate('Get Help');
       return;
     }
     if (action === 'send' || action === 'wire') {

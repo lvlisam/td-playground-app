@@ -144,6 +144,7 @@ export const dashboardProfileOptions: DashboardProfile[] = [
 type DashboardProfileContextValue = {
   activeProfileId: DashboardProfileId;
   activeProfile: DashboardProfile;
+  updateContact: (email: string, phone: string) => void;
   selectProfile: (profileId: DashboardProfileId) => void;
 };
 
@@ -152,11 +153,13 @@ const DashboardProfileContext = createContext<DashboardProfileContextValue | nul
 export function DashboardProfileProvider({ children }: { children: ReactNode }) {
   const [activeProfileId, setActiveProfileId] = useState<DashboardProfileId>('jane');
 
+  const [contacts, setContacts] = useState<Partial<Record<DashboardProfileId, Pick<DashboardProfile, 'contactEmail' | 'contactPhone'>>>>({});
   const value = useMemo<DashboardProfileContextValue>(() => ({
     activeProfileId,
-    activeProfile: dashboardProfileOptions.find((profile) => profile.id === activeProfileId) ?? dashboardProfileOptions[0],
+    activeProfile: { ...(dashboardProfileOptions.find(profile => profile.id === activeProfileId) ?? dashboardProfileOptions[0]), ...contacts[activeProfileId] },
     selectProfile: setActiveProfileId,
-  }), [activeProfileId]);
+    updateContact: (contactEmail, contactPhone) => setContacts(current => ({...current, [activeProfileId]: {contactEmail, contactPhone}})),
+  }), [activeProfileId, contacts]);
 
   return <DashboardProfileContext.Provider value={value}>{children}</DashboardProfileContext.Provider>;
 }
