@@ -793,12 +793,20 @@ export default function TabNavigator() {
         )}
       </View>
       {showOmnichannelView ? (
-        <DesktopColleagueWorkspace
-          navigation={navigation}
-          activeTab={activeTab}
-          activeWorkspaceTab={activeWorkspaceTab}
-          onSelectWorkspaceTab={selectWorkspaceTab}
-        />
+        <View style={styles.desktopMonitorAssembly} accessibilityLabel="Desktop monitor">
+          <View style={styles.desktopMonitorFrame}>
+            <View style={styles.desktopMonitorScreen}>
+              <DesktopColleagueWorkspace
+                navigation={navigation}
+                activeTab={activeTab}
+                activeWorkspaceTab={activeWorkspaceTab}
+                onSelectWorkspaceTab={selectWorkspaceTab}
+              />
+            </View>
+          </View>
+          <View style={styles.desktopMonitorStand} />
+          <View style={styles.desktopMonitorBase} />
+        </View>
       ) : null}
       </AccountsProvider>
       </View>
@@ -820,6 +828,11 @@ const styles = StyleSheet.create({
   mobilePreviewBody: { flex: 1 },
   omnichannelDevice: { alignSelf: 'center' },
   desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 5 },
+  desktopMonitorAssembly: { flex: 1, minWidth: 0, minHeight: 0, alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10 },
+  desktopMonitorFrame: { flex: 1, width: '100%', minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
+  desktopMonitorScreen: { flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', borderRadius: 10, backgroundColor: frameColors.white },
+  desktopMonitorStand: { width: 56, height: 24, backgroundColor: frameColors.bezel },
+  desktopMonitorBase: { width: 142, height: 8, borderRadius: radius.full, backgroundColor: frameColors.bezel },
   desktopWorkspaceBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 10, padding: 12, backgroundColor: colors.bg },
   workspaceContactPanel: { width: 200, flexShrink: 0, alignSelf: 'stretch', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: frameColors.white, gap: 12 },
   workspaceContactHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
