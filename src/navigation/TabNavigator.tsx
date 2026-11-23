@@ -356,6 +356,7 @@ export default function TabNavigator() {
       ? Math.min(deviceWidth / 0.47, height - 24)
       : deviceWidth / 0.47
     : height;
+  const pairedPhoneScale = Math.min(1, width * 0.23 / deviceWidth, (height - 52) * 0.85 / deviceHeight);
   return (
     <View style={[styles.stage, showDeviceFrame && styles.previewStage, showOmnichannelView && styles.desktopWorkspaceStage]}>
       {showDeviceFrame && !showOmnichannelView && (
@@ -375,7 +376,12 @@ export default function TabNavigator() {
       {(!showOmnichannelView || showCustomerView) && <View
         style={[
           styles.device,
-          showOmnichannelView && styles.omnichannelDevice,
+          showOmnichannelView && {
+            alignSelf: 'center',
+            transform: [{ scale: pairedPhoneScale }],
+            // Transforms do not change the flex footprint; give the freed width to the monitor.
+            marginHorizontal: 12 - deviceWidth * (1 - pairedPhoneScale) / 2,
+          },
           !frame && styles.nativeDevice,
           frame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
 
@@ -519,7 +525,7 @@ export default function TabNavigator() {
       </View>}
       {showOmnichannelView && (
         <View style={styles.desktopMonitorAssembly}>
-          <View style={styles.desktopMonitorFrame}>
+          <View style={[styles.desktopMonitorFrame, showCustomerView && styles.pairedMonitorFrame]}>
             <View style={styles.desktopMonitorScreen}>
               <ColleagueConsole activeTab={colleagueTab} navigate={setColleagueTab} paired={showCustomerView} toggleCustomerView={() => setShowCustomerView(visible => !visible)} />
             </View>
@@ -546,7 +552,7 @@ const styles = StyleSheet.create({
   desktopPreviewBody: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
   desktopFullPreview: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'flex-start' },
   mobilePreviewBody: { flex: 1 },
-  omnichannelDevice: { alignSelf: 'center', marginHorizontal: 12 },
+  pairedMonitorFrame: { aspectRatio: 4 / 3 },
   desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 3 },
   desktopMonitorAssembly: { flex: 1, minWidth: 0, minHeight: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10 },
   desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 10, flexShrink: 1, minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
