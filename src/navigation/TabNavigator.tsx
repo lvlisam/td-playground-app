@@ -342,17 +342,18 @@ export default function TabNavigator() {
   const { authFlowVisible } = useAuth();
   const [activeTab, setActiveTab] = React.useState('Home');
   const [colleagueTab, setColleagueTab] = React.useState('Home');
+  const [showCustomerView, setShowCustomerView] = React.useState(false);
   const showDeviceFrame = Platform.OS === 'web' && width >= 650;
   const showOmnichannelView = Platform.OS === 'web' && width >= 900;
   const frame = showDeviceFrame;
   const deviceWidth = showDeviceFrame
     ? showOmnichannelView
-      ? Math.min(270, width * 0.28, Math.max(300, height - 120) * 0.46)
+      ? Math.min(390, Math.max(320, width * 0.3), Math.max(320, height - 40) * 0.5 + 24)
       : Math.min(390, width - 32, Math.max(320, height - 104) * 0.47)
     : width;
   const deviceHeight = showDeviceFrame
     ? showOmnichannelView
-      ? Math.min(deviceWidth / 0.47, Math.max(320, height - 120))
+      ? Math.min(deviceWidth / 0.47, height - 24)
       : deviceWidth / 0.47
     : height;
   return (
@@ -370,11 +371,11 @@ export default function TabNavigator() {
       )}
       <View style={showOmnichannelView ? styles.desktopFullPreview : showDeviceFrame ? styles.desktopPreviewBody : styles.mobilePreviewBody}>
       <AccountsProvider><HouseholdActivityProvider>
-      {showOmnichannelView ? <ColleagueConsole activeTab={colleagueTab} navigate={setColleagueTab} /> : <>
       {showDeviceFrame && !showOmnichannelView && <DesktopNavigationMenu navigation={navigation} activeTab={activeTab} />}
-      <View
+      {(!showOmnichannelView || showCustomerView) && <View
         style={[
           styles.device,
+          showOmnichannelView && styles.omnichannelDevice,
           !frame && styles.nativeDevice,
           frame && { flexGrow: 0, flexShrink: 0, flexBasis: deviceWidth, width: deviceWidth, height: deviceHeight },
 
@@ -515,8 +516,8 @@ export default function TabNavigator() {
             <View pointerEvents="none" accessible={false} style={styles.homeIndicator} />
           </>
         )}
-      </View>
-      </>}
+      </View>}
+      {showOmnichannelView && <ColleagueConsole activeTab={colleagueTab} navigate={setColleagueTab} paired={showCustomerView} toggleCustomerView={() => setShowCustomerView(visible => !visible)} />}
       </HouseholdActivityProvider></AccountsProvider>
       </View>
     </View>
@@ -535,7 +536,7 @@ const styles = StyleSheet.create({
   desktopPreviewBody: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
   desktopFullPreview: { flex: 1, width: '100%', minHeight: 0, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'flex-start' },
   mobilePreviewBody: { flex: 1 },
-  omnichannelDevice: { alignSelf: 'center' },
+  omnichannelDevice: { alignSelf: 'center', marginHorizontal: 12 },
   desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 3 },
   desktopMonitorAssembly: { flex: 1, minWidth: 0, minHeight: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10 },
   desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 10, maxHeight: '100%', minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },

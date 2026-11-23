@@ -73,7 +73,11 @@ function ChannelArt() {
 export default function ColleagueConsole({
   activeTab,
   navigate,
+  paired,
+  toggleCustomerView,
 }: {
+  paired: boolean;
+  toggleCustomerView: () => void;
   activeTab: string;
   navigate: (route: string) => void;
 }) {
@@ -181,7 +185,7 @@ export default function ColleagueConsole({
     </div>
   );
   return (
-    <div className="cc">
+    <div className={paired ? 'cc paired' : 'cc'}>
       <style>{consoleStyles}</style>
       {selected && <AccountDetails account={selected} activity={history} onClose={()=>setSelection(null)}/>}
       {service?.profile === p.id && <ServicingDialog accounts={linked} initialRecord={service.record} onClose={() => setService(null)} />}
@@ -190,6 +194,7 @@ export default function ColleagueConsole({
           <span>TD</span> Colleague <em>Workspace</em>
         </div>
         <div className="cc-tools">
+          <button type="button" aria-pressed={paired} onClick={toggleCustomerView}><Icon name="phone-portrait-outline" size={16}/>Customer view</button>
           <button onClick={() => go('Ask Tedi')}><Icon name="sparkles-outline" size={15}/>Ask Tedi</button>
 
           <span className="cc-agent" aria-label="Colleague">
@@ -204,6 +209,7 @@ export default function ColleagueConsole({
             {destinations.map(([r, label, icon]) => (
               <button
                 key={r}
+                title={label}
                 aria-current={r === activeTab ? "page" : undefined}
                 onClick={() => go(r)}
               >
