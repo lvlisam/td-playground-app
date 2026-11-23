@@ -517,7 +517,17 @@ export default function TabNavigator() {
           </>
         )}
       </View>}
-      {showOmnichannelView && <ColleagueConsole activeTab={colleagueTab} navigate={setColleagueTab} paired={showCustomerView} toggleCustomerView={() => setShowCustomerView(visible => !visible)} />}
+      {showOmnichannelView && (
+        <View style={styles.desktopMonitorAssembly}>
+          <View style={styles.desktopMonitorFrame}>
+            <View style={styles.desktopMonitorScreen}>
+              <ColleagueConsole activeTab={colleagueTab} navigate={setColleagueTab} paired={showCustomerView} toggleCustomerView={() => setShowCustomerView(visible => !visible)} />
+            </View>
+          </View>
+          <View aria-hidden style={styles.desktopMonitorStand} />
+          <View aria-hidden style={styles.desktopMonitorBase} />
+        </View>
+      )}
       </HouseholdActivityProvider></AccountsProvider>
       </View>
     </View>
@@ -539,7 +549,7 @@ const styles = StyleSheet.create({
   omnichannelDevice: { alignSelf: 'center', marginHorizontal: 12 },
   desktopMenu: { width: 56, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.borderFaint, backgroundColor: frameColors.white, gap: 3 },
   desktopMonitorAssembly: { flex: 1, minWidth: 0, minHeight: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10 },
-  desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 10, maxHeight: '100%', minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
+  desktopMonitorFrame: { width: '100%', aspectRatio: 16 / 10, flexShrink: 1, minWidth: 0, minHeight: 0, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: colors.textTertiary, backgroundColor: frameColors.bezel },
   desktopMonitorScreen: { flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', borderRadius: 10, backgroundColor: frameColors.white },
   desktopMonitorStand: { width: 56, height: 24, backgroundColor: frameColors.bezel },
   desktopMonitorBase: { width: 142, height: 8, borderRadius: radius.full, backgroundColor: frameColors.bezel },
