@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { dashboardProfileOptions, useDashboardProfile } from "../personas";
+import { type DashboardProfileId, useDashboardProfile } from "../personas";
+import JourneyContext from './JourneyContext';
 import { useAccounts } from "../accounts";
 import { getDashboardAccounts, getTransactionsForProfile } from "../screens/DashboardScreen";
 import CustomerRecord from './CustomerRecord';
@@ -81,7 +82,8 @@ export default function ColleagueConsole({
   activeTab: string;
   navigate: (route: string) => void;
 }) {
-  const { activeProfile: p, selectProfile } = useDashboardProfile();
+  const { activeProfile: p } = useDashboardProfile();
+  const [present, setPresent] = useState<DashboardProfileId[]>(['jane']);
   const { accounts, edits } = useAccounts();
   const linked = getDashboardAccounts(p.id, accounts).map(a => ({ ...a, ...edits[a.id] }));
   const [service, setService] = useState<{ profile: string; record: string } | null>(null);
@@ -242,7 +244,8 @@ export default function ColleagueConsole({
             </label>
           </div>
           {activeTab === 'Get Help' && <ServiceCases rep />}
-          {activeTab === 'Home' && <section className="cc-snapshot" aria-label="Customer snapshot">
+          {activeTab === 'Home' && <JourneyContext present={present} setPresent={setPresent} />}
+          {activeTab === 'Home' && <section id="cc-profile-snapshot" role="tabpanel" aria-labelledby={`cc-tab-${p.id}`} className="cc-snapshot">
             <div className="cc-hero">
             <div className="cc-hero-copy">
               <div className="cc-eyebrow">CUSTOMER SNAPSHOT</div>
@@ -261,7 +264,6 @@ export default function ColleagueConsole({
                 <Icon name="arrow-forward" size={15} />
               </button>
             </div>
-            <div className="cc-profile-picker"><label htmlFor="cc-persona">Customer profile</label><select id="cc-persona" value={p.id} onChange={e => selectProfile(dashboardProfileOptions.find(option => option.id === e.target.value)!.id)}>{dashboardProfileOptions.map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div>
             </div>
             <div className="cc-brief">
               <div className="cc-priority"><span className="cc-eyebrow">CUSTOMER PRIORITY</span><p>{p.need}</p><div className="visit-opener"><span className="cc-eyebrow">ASK DURING THE VISIT</span><p>“{conversationStarters[p.id]}”</p></div></div>
